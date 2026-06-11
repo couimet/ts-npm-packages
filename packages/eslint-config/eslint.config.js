@@ -6,6 +6,7 @@ import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
+import globals from 'globals';
 
 export default [
   {
@@ -17,10 +18,7 @@ export default [
       parser: tsParser,
       ecmaVersion: 2022,
       sourceType: 'module',
-      globals: {
-        node: true,
-        browser: true,
-      },
+      globals: { ...globals.node, ...globals.browser },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
