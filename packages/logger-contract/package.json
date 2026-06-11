@@ -13,13 +13,21 @@
   },
   "license": "MIT",
   "author": "Charles Ouimet <charles.ouimet@gmail.com>",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsup",
     "clean": "rm -rf dist coverage *.tsbuildinfo",
     "clean:all": "pnpm clean && rm -rf node_modules .eslintcache *.log",
     "clean:deps": "rm -rf node_modules",
@@ -44,6 +52,7 @@
     "prettier": "^3.8.4",
     "prettier-plugin-packagejson": "^3.0.2",
     "ts-jest": "^29.4.11",
+    "tsup": "^8.5.1",
     "typescript": "^6.0.3"
   },
   "publishConfig": {

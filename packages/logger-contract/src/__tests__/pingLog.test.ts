@@ -43,7 +43,12 @@ describe('pingLog', () => {
   });
 
   it('should use the current logger from LogManager', () => {
-    const firstLogger = { ...mockLogger }; // Use mockLogger for first
+    const firstLogger: Logger = {
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
     const secondLogger: Logger = {
       debug: jest.fn(),
       info: jest.fn(),
@@ -64,8 +69,9 @@ describe('pingLog', () => {
 
     // Verify second logger was used (not first)
     expect(secondLogger.debug).toHaveBeenCalledWith({ fn: 'pingLog' }, 'Ping for DEBUG');
-    // First logger should not have been called again
-    expect(firstLogger.debug).toHaveBeenCalledTimes(2); // Only initial call from setLogger + pingLog
+    // Both loggers received independent calls
+    expect(firstLogger.debug).toHaveBeenCalledTimes(2); // setLogger + pingLog
+    expect(secondLogger.debug).toHaveBeenCalledTimes(2); // setLogger + pingLog
   });
 
   it('should work with NoOpLogger without errors', () => {

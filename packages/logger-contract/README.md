@@ -20,10 +20,10 @@ The package has zero runtime dependencies and ships only type definitions and a 
 
 ```typescript
 interface Logger {
-  debug(context: LoggingContext, message: string): void;
-  info(context: LoggingContext, message: string): void;
-  warn(context: LoggingContext, message: string): void;
-  error(context: LoggingContext, message: string): void;
+  debug(ctx: LoggingContext, message: string): void;
+  info(ctx: LoggingContext, message: string): void;
+  warn(ctx: LoggingContext, message: string): void;
+  error(ctx: LoggingContext, message: string): void;
 }
 ```
 
