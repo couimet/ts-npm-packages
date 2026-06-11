@@ -49,4 +49,3 @@ Or in a `.prettierrc`:
 ```json
 "@couimet/eslint-config/prettier"
 ```
-
