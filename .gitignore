@@ -1,0 +1,11 @@
+.history
+
+# Claude skill working directories
+.claude-work/
+
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+coverage/
+.DS_Store
