@@ -1,0 +1,82 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch to publish from
+        required: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build and test
+        run: pnpm build && pnpm test
+
+      - name: Publish packages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+
+          is_main="${{ github.ref == 'refs/heads/main' }}"
+
+          if [[ "$is_main" == "true" ]]; then
+            pnpm changeset publish
+          else
+            output=$(pnpm changeset publish --no-git-tag 2>&1)
+            rc=$?
+            echo "$output"
+
+            if [[ $rc -ne 0 ]]; then
+              echo "Publish command failed with exit code ${rc}"
+              exit $rc
+            fi
+
+            if echo "$output" | grep -q "No unpublished projects to publish"; then
+              echo "No packages were published. This workflow was run manually — expected at least one publish."
+              exit 1
+            fi
+
+            echo "$output" | grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' | sort -u | while read -r spec; do
+              echo "Tagging ${spec} as dev"
+              npm dist-tag add "$spec" dev
+            done
+          fi
+
+      - name: Push git tags
+        if: github.ref == 'refs/heads/main'
+        run: git push --tags origin

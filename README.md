@@ -12,6 +12,10 @@ A monorepo for a curated family of small TypeScript packages published under the
 | `@couimet/logger-contract`         | Minimal logger interface contract — libraries depend on this without committing consumers to any logging framework. |
 | `@couimet/logger-contract-testing` | Test mocks and helpers for the logger contract.                                                                     |
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full Changesets workflow, pre-release publishing, and the package scaffolding script.
+
 ## Planning history
 
 - [2026-06-08 — monorepo research](docs/planning/2026-06-08-monorepo-research.md): tooling rationale, package inventory, naming, publishing flow, branch protection plan.
