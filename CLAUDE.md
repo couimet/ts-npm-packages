@@ -24,7 +24,7 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 - Node 24+ (pinned in `.nvmrc`), pnpm 11+ (pinned in `packageManager` in `package.json`).
 - `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck` delegate to Turborepo from the root scripts.
 - New packages start at `version: 1.0.0`, MIT license, `publishConfig.access: public`, author `Charles Ouimet <charles.ouimet@gmail.com>`.
-- `tsconfig.json` extends `../../tsconfig.base.json` with composite + CommonJS module.
+- `tsconfig.json` extends `../../tsconfig.base.json` and sets `rootDir` and `outDir`.
 - Flat ESLint config (`eslint.config.mjs`) imports from `@couimet/eslint-config/eslint`.
 - Pretty print width is 160 (`.prettierrc` or equivalent in `@couimet/eslint-config`).
 

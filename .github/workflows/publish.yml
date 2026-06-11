@@ -56,7 +56,13 @@ jobs:
             pnpm changeset publish
           else
             output=$(pnpm changeset publish --no-git-tag 2>&1)
+            rc=$?
             echo "$output"
+
+            if [[ $rc -ne 0 ]]; then
+              echo "Publish command failed with exit code ${rc}"
+              exit $rc
+            fi
 
             if echo "$output" | grep -q "No unpublished projects to publish"; then
               echo "No packages were published. This workflow was run manually — expected at least one publish."
