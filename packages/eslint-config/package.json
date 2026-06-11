@@ -15,6 +15,7 @@
     "prettier.js"
   ],
   "scripts": {
+    "format": "prettier --check .",
     "lint": "eslint ."
   },
   "devDependencies": {

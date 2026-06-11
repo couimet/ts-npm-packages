@@ -1,6 +1,6 @@
 # Monorepo for public npm packages: research and plan
 
-*Original research: 2026-06-08. Trimmed 2026-06-10 once the foundational decisions (repo name, npm scope, package renames) landed; this file remains the broad-context reference. For actionable status see [2026-06-10-bootstrap-plan.md](./2026-06-10-bootstrap-plan.md).*
+_Original research: 2026-06-08. Trimmed 2026-06-10 once the foundational decisions (repo name, npm scope, package renames) landed; this file remains the broad-context reference. For actionable status see [2026-06-10-bootstrap-plan.md](./2026-06-10-bootstrap-plan.md)._
 
 ## Trigger
 
@@ -35,7 +35,7 @@ pnpm workspaces + Turborepo + Changesets. Same stack I've successfully used in a
 **`barebone-logger-testing`** (from rangeLink)
 
 - Source: [github.com/couimet/rangeLink/tree/main/packages/barebone-logger-testing](https://github.com/couimet/rangeLink/tree/main/packages/barebone-logger-testing).
-- Dependencies: only `barebone-logger` (workspace:*).
+- Dependencies: only `barebone-logger` (workspace:\*).
 - Already MIT-licensed.
 - Contains: test mocks for the logger contract.
 - Changes needed: rename to `@couimet/logger-contract-testing`, update the workspace dep to `@couimet/logger-contract`, update URLs.
