@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Test
+        run: pnpm test
+
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Format
+        run: pnpm format
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+
+  guard-versions:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Block pre-release versions on main
+        shell: bash
+        run: |
+          set +e
+          had_errors=0
+
+          target_ref="${{ github.event.pull_request.base.sha }}"
+          head_ref="${{ github.event.pull_request.head.sha }}"
+          changed_files=$(git diff --name-only "${target_ref}...${head_ref}")
+
+          # Check 1: no pre-release versions in package.json files
+          echo "::group::Checking package.json version fields"
+          pkg_jsons=$(echo "$changed_files" | grep 'packages/.*/package.json$' || true)
+          if [[ -n "$pkg_jsons" ]]; then
+            while IFS= read -r file; do
+              ver=$(jq -r '.version // empty' "$file")
+              if [[ -n "$ver" ]] && echo "$ver" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-.+'; then
+                echo "::error file=${file}::Pre-release version '${ver}' found in ${file}. Use a stable semver (x.y.z) for main branch PRs."
+                had_errors=1
+              fi
+            done <<< "$pkg_jsons"
+          fi
+          echo "::endgroup::"
+
+          # Check 2: no pre-release versions in changeset files
+          echo "::group::Checking changeset version entries"
+          changesets=$(echo "$changed_files" | grep '\.changeset/.*\.md$' || true)
+          if [[ -n "$changesets" ]]; then
+            while IFS= read -r cs_file; do
+              # Extract quoted version strings from the changeset frontmatter
+              prerelease_lines=$(grep -E '"[^"]+":\s*"[^"]*-[^"]+"' "$cs_file" || true)
+              if [[ -n "$prerelease_lines" ]]; then
+                while IFS= read -r bad_line; do
+                  echo "::error file=${cs_file}::Pre-release version entry in changeset: ${bad_line}"
+                done <<< "$prerelease_lines"
+                had_errors=1
+              fi
+            done <<< "$changesets"
+          fi
+          echo "::endgroup::"
+
+          # Check 3: no .changeset/pre.json
+          echo "::group::Checking for pre-release mode config"
+          if echo "$changed_files" | grep -q '\.changeset/pre\.json'; then
+            echo "::error file=.changeset/pre.json::pre.json must not be merged to main. Exit pre-release mode first."
+            had_errors=1
+          fi
+          if [[ -f .changeset/pre.json ]]; then
+            echo "::error file=.changeset/pre.json::pre.json is present in the working tree. Remove it before merging to main."
+            had_errors=1
+          fi
+          echo "::endgroup::"
+
+          if [[ "$had_errors" -ne 0 ]]; then
+            echo ""
+            echo "Pre-release versions are not allowed in main-branch PRs."
+            echo "Feature branches: use 'pnpm changeset pre enter <tag>' for pre-release testing, then 'pnpm changeset pre exit' and clean up changelogs before merging."
+            exit 1
+          fi
