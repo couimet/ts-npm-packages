@@ -1,5 +1,7 @@
 # ts-npm-packages
 
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE) ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/couimet/ts-npm-packages?label=CodeRabbit+Reviews)
+
 A monorepo for a curated family of small TypeScript packages published under the [`@couimet`](https://www.npmjs.com/~couimet) scope on npm. Scaffold, tooling, and the first packages land in subsequent issues; see the planning docs below for the full plan and rationale.
 
 ## Planned packages
