@@ -1,6 +1,6 @@
 # ts-npm-packages monorepo: bootstrap plan and status
 
-*Snapshot: 2026-06-10. Companion to [2026-06-08-monorepo-research.md](./2026-06-08-monorepo-research.md), which holds the broader context and tooling rationale.*
+_Snapshot: 2026-06-10. Companion to [2026-06-08-monorepo-research.md](./2026-06-08-monorepo-research.md), which holds the broader context and tooling rationale._
 
 ## Status
 
@@ -34,16 +34,16 @@ Tooling decision (from the research note): pnpm workspaces + Turborepo + Changes
 
 Eight bootstrap issues filed in order, with dependency edges encoded in each body:
 
-| # | Title | Labels |
-|---|---|---|
-| [#1](https://github.com/couimet/ts-npm-packages/issues/1) | chore: import founding planning docs into `docs/planning/` | `documentation`, `chore` |
-| [#2](https://github.com/couimet/ts-npm-packages/issues/2) | feat: bootstrap pnpm workspaces + Turborepo + Changesets | `infra`, `enhancement` |
-| [#3](https://github.com/couimet/ts-npm-packages/issues/3) | feat: add `@couimet/logger-contract` | `package`, `migration` |
-| [#4](https://github.com/couimet/ts-npm-packages/issues/4) | feat: add `@couimet/logger-contract-testing` | `package`, `migration` |
-| [#5](https://github.com/couimet/ts-npm-packages/issues/5) | feat: add `@couimet/execution-context` | `package`, `new-package` |
-| [#6](https://github.com/couimet/ts-npm-packages/issues/6) | discussion: final name for the axios interceptor package | `discussion`, `naming` |
-| [#7](https://github.com/couimet/ts-npm-packages/issues/7) | feat: add the axios interceptor for execution-context propagation | `package`, `new-package` |
-| [#8](https://github.com/couimet/ts-npm-packages/issues/8) | infra: GitHub Actions workflows for PR checks and Changesets publish | `infra`, `ci` |
+| #                                                         | Title                                                                | Labels                   |
+| --------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------ |
+| [#1](https://github.com/couimet/ts-npm-packages/issues/1) | chore: import founding planning docs into `docs/planning/`           | `documentation`, `chore` |
+| [#2](https://github.com/couimet/ts-npm-packages/issues/2) | feat: bootstrap pnpm workspaces + Turborepo + Changesets             | `infra`, `enhancement`   |
+| [#3](https://github.com/couimet/ts-npm-packages/issues/3) | feat: add `@couimet/logger-contract`                                 | `package`, `migration`   |
+| [#4](https://github.com/couimet/ts-npm-packages/issues/4) | feat: add `@couimet/logger-contract-testing`                         | `package`, `migration`   |
+| [#5](https://github.com/couimet/ts-npm-packages/issues/5) | feat: add `@couimet/execution-context`                               | `package`, `new-package` |
+| [#6](https://github.com/couimet/ts-npm-packages/issues/6) | discussion: final name for the axios interceptor package             | `discussion`, `naming`   |
+| [#7](https://github.com/couimet/ts-npm-packages/issues/7) | feat: add the axios interceptor for execution-context propagation    | `package`, `new-package` |
+| [#8](https://github.com/couimet/ts-npm-packages/issues/8) | infra: GitHub Actions workflows for PR checks and Changesets publish | `infra`, `ci`            |
 
 Dependency graph:
 

@@ -12,7 +12,7 @@ pnpm add @couimet/logger-contract
 
 `@couimet/logger-contract` defines a `Logger` interface, a no-op default, and a global registry. It is the single package in the dependency tree that knows what log levels and what context shape exist. Every concrete logger (console-based, structured, test-double) implements the same contract, so code that logs never couples to a specific implementation.
 
-The package has zero runtime dependencies and ships only type definitions and a handful of functions.
+The package has zero runtime dependencies and ships the `Logger` interface, `LoggingContext` type, `NoOpLogger` class, a global registry (`setLogger`/`getLogger`), and `pingLog`.
 
 ## API
 

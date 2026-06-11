@@ -58,4 +58,19 @@ describe('LogManager', () => {
     // Reset to default
     setLogger(new NoOpLogger());
   });
+
+  it('should preserve the existing logger if the new logger probe throws', () => {
+    const currentLogger = getLogger();
+    const brokenLogger: Logger = {
+      debug: () => {
+        throw new Error('Logger is broken');
+      },
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
+
+    expect(() => setLogger(brokenLogger)).toThrow('Logger is broken');
+    expect(getLogger()).toBe(currentLogger);
+  });
 });

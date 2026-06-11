@@ -17,9 +17,9 @@ let logger: Logger = new NoOpLogger();
  * @param newLogger The logger implementation to use
  */
 export function setLogger(newLogger: Logger): void {
+  // Probe before assigning so a broken logger doesn't poison global state
+  newLogger.debug({ fn: 'setLogger' }, 'Logger initialized');
   logger = newLogger;
-  // Confirm communication channel works immediately
-  logger.debug({ fn: 'setLogger' }, 'Logger initialized');
 }
 
 /**

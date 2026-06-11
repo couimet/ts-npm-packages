@@ -18,7 +18,7 @@
     "clean": "turbo run clean",
     "clean:all": "turbo run clean:all",
     "clean:deps": "turbo run clean:deps",
-    "format": "turbo run format",
+    "format": "prettier --check . && turbo run format",
     "lint": "turbo run lint",
     "prepare": "husky",
     "release": "turbo run build && changeset publish",
