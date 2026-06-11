@@ -1,35 +1,50 @@
 {
   "name": "ts-npm-packages",
   "private": true,
-  "packageManager": "pnpm@11.5.3+sha512.7ac1c919341c213a34dc0d02afb7143c5c26ac26ee8c4782deea821b8ac64d2134a081fd8941dae6e29bbb48f58dfc2b7fbceeccc07cb2f09d219d342a4969ed",
-  "engines": {
-    "node": ">=24"
-  },
-  "scripts": {
-    "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean",
-    "clean:all": "turbo run clean:all",
-    "clean:deps": "turbo run clean:deps",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+  "homepage": "https://github.com/couimet/ts-npm-packages#readme",
+  "bugs": {
+    "url": "https://github.com/couimet/ts-npm-packages/issues"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:couimet/ts-npm-packages.git"
   },
-  "author": "Charles Ouimet <charles.ouimet@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/couimet/ts-npm-packages/issues"
+  "author": "Charles Ouimet <charles.ouimet@gmail.com>",
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "changeset": "changeset",
+    "clean": "turbo run clean",
+    "clean:all": "turbo run clean:all",
+    "clean:deps": "turbo run clean:deps",
+    "lint": "turbo run lint",
+    "prepare": "husky",
+    "release": "turbo run build && changeset publish",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "version-packages": "changeset version"
   },
-  "homepage": "https://github.com/couimet/ts-npm-packages#readme",
+  "lint-staged": {
+    "*.{js,ts,mjs,cjs}": [
+      "pnpm exec eslint --fix",
+      "pnpm exec prettier --write"
+    ],
+    "*.{json,md,yaml,yml}": "pnpm exec prettier --write"
+  },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
+    "@couimet/eslint-config": "workspace:*",
+    "eslint": "^10.4.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.4",
+    "prettier-plugin-packagejson": "^3.0.2",
     "turbo": "^2.9.17",
     "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@11.5.3+sha512.7ac1c919341c213a34dc0d02afb7143c5c26ac26ee8c4782deea821b8ac64d2134a081fd8941dae6e29bbb48f58dfc2b7fbceeccc07cb2f09d219d342a4969ed",
+  "engines": {
+    "node": ">=24"
   }
 }
