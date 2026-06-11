@@ -1,0 +1,40 @@
+{
+  "name": "@couimet/eslint-config",
+  "version": "0.1.0",
+  "description": "Shared ESLint (flat config) and Prettier configuration for @couimet/* packages",
+  "type": "module",
+  "files": ["eslint.config.js", "prettier.js"],
+  "exports": {
+    ".": "./eslint.config.js",
+    "./eslint": "./eslint.config.js",
+    "./prettier": "./prettier.js"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "author": "Charles Ouimet <charles.ouimet@gmail.com>",
+  "peerDependencies": {
+    "eslint": "^10.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "prettier": "^3.0.0",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-unused-imports": "^4.4.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-prettier": "^5.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "prettier": "^3.0.0",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-unused-imports": "^4.4.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-prettier": "^5.5.0"
+  }
+}
