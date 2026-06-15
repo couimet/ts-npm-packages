@@ -42,6 +42,28 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Guard real code changes (pre-release)
+        if: github.ref != 'refs/heads/main'
+        shell: bash
+        run: |
+          git fetch origin main --depth=20 --quiet
+
+          real_changes=$(git diff --name-only origin/main...HEAD \
+            | grep -v '^\.changeset/' \
+            | grep -v '/package\.json$' \
+            | grep -v '^package\.json$' \
+            || true)
+
+          if [[ -z "$real_changes" ]]; then
+            echo "::error::Pre-release publish requires real code changes. Only changeset files and version bumps were modified."
+            echo ""
+            echo "At least one source file must change for a pre-release publish."
+            exit 1
+          fi
+
+          echo "Real code changes found:"
+          echo "$real_changes"
+
       - name: Build and test
         run: pnpm build && pnpm test
 

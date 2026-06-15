@@ -1,6 +1,6 @@
 {
   "name": "@couimet/logger-contract",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Logger interface contract — libraries depend on this without committing consumers to any logging framework",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract#readme",
   "bugs": {

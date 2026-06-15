@@ -1,6 +1,6 @@
 {
   "name": "@couimet/logger-contract-testing",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Zero-setup mock-logger factories for tests written against @couimet/logger-contract",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract-testing#readme",
   "bugs": {

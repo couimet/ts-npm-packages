@@ -18,6 +18,8 @@ Each package lives under `packages/<name>/` and publishes under the `@couimet` s
 
 ## Proposing a version change
 
+This section covers the stable release flow (changeset → PR → merge to main → auto-publish). If you need to test a package in a downstream repo before merging, skip ahead to the [pre-release flow](#testing-a-branch-end-to-end-before-merging) and use `/publish-prerelease-prepare` + `/publish-prerelease-publish` instead.
+
 When your PR should trigger a release, create a changeset at the repo root:
 
 ```bash
@@ -37,39 +39,50 @@ This drops a markdown file into `.changeset/`. Commit it alongside your code cha
 Before merging, run:
 
 ```bash
-pnpm changeset version
+pnpm version:packages
 ```
 
-This consumes every pending changeset and writes the corresponding version bumps into `package.json` files and `CHANGELOG.md` entries. Commit the results.
+This consumes every pending changeset and writes the corresponding version bumps into `package.json` files and `CHANGELOG.md` entries. Commit the results. To check all package versions at a glance, run `pnpm version:list`.
 
 ## Testing a branch end-to-end before merging
 
-Changesets supports a pre-release mode for intermediate publishes so you can test a package in downstream repos without merging first. The flow:
+Changesets supports a pre-release mode for intermediate publishes so you can test a package in downstream repos without merging first.
 
-1. **Enter pre-release mode** — pick a short tag that identifies your branch (e.g. `alpha`, `rc`, or an issue slug):
+The recommended approach uses two Claude Code skills:
+
+- `/publish-prerelease-prepare` — interviews you for the tag, packages, and bump type, then runs the full sequence locally (enter pre-release mode, create changeset, bump versions, commit). Idempotent — safe to re-run.
+- `/publish-prerelease-publish` — pushes your branch and prints the workflow dispatch link. CI handles the actual npm publish using the `NPM_TOKEN` secret; your laptop never sees the token.
+
+No PR is needed for a pre-release publish. Push the feature branch to remote, then manually trigger the Publish workflow from that branch.
+
+If you prefer to run the steps by hand:
+
+1. **Enter pre-release mode** — pick a short tag that identifies your branch (e.g. `alpha`, `beta`, `rc`):
 
    ```bash
-   pnpm changeset pre enter <tag>
+   pnpm changeset:pre-alpha
    ```
+
+   Or use `pnpm changeset pre enter <tag>` for a custom tag. All three shortcut scripts (`changeset:pre-alpha`, `changeset:pre-beta`, `changeset:pre-exit`) refuse to run on `main` via the `guard:not-main` check.
 
 2. **Make changes and add changesets** as usual (`pnpm changeset`).
 
 3. **Apply the pre-release versions**:
 
    ```bash
-   pnpm changeset version
+   pnpm version:packages
    ```
 
-   This produces versions like `1.0.1-<tag>.0`. Commit the results.
+   This produces versions like `1.0.1-<tag>.0`. Verify with `pnpm version:list`. Commit the results.
 
-4. **Publish the test version** — go to the [Publish workflow](https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml), select **Run workflow**, and set the branch to your PR branch. The workflow publishes with the npm `dev` dist-tag.
+4. **Publish the test version** — go to the [Publish workflow](https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml), select **Run workflow**, and set the branch to your PR branch. The workflow publishes with the npm `dev` dist-tag. The workflow refuses to publish if only changeset files and version bumps were modified — at least one real source file must change.
 
-5. **Test in consuming repos** — install the dev-tagged version (`pnpm add @couimet/<pkg>@dev`).
+5. **Test in consuming repos** — install the dev-tagged version (`pnpm add @couimet/<pkg>@dev`). Verify what's on npm with `pnpm version:check-registry`.
 
 6. **Exit pre-release mode**:
 
    ```bash
-   pnpm changeset pre exit
+   pnpm changeset:pre-exit
    ```
 
 7. **Clean up** — remove the pre-release changelog entries and version suffixes, leaving only the stable changelog content. Commit, push, and merge the PR.
@@ -78,7 +91,7 @@ Changesets supports a pre-release mode for intermediate publishes so you can tes
 
 ## Hot-fix path
 
-Follow the same steps as above but skip pre-release mode when you need to ship urgently. Add a changeset, run `pnpm changeset version`, create the PR against `main`, and publish from `main` after merge.
+Follow the same steps as above but skip pre-release mode when you need to ship urgently. Add a changeset, run `pnpm version:packages`, create the PR against `main`, and publish from `main` after merge.
 
 ## Automated publishing
 
@@ -87,7 +100,7 @@ Publishing is handled by the GitHub Actions workflow at `.github/workflows/publi
 - **Push to `main`** — runs automatically. Publishes stable versions and pushes git tags.
 - **Workflow dispatch** — run manually from any branch. Publishes with the `dev` dist-tag instead of `latest`. Useful for pre-release testing.
 
-Both paths require a valid `NPM_TOKEN` secret with publish rights on the `@couimet` scope.
+Both paths require a valid `NPM_TOKEN` secret with publish rights on the `@couimet` scope. The token is stored in GitHub repo settings (Settings → Secrets and variables → Actions) and injected into CI via `secrets.NPM_TOKEN`. It never leaves GitHub — dev laptops cannot publish to npmjs.
 
 ## Branch protection
 
