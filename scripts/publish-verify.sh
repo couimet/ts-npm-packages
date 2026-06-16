@@ -11,7 +11,7 @@ cd "$tmp"
 pnpm init > /dev/null
 
 # Discover pre-release packages from the workspace
-pkgs=$(pnpm -C "$OLDPWD" version:list | grep -E '-(alpha|beta|rc)\.' || true)
+pkgs=$(pnpm -C "$OLDPWD" version:list | grep -E -e '-(alpha|beta|rc)\.' || true)
 
 if [[ -z "$pkgs" ]]; then
   echo "No pre-release packages found. Run /publish-prerelease-prepare first."

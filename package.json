@@ -30,6 +30,7 @@
     "publish:verify": "scripts/publish-verify.sh",
     "release": "turbo run build && changeset publish",
     "test": "turbo run test",
+    "test:scripts": "bats tests/scripts/",
     "typecheck": "turbo run typecheck",
     "version:check-registry": "scripts/version-check-registry.sh",
     "version:list": "scripts/version-list.sh",
