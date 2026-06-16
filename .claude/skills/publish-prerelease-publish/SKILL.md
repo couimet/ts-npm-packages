@@ -29,27 +29,36 @@ Run:
 git push -u origin $(git branch --show-current)
 ```
 
-### 2. Print publish instructions
+### 2. Write a note with the instructions
+
+Run `date +%Y%m%d-%H%M%S` to get a timestamp. Build the target path:
+
+- On an `issues/<ID>` branch: `.claude-work/issues/<ID>/notes/<timestamp>-publish-instructions.txt`
+- Otherwise: `.claude-work/notes/<timestamp>-publish-instructions.txt`
+
+Create the directory (`mkdir -p`) if it doesn't exist.
+
+Run `pnpm version:list` and filter to packages with pre-release suffixes. Build two install lines:
+
+- `dev` line: `pnpm add <name>@dev <name2>@dev ...`
+- Explicit line: `pnpm add <name>@<version> <name2>@<version> ...`
+
+Write the note:
 
 ```
-Branch pushed. To publish:
+Publish pre-release from $(git branch --show-current)
 
-  1. Open the Publish workflow:
-     https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml
-
-  2. Click "Run workflow" → select branch: $(git branch --show-current)
-
-  3. CI checks that real code changes exist (not just changeset/version bumps),
-     builds, tests, and publishes to npm with the "dev" dist-tag.
-
-     The NPM_TOKEN secret is stored in GitHub repo settings. Your laptop never
-     sees it — only CI can publish to npmjs.
-
-  4. After the workflow completes, verify:
-     pnpm version:check-registry
-
-  5. Install in downstream repos:
-     pnpm add @couimet/<pkg>@dev
+1. Open https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml
+2. Click "Run workflow" → set "Branch to publish from" (ref) to: $(git branch --show-current)
+3. CI checks real code changes exist, builds, tests, publishes to npm with dev dist-tag
+4. Verify: pnpm version:check-registry
+5. Install downstream:
+   <dev-line>
+   (explicit: <explicit-line>)
 ```
+
+### 3. Print publish instructions
+
+Print the same content that was written to the note file. Also print the note filepath so the user knows where to find it.
 
 Do not attempt to run `pnpm publish` or `pnpm changeset publish` locally. Publishing to npmjs happens exclusively through the GitHub Actions workflow.
