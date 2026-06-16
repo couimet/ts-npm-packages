@@ -70,42 +70,49 @@ jobs:
       - name: Authenticate with npm (OIDC)
         shell: bash
         run: |
-          oidc_token=$(curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm" | jq -r '.value')
+          set -euo pipefail
 
-          npm_token=$(curl -sSL \
+          echo "Requesting OIDC token from GitHub..."
+          oidc_response=$(curl -fSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm")
+          oidc_token=$(echo "$oidc_response" | jq -r '.value')
+          echo "OIDC token received (length: ${#oidc_token})"
+
+          echo "Exchanging OIDC token for npm token..."
+          npm_response=$(curl -fSL \
             -H "Authorization: Bearer ${oidc_token}" \
             -X POST https://registry.npmjs.org/-/npm/v1/tokens \
-            -H "content-type: application/json" -d '{}' | jq -r '.token')
+            -H "content-type: application/json" -d '{}')
+          npm_token=$(echo "$npm_response" | jq -r '.token')
+          echo "npm token received (length: ${#npm_token})"
 
           npm config set //registry.npmjs.org/:_authToken "${npm_token}"
+          echo "npm auth configured"
 
       - name: Publish packages
-        env:
-          NPM_CONFIG_PROVENANCE: true
         shell: bash
         run: |
+          set -euo pipefail
 
           is_main="${{ github.ref == 'refs/heads/main' }}"
 
           if [[ "$is_main" == "true" ]]; then
             pnpm changeset publish
           else
-            output=$(pnpm changeset publish --no-git-tag 2>&1)
-            rc=$?
-            echo "$output"
+            pnpm changeset publish --no-git-tag 2>&1 | tee /tmp/publish-output.txt
+            rc=${PIPESTATUS[0]}
 
             if [[ $rc -ne 0 ]]; then
-              echo "Publish command failed with exit code ${rc}"
+              echo "::error::Publish command failed with exit code ${rc}"
               exit $rc
             fi
 
-            if echo "$output" | grep -q "No unpublished projects to publish"; then
-              echo "No packages were published. This workflow was run manually — expected at least one publish."
+            if grep -q "No unpublished projects to publish" /tmp/publish-output.txt; then
+              echo "::error::No packages were published. This workflow was run manually — expected at least one publish."
               exit 1
             fi
 
-            echo "$output" | grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' | sort -u | while read -r spec; do
+            grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' /tmp/publish-output.txt | sort -u | while read -r spec; do
               echo "Tagging ${spec} as dev"
               npm dist-tag add "$spec" dev
             done
