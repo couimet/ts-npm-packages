@@ -5,7 +5,7 @@ description: Push the current branch and print instructions for triggering the p
 
 # Publish Pre-Release — Publish
 
-Pushes the current branch to remote and prints the steps to trigger the pre-release publish workflow. CI authenticates with npm via OIDC trusted publishing (no long-lived token). Your laptop never touches npm credentials.
+Pushes the current branch to remote and prints the steps to trigger the pre-release publish workflow. CI handles the actual npm publish using the `NPM_TOKEN` secret. Your laptop never touches the token.
 
 ## Execution
 
