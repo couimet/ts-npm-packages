@@ -27,6 +27,7 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 - `tsconfig.json` extends `../../tsconfig.base.json` and sets `rootDir` and `outDir`.
 - Flat ESLint config (`eslint.config.mjs`) imports from `@couimet/eslint-config/eslint`.
 - Pretty print width is 160 (`.prettierrc` or equivalent in `@couimet/eslint-config`).
+- `src/index.ts` barrel files use `export * from './<module>';` rather than named re-exports, to keep git diffs minimal when modules gain or drop exports. Internal helpers (test-only or module-private) must live outside the module's public exports so `export *` doesn't leak them.
 
 ## Contributor docs
 
