@@ -108,7 +108,7 @@ Replace `<tag>` with the chosen tag and `<packages>` with a comma-separated list
 
 Print:
 
-```
+```text
 Done. Commit created locally. Next:
 
   1. Review the commit: git log -1 --stat

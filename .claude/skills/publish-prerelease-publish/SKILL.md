@@ -45,7 +45,7 @@ Run `pnpm version:list` and filter to packages with pre-release suffixes. Build 
 
 Write the note:
 
-```
+```text
 Publish pre-release from $(git branch --show-current)
 
 1. Open https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml

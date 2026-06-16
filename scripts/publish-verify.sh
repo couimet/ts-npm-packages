@@ -26,17 +26,19 @@ while read -r spec; do
 done <<< "$pkgs"
 
 # Build test script that imports each installed package
-cat > test.mjs << TESTEOF
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+cat > test.mjs << 'TESTEOF'
+(async () => {
 TESTEOF
 
 while read -r spec; do
   name="${spec%@*}"
-  echo "require('$name');" >> test.mjs
-  echo "console.log('OK  $name');" >> test.mjs
+  echo "  await import('$name');" >> test.mjs
+  echo "  console.log('OK  $name');" >> test.mjs
 done <<< "$pkgs"
 
-echo "console.log('All pre-release packages resolve successfully');" >> test.mjs
+cat >> test.mjs << 'TESTEOF'
+  console.log('All pre-release packages resolve successfully');
+})();
+TESTEOF
 
 node test.mjs

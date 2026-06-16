@@ -64,7 +64,7 @@ case "$(subcmd "$@")" in
 @couimet/foo@1.0.0-alpha.0
 EOF
   ;;
-  add) echo "ERR_PNMP_NO_MATCHING_VERSION No matching version found" >&2; exit 1 ;;
+  add) echo "ERR_PNPM_NO_MATCHING_VERSION No matching version found" >&2; exit 1 ;;
 esac
 SCRIPT
   chmod +x "${MOCK_DIR}/pnpm"

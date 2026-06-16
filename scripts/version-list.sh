@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # List public workspace packages as name@version, one per line.
 pnpm ls -r --depth -1 --json | node -e "
 process.stdin.setEncoding('utf8');
