@@ -51,7 +51,7 @@ Changesets supports a pre-release mode for intermediate publishes so you can tes
 The recommended approach uses two Claude Code skills:
 
 - `/publish-prerelease-prepare` — interviews you for the tag, packages, and bump type, then runs the full sequence locally (enter pre-release mode, create changeset, bump versions, commit). Idempotent — safe to re-run.
-- `/publish-prerelease-publish` — pushes your branch and prints the workflow dispatch link. CI handles the actual npm publish using the `NPM_TOKEN` secret; your laptop never sees the token.
+- `/publish-prerelease-publish` — pushes your branch and prints the workflow dispatch link. CI authenticates with npm via OIDC trusted publishing (no long-lived token); your laptop never touches npm credentials.
 
 No PR is needed for a pre-release publish. Push the feature branch to remote, then manually trigger the Publish workflow from that branch.
 
@@ -100,7 +100,7 @@ Publishing is handled by the GitHub Actions workflow at `.github/workflows/publi
 - **Push to `main`** — runs automatically. Publishes stable versions and pushes git tags.
 - **Workflow dispatch** — run manually from any branch. Publishes with the `dev` dist-tag instead of `latest`. Useful for pre-release testing.
 
-Both paths require a valid `NPM_TOKEN` secret with publish rights on the `@couimet` scope. The token is stored in GitHub repo settings (Settings → Secrets and variables → Actions) and injected into CI via `secrets.NPM_TOKEN`. It never leaves GitHub — dev laptops cannot publish to npmjs.
+Authentication uses npm's Trusted Publishing (OIDC). The workflow exchanges the GitHub Actions OIDC token for a short-lived npm token at runtime — no long-lived `NPM_TOKEN` secret to store or rotate. Each `@couimet/*` package on npmjs.com must have a Trusted Publisher configured: owner `couimet`, repository `ts-npm-packages`, workflow `publish.yml`.
 
 ## Branch protection
 

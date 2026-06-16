@@ -67,12 +67,24 @@ jobs:
       - name: Build and test
         run: pnpm build && pnpm test
 
-      - name: Publish packages
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Authenticate with npm (OIDC)
         shell: bash
         run: |
-          npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+          oidc_token=$(curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm" | jq -r '.value')
+
+          npm_token=$(curl -sSL \
+            -H "Authorization: Bearer ${oidc_token}" \
+            -X POST https://registry.npmjs.org/-/npm/v1/tokens \
+            -H "content-type: application/json" -d '{}' | jq -r '.token')
+
+          npm config set //registry.npmjs.org/:_authToken "${npm_token}"
+
+      - name: Publish packages
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        shell: bash
+        run: |
 
           is_main="${{ github.ref == 'refs/heads/main' }}"
 
