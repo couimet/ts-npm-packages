@@ -42,36 +42,64 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Guard real code changes (pre-release)
+        if: github.ref != 'refs/heads/main'
+        shell: bash
+        run: |
+          git fetch origin main --depth=20 --quiet
+
+          real_changes=$(git diff --name-only origin/main...HEAD \
+            | grep -v '^\.changeset/' \
+            | grep -v '/package\.json$' \
+            | grep -v '^package\.json$' \
+            || true)
+
+          if [[ -z "$real_changes" ]]; then
+            echo "::error::Pre-release publish requires real code changes. Only changeset files and version bumps were modified."
+            echo ""
+            echo "At least one source file must change for a pre-release publish."
+            exit 1
+          fi
+
+          echo "Real code changes found:"
+          echo "$real_changes"
+
       - name: Build and test
         run: pnpm build && pnpm test
 
-      - name: Publish packages
+      - name: Authenticate with npm
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         shell: bash
         run: |
+          set -euo pipefail
           npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+          echo "npm auth configured"
+
+      - name: Publish packages
+        shell: bash
+        run: |
+          set -euo pipefail
 
           is_main="${{ github.ref == 'refs/heads/main' }}"
 
           if [[ "$is_main" == "true" ]]; then
             pnpm changeset publish
           else
-            output=$(pnpm changeset publish --no-git-tag 2>&1)
-            rc=$?
-            echo "$output"
+            pnpm changeset publish --no-git-tag 2>&1 | tee /tmp/publish-output.txt
+            rc=${PIPESTATUS[0]}
 
             if [[ $rc -ne 0 ]]; then
-              echo "Publish command failed with exit code ${rc}"
+              echo "::error::Publish command failed with exit code ${rc}"
               exit $rc
             fi
 
-            if echo "$output" | grep -q "No unpublished projects to publish"; then
-              echo "No packages were published. This workflow was run manually — expected at least one publish."
+            if grep -q "No unpublished projects to publish" /tmp/publish-output.txt; then
+              echo "::error::No packages were published. This workflow was run manually — expected at least one publish."
               exit 1
             fi
 
-            echo "$output" | grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' | sort -u | while read -r spec; do
+            grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' /tmp/publish-output.txt | sort -u | while read -r spec; do
               echo "Tagging ${spec} as dev"
               npm dist-tag add "$spec" dev
             done

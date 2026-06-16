@@ -14,20 +14,27 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "changeset": "changeset",
+    "changeset:pre-alpha": "pnpm guard:not-main && changeset pre enter alpha",
+    "changeset:pre-beta": "pnpm guard:not-main && changeset pre enter beta",
+    "changeset:pre-exit": "pnpm guard:not-main && changeset pre exit",
     "clean": "turbo run clean",
     "clean:all": "turbo run clean:all",
     "clean:deps": "turbo run clean:deps",
     "fix": "pnpm format:fix && pnpm lint:fix",
     "format": "prettier --check . && turbo run format",
     "format:fix": "prettier --write .",
+    "guard:not-main": "scripts/guard-not-main.sh",
     "lint": "turbo run lint -- --max-warnings 0",
     "lint:fix": "turbo run lint -- --fix",
     "prepare": "husky",
+    "publish:verify": "scripts/publish-verify.sh",
     "release": "turbo run build && changeset publish",
     "test": "turbo run test",
+    "test:scripts": "bats tests/scripts/",
     "typecheck": "turbo run typecheck",
-    "version-packages": "changeset version"
+    "version:check-registry": "scripts/version-check-registry.sh",
+    "version:list": "scripts/version-list.sh",
+    "version:packages": "changeset version"
   },
   "lint-staged": {
     "*.{js,ts,mjs,cjs}": [
