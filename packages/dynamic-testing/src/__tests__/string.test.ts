@@ -118,4 +118,16 @@ describe('getUniqueString', () => {
     // The random prefix respects 'alpha', but the delimiter and counter do not
     expect(result).toMatch(/^[A-Za-z]+-1$/);
   });
+
+  it('throws when maxLength is negative', () => {
+    expect(() => getUniqueString({ maxLength: -1 })).toThrow('maxLength must be a non-negative integer');
+  });
+
+  it('throws when maxLength is a non-integer', () => {
+    expect(() => getUniqueString({ maxLength: 1.5 })).toThrow('maxLength must be a non-negative integer');
+  });
+
+  it('throws when maxLength is NaN', () => {
+    expect(() => getUniqueString({ maxLength: NaN })).toThrow('maxLength must be a non-negative integer');
+  });
 });

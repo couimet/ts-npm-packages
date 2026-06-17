@@ -1,3 +1,5 @@
+import { pkgError } from './internal/errors';
+import { isNonNegativeInteger } from './internal/validation';
 import { getRandomInt } from './random';
 import { getUniqueInt } from './unique';
 
@@ -71,6 +73,9 @@ export const getRandomHexString = (length?: number): string => getRandomString({
  */
 export const getUniqueString = (options: UniqueStringOptions = {}): string => {
   const { maxLength, charset = 'alphanumeric', prefix = '' } = options;
+  if (maxLength !== undefined && !isNonNegativeInteger(maxLength)) {
+    throw pkgError('maxLength must be a non-negative integer');
+  }
   const counter = getUniqueInt();
   const suffix = `-${counter}`;
 

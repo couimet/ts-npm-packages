@@ -1,4 +1,6 @@
+import { pkgError } from './internal/errors';
 import { incCounter, incTimestampOffset, MODULE_LOAD_TIME } from './internal/state';
+import { isPositiveInteger } from './internal/validation';
 
 const MAX_PRECISION = 30;
 
@@ -6,11 +8,11 @@ const MAX_PRECISION = 30;
 export const getUniqueInt = (): number => incCounter();
 
 const nextUniqueDecimal = (precision: number): { value: number; fixed: string } => {
-  if (!Number.isInteger(precision) || precision <= 0) {
-    throw new Error('Precision must be a positive integer');
+  if (!isPositiveInteger(precision)) {
+    throw pkgError('Precision must be a positive integer');
   }
   if (precision > MAX_PRECISION) {
-    throw new Error(`Precision must not exceed ${MAX_PRECISION}`);
+    throw pkgError(`Precision must not exceed ${MAX_PRECISION}`);
   }
 
   const integer = getUniqueInt();

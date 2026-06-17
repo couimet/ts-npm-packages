@@ -20,11 +20,6 @@ describe('getUniqueInt', () => {
     expect(getUniqueInt()).toBe(42);
     expect(getUniqueInt()).toBe(43);
   });
-
-  it('never returns zero', () => {
-    _reset(0);
-    expect(getUniqueInt()).toBeGreaterThan(0);
-  });
 });
 
 describe('getUniqueFloat', () => {
@@ -157,9 +152,24 @@ describe('_reset', () => {
     expect(getUniqueInt()).toBeGreaterThan(0);
   });
 
-  it('caps the seed at 1,000,000', () => {
-    _reset(5_000_000);
-    expect(_getCounter()).toBe(1_000_000);
+  it('throws when seeded above the 1,000,000 cap', () => {
+    expect(() => _reset(5_000_000)).toThrow('exceeds cap');
+  });
+
+  it('throws when seeded with zero', () => {
+    expect(() => _reset(0)).toThrow('_resetCounter requires a positive integer');
+  });
+
+  it('throws when seeded with a negative value', () => {
+    expect(() => _reset(-5)).toThrow('_resetCounter requires a positive integer');
+  });
+
+  it('throws when seeded with NaN', () => {
+    expect(() => _reset(NaN)).toThrow('_resetCounter requires a positive integer');
+  });
+
+  it('throws when seeded with a non-integer', () => {
+    expect(() => _reset(1.5)).toThrow('_resetCounter requires a positive integer');
   });
 });
 

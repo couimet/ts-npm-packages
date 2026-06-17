@@ -18,6 +18,9 @@
 
 import { COUNTER_START, MAX_COUNTER_START } from '../counterStart';
 
+import { pkgError } from './errors';
+import { isPositiveInteger } from './validation';
+
 export const MODULE_LOAD_TIME = Date.now();
 
 let COUNTER = COUNTER_START;
@@ -26,7 +29,13 @@ let TIMESTAMP_OFFSET = 1;
 export const _getCounter = (): number => COUNTER;
 export const _resetCounter = (value?: number): void => {
   const start = value ?? COUNTER_START;
-  COUNTER = start === 0 ? 1 : Math.min(start, MAX_COUNTER_START);
+  if (!isPositiveInteger(start)) {
+    throw pkgError('_resetCounter requires a positive integer');
+  }
+  if (start > MAX_COUNTER_START) {
+    throw pkgError(`_resetCounter value ${start} exceeds cap (${MAX_COUNTER_START})`);
+  }
+  COUNTER = start;
 };
 export const incCounter = (): number => COUNTER++;
 

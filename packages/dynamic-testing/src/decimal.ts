@@ -1,3 +1,4 @@
+import { pkgError } from './internal/errors';
 import { getUniqueBigDecimal } from './unique';
 
 // Minimal interface covering the Decimal.js API surface consumers need.
@@ -29,7 +30,7 @@ const getDecimalConstructor = (): DecimalConstructor => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       _Decimal = require('decimal.js');
     } catch {
-      throw new Error('Install decimal.js to use getUniqueDecimal()');
+      throw pkgError('Install decimal.js to use getUniqueDecimal()');
     }
   }
   return _Decimal!;
