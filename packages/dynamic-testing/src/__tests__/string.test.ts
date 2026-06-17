@@ -39,6 +39,22 @@ describe('getRandomString', () => {
     const result = getRandomString({ length: 50, charset: 'XY' });
     expect(result).toMatch(/^[XY]+$/);
   });
+
+  it('throws when length is negative', () => {
+    expect(() => getRandomString({ length: -1 })).toThrow('length must be a non-negative integer');
+  });
+
+  it('throws when length is NaN', () => {
+    expect(() => getRandomString({ length: NaN })).toThrow('length must be a non-negative integer');
+  });
+
+  it('throws when length is a non-integer', () => {
+    expect(() => getRandomString({ length: 1.5 })).toThrow('length must be a non-negative integer');
+  });
+
+  it('throws when length is Infinity', () => {
+    expect(() => getRandomString({ length: Infinity })).toThrow('length must be a non-negative integer');
+  });
 });
 
 describe('convenience wrappers', () => {

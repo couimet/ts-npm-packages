@@ -36,7 +36,7 @@ export interface UniqueStringOptions extends StringOptionsBase {
 
 /** Resolves a charset name to its character set, or returns the string as-is for custom charsets. */
 const resolveCharset = (charset: Charset): string => {
-  if (charset in CHARSETS) {
+  if (Object.hasOwn(CHARSETS, charset)) {
     return CHARSETS[charset as keyof typeof CHARSETS];
   }
   return charset;
@@ -47,6 +47,9 @@ const DEFAULTS = { length: 8, charset: 'alphanumeric' as const, prefix: '' };
 /** Returns a random string built from the given options. */
 export const getRandomString = (options: StringOptions = {}): string => {
   const { length = DEFAULTS.length, charset = DEFAULTS.charset, prefix = DEFAULTS.prefix } = options;
+  if (!isNonNegativeInteger(length)) {
+    throw pkgError('length must be a non-negative integer');
+  }
   const chars = resolveCharset(charset);
   let result = prefix;
   for (let i = 0; i < length; i++) {

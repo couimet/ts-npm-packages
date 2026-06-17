@@ -122,4 +122,24 @@ describe('getRandomInt', () => {
   it('throws when min is greater than max', () => {
     expect(() => getRandomInt(10, 5)).toThrow('min (10) must not be greater than max (5)');
   });
+
+  it('throws when min is not an integer', () => {
+    expect(() => getRandomInt(1.5, 10)).toThrow('min (1.5) must be a finite integer');
+  });
+
+  it('throws when max is not an integer', () => {
+    expect(() => getRandomInt(1, 3.5)).toThrow('max (3.5) must be a finite integer');
+  });
+
+  it('throws when min is NaN', () => {
+    expect(() => getRandomInt(NaN, 10)).toThrow('min (NaN) must be a finite integer');
+  });
+
+  it('throws when max is Infinity', () => {
+    expect(() => getRandomInt(1, Infinity)).toThrow('max (Infinity) must be a finite integer');
+  });
+
+  it('throws when min is -Infinity', () => {
+    expect(() => getRandomInt(-Infinity, 10)).toThrow('min (-Infinity) must be a finite integer');
+  });
 });

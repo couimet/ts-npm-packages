@@ -56,5 +56,7 @@ describe('getUniqueDecimal when decimal.js is missing', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require('../decimal');
     expect(() => mod.getUniqueDecimal()).toThrow('Install decimal.js to use getUniqueDecimal()');
+    // Second call must also throw — _loaded stays false after a failed require so retry is not skipped.
+    expect(() => mod.getUniqueDecimal()).toThrow('Install decimal.js to use getUniqueDecimal()');
   });
 });

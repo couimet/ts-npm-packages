@@ -1,4 +1,5 @@
 import { pkgError } from './internal/errors';
+import { isFiniteInteger } from './internal/validation';
 
 /**
  * Returns every value from a TypeScript enum, excluding any values passed as varargs.
@@ -28,8 +29,14 @@ export const getRandomBoolean = (trueProbability = 0.5): boolean => {
   return Math.random() < trueProbability;
 };
 
-/** Returns a random integer in [min, max] (inclusive on both boundaries). Throws if min > max. */
+/** Returns a random integer in [min, max] (inclusive on both boundaries). Throws if either bound is not a finite integer, or if min > max. */
 export const getRandomInt = (min: number, max: number): number => {
+  if (!isFiniteInteger(min)) {
+    throw pkgError(`min (${min}) must be a finite integer`);
+  }
+  if (!isFiniteInteger(max)) {
+    throw pkgError(`max (${max}) must be a finite integer`);
+  }
   if (min > max) {
     throw pkgError(`min (${min}) must not be greater than max (${max})`);
   }

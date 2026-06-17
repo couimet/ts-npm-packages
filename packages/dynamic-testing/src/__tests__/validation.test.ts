@@ -1,4 +1,4 @@
-import { isNonNegativeInteger, isPositiveInteger } from '../internal/validation';
+import { isFiniteInteger, isNonNegativeInteger, isPositiveInteger } from '../internal/validation';
 
 describe('isPositiveInteger', () => {
   it('returns true for positive integers', () => {
@@ -48,5 +48,25 @@ describe('isNonNegativeInteger', () => {
   it('returns false for NaN and Infinity', () => {
     expect(isNonNegativeInteger(NaN)).toBe(false);
     expect(isNonNegativeInteger(Infinity)).toBe(false);
+  });
+});
+
+describe('isFiniteInteger', () => {
+  it('returns true for finite integers', () => {
+    expect(isFiniteInteger(0)).toBe(true);
+    expect(isFiniteInteger(1)).toBe(true);
+    expect(isFiniteInteger(-5)).toBe(true);
+    expect(isFiniteInteger(100)).toBe(true);
+  });
+
+  it('returns false for non-integers', () => {
+    expect(isFiniteInteger(1.5)).toBe(false);
+    expect(isFiniteInteger(0.1)).toBe(false);
+  });
+
+  it('returns false for NaN and Infinity', () => {
+    expect(isFiniteInteger(NaN)).toBe(false);
+    expect(isFiniteInteger(Infinity)).toBe(false);
+    expect(isFiniteInteger(-Infinity)).toBe(false);
   });
 });

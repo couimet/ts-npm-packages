@@ -39,6 +39,7 @@ describe('getUniqueFloat', () => {
   });
 
   it('returns different fractional parts for the same counter', () => {
+    jest.spyOn(Math, 'random').mockReturnValueOnce(0.1).mockReturnValueOnce(0.9);
     _reset(1);
     const a = getUniqueFloat();
     _reset(1);

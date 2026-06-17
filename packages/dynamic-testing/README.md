@@ -17,7 +17,7 @@ import { getRandomEnumValue, getRandomString, getUniqueFloat, getUniqueInt } fro
 
 // Counter-based: always unique, always truthy
 const id = getUniqueInt(); // 1
-const amount = getUniqueFloat(); // 2.58
+const amount = getUniqueFloat(); // e.g. 2.58
 const email = getUniqueInt(); // 3
 
 // Random picks
@@ -51,8 +51,8 @@ The counter (`UNIQUE_NUMBER++`) is the foundation. Every call increments it. Val
 
 ```typescript
 getUniqueInt(): number
-getUniqueFloat(precision?: number): number       // default precision 2 → 1.58, 2.91, ...
-getUniqueBigDecimal(precision?: number): string  // default precision 2 → "1.58", "2.91", ...
+getUniqueFloat(precision?: number): number       // default precision 2 → e.g. 1.58, 2.91
+getUniqueBigDecimal(precision?: number): string  // default precision 2 → e.g. "1.58", "2.91"
 getUniqueTimestamp(): number                      // 1-minute increments from module load
 getUniqueDate(): Date
 ```
@@ -107,8 +107,8 @@ getUniqueString(options?: UniqueStringOptions): string
 ```typescript
 import { getUniqueDecimal } from '@couimet/dynamic-testing';
 
-const price = getUniqueDecimal(2); // Decimal instance: 1.58, 2.91, ...
-price.plus(10).toNumber(); // 10.01
+const price = getUniqueDecimal(2); // Decimal instance: e.g. 1.58
+price.plus(10).toNumber(); // e.g. 11.58
 ```
 
 Throws `'Install decimal.js to use getUniqueDecimal()'` if `decimal.js` is not installed.
@@ -125,6 +125,6 @@ import { getUniqueInt, getRandomString } from '@couimet/dynamic-testing';
 it('creates a user', () => {
   const id = getUniqueInt();
   const name = getRandomString({ length: 12, prefix: 'user-' });
-  // id is always different, name is seeded-reproducible
+  // id is always different, name is non-deterministic
 });
 ```

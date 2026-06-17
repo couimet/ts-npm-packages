@@ -25,10 +25,10 @@ let _loaded = false;
 
 const getDecimalConstructor = (): DecimalConstructor => {
   if (!_loaded) {
-    _loaded = true;
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       _Decimal = require('decimal.js');
+      _loaded = true;
     } catch {
       throw pkgError('Install decimal.js to use getUniqueDecimal()');
     }
