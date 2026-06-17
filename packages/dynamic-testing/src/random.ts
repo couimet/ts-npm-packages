@@ -18,8 +18,18 @@ export const getRandomEnumValue = <T extends Record<string | number, string | nu
   return values[getRandomInt(0, values.length - 1)]!;
 };
 
-/** Returns a random boolean. `trueProbability` defaults to 0.5. */
-export const getRandomBoolean = (trueProbability = 0.5): boolean => Math.random() < trueProbability;
+/** Returns a random boolean. `trueProbability` defaults to 0.5. Throws if not a finite number in [0, 1]. */
+export const getRandomBoolean = (trueProbability = 0.5): boolean => {
+  if (!Number.isFinite(trueProbability) || trueProbability < 0 || trueProbability > 1) {
+    throw new Error(`trueProbability must be a finite number between 0 and 1, got ${trueProbability}`);
+  }
+  return Math.random() < trueProbability;
+};
 
-/** Returns a random integer in [min, max] (inclusive on both boundaries). */
-export const getRandomInt = (min: number, max: number): number => Math.floor(Math.random() * (max - min + 1)) + min;
+/** Returns a random integer in [min, max] (inclusive on both boundaries). Throws if min > max. */
+export const getRandomInt = (min: number, max: number): number => {
+  if (min > max) {
+    throw new Error(`min (${min}) must not be greater than max (${max})`);
+  }
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};

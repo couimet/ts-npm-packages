@@ -1,7 +1,7 @@
 import type { COUNTER_START as CounterStartType } from '../counterStart';
 
 describe('COUNTER_START (resolveCounterStart)', () => {
-  const originalEnv = process.env;
+  const originalEnv = { ...process.env };
   let warnSpy: jest.SpyInstance;
 
   const loadCounterStart = (envValue: string | undefined): typeof CounterStartType => {

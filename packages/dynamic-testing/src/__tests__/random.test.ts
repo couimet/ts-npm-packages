@@ -76,6 +76,22 @@ describe('getRandomBoolean', () => {
       expect(getRandomBoolean(0)).toBe(false);
     }
   });
+
+  it('throws when trueProbability is less than 0', () => {
+    expect(() => getRandomBoolean(-0.1)).toThrow('trueProbability must be a finite number between 0 and 1');
+  });
+
+  it('throws when trueProbability is greater than 1', () => {
+    expect(() => getRandomBoolean(1.1)).toThrow('trueProbability must be a finite number between 0 and 1');
+  });
+
+  it('throws when trueProbability is NaN', () => {
+    expect(() => getRandomBoolean(NaN)).toThrow('trueProbability must be a finite number between 0 and 1');
+  });
+
+  it('throws when trueProbability is Infinity', () => {
+    expect(() => getRandomBoolean(Infinity)).toThrow('trueProbability must be a finite number between 0 and 1');
+  });
 });
 
 describe('getRandomInt', () => {
@@ -101,5 +117,9 @@ describe('getRandomInt', () => {
     for (let i = 0; i < 10; i++) {
       expect(getRandomInt(5, 5)).toBe(5);
     }
+  });
+
+  it('throws when min is greater than max', () => {
+    expect(() => getRandomInt(10, 5)).toThrow('min (10) must not be greater than max (5)');
   });
 });

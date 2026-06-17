@@ -1,5 +1,5 @@
 import { getUniqueDecimal } from '../decimal';
-import { _reset } from '../unique';
+import { _reset } from '../internal/uniqueTestUtils';
 
 describe('getUniqueDecimal', () => {
   beforeEach(() => _reset(1));

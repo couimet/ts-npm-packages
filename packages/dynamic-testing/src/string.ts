@@ -80,6 +80,10 @@ export const getUniqueString = (options: UniqueStringOptions = {}): string => {
   }
 
   const budget = maxLength - prefix.length;
+
+  if (budget <= 0) {
+    return prefix.slice(0, maxLength);
+  }
   if (budget < suffix.length) {
     return `${prefix}${getRandomString({ length: budget, charset })}`;
   }

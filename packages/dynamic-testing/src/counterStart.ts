@@ -1,4 +1,4 @@
-const MAX_COUNTER_START = 1_000_000;
+export const MAX_COUNTER_START = 1_000_000;
 
 const resolveCounterStart = (): number => {
   const env = process.env.DYNAMIC_TESTING_COUNTER_START;

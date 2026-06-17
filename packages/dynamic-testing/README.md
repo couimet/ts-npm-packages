@@ -13,7 +13,7 @@ The library has two generation modes, both driven by a single counter:
 **Random (`getRandom*`)** — returns a non-deterministic value each call. Ideal for enums, booleans, and range-based integers.
 
 ```typescript
-import { getUniqueInt, getRandomEnumValue, getRandomString } from '@couimet/dynamic-testing';
+import { getRandomEnumValue, getRandomString, getUniqueFloat, getUniqueInt } from '@couimet/dynamic-testing';
 
 // Counter-based: always unique, always truthy
 const id = getUniqueInt(); // 1
@@ -26,11 +26,11 @@ enum Status {
   Inactive,
   Pending,
 }
-const status = getRandomEnumValue(Status); // random, never Active
+const status = getRandomEnumValue(Status); // random enum value
 const status2 = getRandomEnumValue(Status, Status.Inactive); // random, excludes Inactive
 const flag = getRandomBoolean(); // true or false
 const age = getRandomInt(18, 65); // [18, 65] inclusive
-const code = getRandomString({ length: 10, prefix: 'USR-' }); // "USR-a3Kz9pBx1Q"
+const code = getRandomString({ length: 10, prefix: 'USR-' });
 ```
 
 ## Reproducibility

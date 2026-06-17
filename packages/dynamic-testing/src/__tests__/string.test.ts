@@ -1,5 +1,5 @@
+import { _reset } from '../internal/uniqueTestUtils';
 import { getRandomAlphaString, getRandomHexString, getRandomNumericString, getRandomString, getUniqueString } from '../string';
-import { _reset } from '../unique';
 
 describe('getRandomString', () => {
   it('returns a string of the default length', () => {
@@ -104,6 +104,12 @@ describe('getUniqueString', () => {
     const result = getUniqueString({ charset: 'alpha' });
     const randomPart = result.replace(/-1$/, '');
     expect(randomPart).toMatch(/^[A-Za-z]+$/);
+  });
+
+  it('truncates prefix when it exceeds maxLength', () => {
+    const result = getUniqueString({ maxLength: 4, prefix: 'toolong' });
+    expect(result.length).toBeLessThanOrEqual(4);
+    expect(result).toBe('tool');
   });
 
   it('counter suffix is appended outside the requested charset', () => {
