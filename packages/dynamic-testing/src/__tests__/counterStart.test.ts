@@ -15,7 +15,7 @@ describe('COUNTER_START (resolveCounterStart)', () => {
   };
 
   afterEach(() => {
-    process.env = originalEnv;
+    process.env = { ...originalEnv };
   });
 
   it('defaults to 1 when DYNAMIC_TESTING_COUNTER_START is not set', () => {
