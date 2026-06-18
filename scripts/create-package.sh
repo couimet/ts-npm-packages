@@ -16,7 +16,7 @@ mkdir -p "${target_dir}/src/__tests__"
 cat > "${target_dir}/package.json" << JSONEOF
 {
   "name": "@couimet/${pkg_name}",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "${short_desc}",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/${pkg_name}#readme",
   "bugs": {
@@ -89,10 +89,12 @@ cat > "${target_dir}/tsconfig.test.json" << 'TSTESTEOF'
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": false,
+    "types": ["jest", "node"],
+    "module": "CommonJS",
     "noEmit": true
   },
-  "include": ["src/**/*.test.ts", "src/__tests__/**"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
 TSTESTEOF
 
@@ -141,7 +143,7 @@ All notable changes to the \`@couimet/${pkg_name}\` package are recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0]
+## [0.1.0]
 
 ### Added
 

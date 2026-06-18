@@ -23,10 +23,18 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 - pnpm workspaces + Turborepo + Changesets. See `turbo.json` for task pipelines.
 - Node 24+ (pinned in `.nvmrc`), pnpm 11+ (pinned in `packageManager` in `package.json`).
 - `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck` delegate to Turborepo from the root scripts.
-- New packages start at `version: 1.0.0`, MIT license, `publishConfig.access: public`, author `Charles Ouimet <charles.ouimet@gmail.com>`.
+- New packages start at `version: 0.1.0`, MIT license, `publishConfig.access: public`, author `Charles Ouimet <charles.ouimet@gmail.com>`.
 - `tsconfig.json` extends `../../tsconfig.base.json` and sets `rootDir` and `outDir`.
 - Flat ESLint config (`eslint.config.mjs`) imports from `@couimet/eslint-config/eslint`.
 - Pretty print width is 160 (`.prettierrc` or equivalent in `@couimet/eslint-config`).
+- `src/index.ts` barrel files use `export * from './<module>';` rather than named re-exports, to keep git diffs minimal when modules gain or drop exports. Internal helpers (test-only or module-private) must live outside the module's public exports so `export *` doesn't leak them.
+
+## Coding conventions
+
+Rules in this section apply repo-wide, to every package under `packages/*`. Conventions that only apply inside one package live in that package's `packages/<name>/CLAUDE.md`; Claude Code merges them when working in that directory tree. When adding a new convention, ask first whether it makes sense for every current and future package — if yes, it goes here; if no, put it in the package-local file.
+
+- **Throw on invalid input.** Test-only setup helpers (`_reset*`, fixture builders, etc.) and module-load configuration (env-var parsing, config readers) throw on invalid input rather than warning, defaulting, or coercing. Bad input from the caller — test code or operator config — is a bug, and failing loud at the call site beats a poisoned state surfacing later as a confusing assertion failure. Public runtime APIs (consumer-facing functions) follow the same rule.
+- **No manual mock cleanup in tests.** All Jest configs set `restoreMocks: true`, so `jest.spyOn` / `jest.fn()` mocks are automatically restored after each test. Do not write `mockRestore()` or `afterEach` blocks for mock cleanup. Restoring other mutable state (e.g. `process.env`) in `afterEach` is still valid and necessary.
 
 ## Contributor docs
 
