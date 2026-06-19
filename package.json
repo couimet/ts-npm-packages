@@ -20,12 +20,14 @@
     "clean": "turbo run clean",
     "clean:all": "turbo run clean:all",
     "clean:deps": "turbo run clean:deps",
-    "fix": "pnpm format:fix && pnpm lint:fix",
+    "fix": "pnpm format:fix && pnpm lint:fix && pnpm lint:md && pnpm lint:sh",
     "format": "prettier --check . && turbo run format",
     "format:fix": "prettier --write .",
     "guard:not-main": "scripts/guard-not-main.sh",
     "lint": "turbo run lint -- --max-warnings 0",
     "lint:fix": "turbo run lint -- --fix",
+    "lint:md": "markdownlint-cli2 '**/*.md'",
+    "lint:sh": "shellcheck scripts/*.sh",
     "prepare": "husky",
     "publish:verify": "scripts/publish-verify.sh",
     "release": "turbo run build && changeset publish",
@@ -41,17 +43,23 @@
       "pnpm exec eslint --fix",
       "pnpm exec prettier --write"
     ],
-    "*.{json,md,yaml,yml}": "pnpm exec prettier --write"
+    "*.{json,md,yaml,yml}": "pnpm exec prettier --write",
+    "*.{sh,bash}": [
+      "shellcheck"
+    ]
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
     "@couimet/eslint-config": "workspace:*",
+    "bats": "^1.13.0",
     "eslint": "^10.4.1",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "lint-staged": "^17.0.7",
+    "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.4",
     "prettier-plugin-packagejson": "^3.0.2",
+    "shellcheck": "^4.1.0",
     "tsup": "^8.5.1",
     "turbo": "^2.9.17",
     "typescript": "^6.0.3"

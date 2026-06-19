@@ -56,7 +56,7 @@ cat > "${target_dir}/package.json" << JSONEOF
   "devDependencies": {
     "@couimet/eslint-config": "workspace:*",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.19.20",
+    "@types/node": "^24.13.2",
     "eslint": "^10.4.1",
     "jest": "^29.7.0",
     "prettier": "^3.8.4",

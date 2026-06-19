@@ -15,8 +15,3 @@ A monorepo for a curated family of small TypeScript packages published under the
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full Changesets workflow, pre-release publishing, and the package scaffolding script.
-
-## Planning history
-
-- [2026-06-08 — monorepo research](docs/planning/2026-06-08-monorepo-research.md): tooling rationale, package inventory, naming, publishing flow, branch protection plan.
-- [2026-06-10 — bootstrap plan](docs/planning/2026-06-10-bootstrap-plan.md): status snapshot, issue queue, and dependency graph for the first eight issues.
