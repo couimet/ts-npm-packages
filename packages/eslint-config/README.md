@@ -34,6 +34,10 @@ export default [
 ];
 ```
 
+## Default ignores
+
+The ESLint config ignores `dist/`, `node_modules/`, `coverage/`, `pnpm-lock.yaml`, `*.tsbuildinfo`, and `*.d.ts.map` by default.
+
 ## Prettier
 
 In your package's `package.json`:
@@ -49,3 +53,5 @@ Or in a `.prettierrc`:
 ```json
 "@couimet/eslint-config/prettier"
 ```
+
+See [Prettier's documentation](https://prettier.io/docs/en/ignore) for `.prettierignore` setup.

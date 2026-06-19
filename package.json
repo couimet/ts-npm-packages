@@ -21,7 +21,7 @@
     "clean:all": "turbo run clean:all",
     "clean:deps": "turbo run clean:deps",
     "fix": "pnpm format:fix && pnpm lint:fix && pnpm lint:md && pnpm lint:sh",
-    "format": "prettier --check . && turbo run format",
+    "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "guard:not-main": "scripts/guard-not-main.sh",
     "lint": "turbo run lint -- --max-warnings 0",

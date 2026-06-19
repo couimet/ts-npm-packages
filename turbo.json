@@ -12,9 +12,6 @@
     "lint": {
       "outputs": []
     },
-    "format": {
-      "outputs": []
-    },
     "typecheck": {
       "dependsOn": ["build"],
       "outputs": []
