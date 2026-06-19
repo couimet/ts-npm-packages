@@ -1,6 +1,7 @@
 import { createMockLogger } from '../createMockLogger';
 
 import { Logger } from '@couimet/logger-contract';
+import { jest } from '@jest/globals';
 
 describe('createMockLogger', () => {
   it('returns an object satisfying the Logger interface', () => {

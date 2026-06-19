@@ -3,6 +3,7 @@ name: CI
 on:
   pull_request:
   push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
       - uses: couimet/github-actions/setup-node-pnpm@main
       - uses: couimet/github-actions/install-deps@main
       - name: Format
-        run: pnpm exec prettier --check .
+        run: pnpm format
       - name: Build
         run: pnpm build
       - name: Test
@@ -41,7 +42,7 @@ jobs:
           test-directory: tests/scripts
 
   guard-versions:
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    if: github.base_ref == 'main'
     runs-on: ubuntu-latest
     steps:
       - *checkout

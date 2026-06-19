@@ -22,10 +22,10 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 
 - pnpm workspaces + Turborepo + Changesets. See `turbo.json` for task pipelines.
 - Node 24+ (pinned in `.nvmrc`), pnpm 11+ (pinned in `packageManager` in `package.json`).
-- `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck` delegate to Turborepo from the root scripts.
+- `pnpm build`, `pnpm test`, and `pnpm typecheck` delegate to Turborepo from the root scripts. `pnpm lint` runs `eslint .` directly from the root — all packages share the same config so there is no need for per-package orchestration.
 - New packages start at `version: 0.1.0`, MIT license, `publishConfig.access: public`, author `Charles Ouimet <charles.ouimet@gmail.com>`.
 - `tsconfig.json` extends `../../tsconfig.base.json` and sets `rootDir` and `outDir`.
-- Flat ESLint config (`eslint.config.mjs`) imports from `@couimet/eslint-config/eslint`.
+- Linting uses the root `eslint.config.js`. Sub-packages do not need their own config.
 - Pretty print width is 160 (`.prettierrc` or equivalent in `@couimet/eslint-config`).
 - `src/index.ts` barrel files use `export * from './<module>';` rather than named re-exports, to keep git diffs minimal when modules gain or drop exports. Internal helpers (test-only or module-private) must live outside the module's public exports so `export *` doesn't leak them.
 
