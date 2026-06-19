@@ -10,9 +10,6 @@ on:
         description: Branch to publish from
         required: true
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 permissions:
   contents: read
 
@@ -24,18 +21,14 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || github.ref }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
+      - uses: couimet/github-actions/setup-node-pnpm@main
 
-      - uses: pnpm/action-setup@v4
-
-      - run: pnpm install --frozen-lockfile
+      - uses: couimet/github-actions/install-deps@main
 
       - name: Configure git identity
         run: |

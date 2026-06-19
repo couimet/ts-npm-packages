@@ -35,6 +35,7 @@ Rules in this section apply repo-wide, to every package under `packages/*`. Conv
 
 - **Throw on invalid input.** Test-only setup helpers (`_reset*`, fixture builders, etc.) and module-load configuration (env-var parsing, config readers) throw on invalid input rather than warning, defaulting, or coercing. Bad input from the caller — test code or operator config — is a bug, and failing loud at the call site beats a poisoned state surfacing later as a confusing assertion failure. Public runtime APIs (consumer-facing functions) follow the same rule.
 - **No manual mock cleanup in tests.** All Jest configs set `restoreMocks: true`, so `jest.spyOn` / `jest.fn()` mocks are automatically restored after each test. Do not write `mockRestore()` or `afterEach` blocks for mock cleanup. Restoring other mutable state (e.g. `process.env`) in `afterEach` is still valid and necessary.
+- **Never write changeset files manually.** Do not create or edit files under `.changeset/`. The user runs `pnpm changeset` interactively to generate changeset files. When changesets are needed before merging, describe what package needs what bump and why, then tell the user to run the command.
 
 ## Contributor docs
 
