@@ -14,6 +14,10 @@ if [[ -z "$target_ref" || -z "$head_ref" ]]; then
 fi
 
 changed_files=$(git diff --name-only "${target_ref}...${head_ref}")
+if [[ $? -ne 0 ]]; then
+  echo "::error::git diff failed — cannot resolve refs '${target_ref}...${head_ref}'" >&2
+  exit 2
+fi
 
 # Check 1: no pre-release versions in package.json files
 echo "::group::Checking package.json version fields"
@@ -34,7 +38,7 @@ echo "::group::Checking changeset version entries"
 changesets=$(echo "$changed_files" | grep '\.changeset/.*\.md$' || true)
 if [[ -n "$changesets" ]]; then
   while IFS= read -r cs_file; do
-    prerelease_lines=$(grep -E '"[^"]+":\s*"[^"]*-[^"]+"' "$cs_file" || true)
+    prerelease_lines=$(grep -E '"[^"]+":\s*"[^"]*-[^"]+"|"[^"]+":\s*[0-9]+\.[0-9]+\.[0-9]+-[^[:space:]]+' "$cs_file" || true)
     if [[ -n "$prerelease_lines" ]]; then
       while IFS= read -r bad_line; do
         echo "::error file=${cs_file}::Pre-release version entry in changeset: ${bad_line}"

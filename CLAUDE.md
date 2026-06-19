@@ -9,7 +9,7 @@ Run `scripts/create-package.sh` from the repo root. It prompts for two values:
 
 When helping the user create a new package, present the two values as a ready-to-copy block:
 
-```
+```text
 <name>
 <description>
 ```

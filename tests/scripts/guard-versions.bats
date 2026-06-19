@@ -125,6 +125,28 @@ SCRIPT
   [[ "$output" == *"Pre-release version entry in changeset"* ]]
 }
 
+@test "fails on unquoted pre-release entry in changeset" {
+  mkdir -p .changeset
+  cat > .changeset/wild-trees-sing.md << 'EOF'
+---
+"@couimet/foo": patch
+"@couimet/bar": 1.0.0-alpha.0
+---
+
+Some description here.
+EOF
+
+  cat > "${MOCK_DIR}/git" << 'SCRIPT'
+#!/usr/bin/env bash
+echo ".changeset/wild-trees-sing.md"
+SCRIPT
+  chmod +x "${MOCK_DIR}/git"
+
+  run bash scripts/guard-versions.sh abc123 def456
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"Pre-release version entry in changeset"* ]]
+}
+
 @test "passes on clean changeset" {
   mkdir -p .changeset
   cat > .changeset/wild-trees-sing.md << 'EOF'
