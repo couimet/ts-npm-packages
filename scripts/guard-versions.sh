@@ -13,8 +13,7 @@ if [[ -z "$target_ref" || -z "$head_ref" ]]; then
   exit 2
 fi
 
-changed_files=$(git diff --name-only "${target_ref}...${head_ref}")
-if [[ $? -ne 0 ]]; then
+if ! changed_files=$(git diff --name-only "${target_ref}...${head_ref}"); then
   echo "::error::git diff failed — cannot resolve refs '${target_ref}...${head_ref}'" >&2
   exit 2
 fi

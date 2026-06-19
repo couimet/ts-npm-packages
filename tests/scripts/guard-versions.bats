@@ -40,6 +40,19 @@ teardown() {
   [[ "$output" == *"Usage:"* ]]
 }
 
+@test "exits 2 when git diff fails" {
+  cat > "${MOCK_DIR}/git" << 'SCRIPT'
+#!/usr/bin/env bash
+echo "fatal: ambiguous argument 'bad...ref'" >&2
+exit 128
+SCRIPT
+  chmod +x "${MOCK_DIR}/git"
+
+  run bash scripts/guard-versions.sh bad ref
+  [[ "$status" -eq 2 ]]
+  [[ "$output" == *"git diff failed"* ]]
+}
+
 @test "fails on pre-release package.json version" {
   cat > "${MOCK_DIR}/git" << 'SCRIPT'
 #!/usr/bin/env bash
