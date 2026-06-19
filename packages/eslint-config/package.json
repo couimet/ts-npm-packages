@@ -14,9 +14,7 @@
     "eslint.config.js",
     "prettier.js"
   ],
-  "scripts": {
-    "lint": "eslint ."
-  },
+  "scripts": {},
   "dependencies": {
     "prettier-plugin-packagejson": "^3.0.0"
   },

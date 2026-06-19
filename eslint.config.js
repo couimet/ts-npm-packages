@@ -1,1 +1,8 @@
-export { default } from '@couimet/eslint-config';
+import baseConfig from '@couimet/eslint-config/eslint';
+
+export default [
+  ...baseConfig,
+  {
+    ignores: ['.history/**', '.claude-work/**'],
+  },
+];

@@ -31,7 +31,6 @@
     "clean": "rm -rf dist coverage *.tsbuildinfo",
     "clean:all": "pnpm clean && rm -rf node_modules .eslintcache *.log",
     "clean:deps": "rm -rf node_modules",
-    "lint": "eslint .",
     "test": "jest --coverage",
     "typecheck": "tsc --noEmit"
   },

@@ -48,7 +48,6 @@ cat > "${target_dir}/package.json" << JSONEOF
     "clean:all": "pnpm clean && rm -rf node_modules .eslintcache *.log",
     "clean:deps": "rm -rf node_modules",
     "format": "prettier --check .",
-    "lint": "eslint .",
     "test": "jest --coverage",
     "typecheck": "tsc --noEmit"
   },
@@ -97,13 +96,6 @@ cat > "${target_dir}/tsconfig.test.json" << 'TSTESTEOF'
   "exclude": ["node_modules", "dist"]
 }
 TSTESTEOF
-
-# --- eslint.config.mjs ---
-cat > "${target_dir}/eslint.config.mjs" << 'ESLINTEOF'
-import couimetConfig from '@couimet/eslint-config/eslint';
-
-export default couimetConfig;
-ESLINTEOF
 
 # --- jest.config.js ---
 cat > "${target_dir}/jest.config.js" << 'JESTEOF'
