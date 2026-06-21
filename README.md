@@ -9,6 +9,7 @@ A monorepo for a curated family of small TypeScript packages published under the
 | Package                            | Purpose                                                                                           |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `@couimet/detailed-error`          | Structured error base class with typed error codes and shared error codes.                        |
+| `@couimet/detailed-error-testing`  | Custom Jest matchers for testing code that throws or returns `DetailedError` instances.           |
 | `@couimet/dynamic-testing`         | Dynamic testing utilities with seeded randomness for TypeScript tests.                            |
 | `@couimet/eslint-config`           | Shared ESLint (flat config) and Prettier configuration for `@couimet/*` packages.                 |
 | `@couimet/logger-contract`         | Logger interface contract — libraries depend on this without committing to any logging framework. |
