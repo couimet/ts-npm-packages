@@ -40,7 +40,7 @@ export const assertDetailedError = (received: unknown, expectedCode: string, exp
 
   if (expected.details !== undefined) {
     try {
-      expect(error.details).toEqual(expected.details);
+      expect(error.details).toStrictEqual(expected.details);
     } catch {
       failures.push(
         `  Details (toStrictEqual):\n    expected: ${inspect(expected.details, { depth: null })}\n    received: ${inspect(error.details, { depth: null })}`,
@@ -52,8 +52,8 @@ export const assertDetailedError = (received: unknown, expectedCode: string, exp
 
   if (expected.cause !== undefined) {
     if (error.cause !== expected.cause) {
-      const expectedCauseMsg = expected.cause instanceof Error ? expected.cause.message : 'undefined';
-      const receivedCauseMsg = error.cause instanceof Error ? (error.cause as Error).message : 'undefined';
+      const expectedCauseMsg = expected.cause instanceof Error ? expected.cause.message : String(expected.cause);
+      const receivedCauseMsg = error.cause instanceof Error ? (error.cause as Error).message : String(error.cause);
       failures.push(`  Cause: expected ${expectedCauseMsg}, received ${receivedCauseMsg}`);
     }
   } else if (error.cause !== undefined) {

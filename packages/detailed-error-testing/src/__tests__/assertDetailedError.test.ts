@@ -97,6 +97,30 @@ describe('assertDetailedError', () => {
     expect(result.message()).toContain('Details (toStrictEqual)');
   });
 
+  it('fails when details have extra undefined property that toStrictEqual catches', () => {
+    // toEqual would pass here (it ignores undefined properties); toStrictEqual correctly fails
+    const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', details: { key: 'value', extra: undefined } });
+    const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: 'fn', details: { key: 'value' } }));
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).toContain('Details (toStrictEqual)');
+  });
+
+  it('fails when nested details have extra undefined property that toStrictEqual catches', () => {
+    const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', details: { nested: { key: 'value', extra: undefined } } });
+    const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: 'fn', details: { nested: { key: 'value' } } }));
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).toContain('Details (toStrictEqual)');
+  });
+
+  it('passes when both details have the same undefined property', () => {
+    const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', details: { key: 'value', extra: undefined } });
+    const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: 'fn', details: { key: 'value', extra: undefined } }));
+
+    expect(result.pass).toBe(true);
+  });
+
   it('fails when expected details is undefined but error has details', () => {
     const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', details: { key: 'value' } });
     const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: 'fn' }));
@@ -137,7 +161,7 @@ describe('assertDetailedError', () => {
     const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: 'fn', cause: 'different' }));
 
     expect(result.pass).toBe(false);
-    expect(result.message()).toContain('Cause: expected undefined');
+    expect(result.message()).toContain('Cause: expected different, received string cause');
   });
 
   it('fails when expected cause is a non-Error and actual cause is a non-Error', () => {
@@ -145,7 +169,7 @@ describe('assertDetailedError', () => {
     const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: 'fn', cause: 'expected' }));
 
     expect(result.pass).toBe(false);
-    expect(result.message()).toContain('Cause: expected undefined, received undefined');
+    expect(result.message()).toContain('Cause: expected expected, received actual');
   });
 
   // --- all match ---

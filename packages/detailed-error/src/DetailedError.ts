@@ -15,14 +15,6 @@ export type ErrorOptions<T extends string> = {
   readonly cause?: unknown;
 };
 
-const deepCloneDetails = (details: ErrorDetails): ErrorDetails => {
-  try {
-    return structuredClone(details);
-  } catch {
-    return cloneWithWeakMap(details);
-  }
-};
-
 const cloneWithWeakMap = (obj: ErrorDetails): ErrorDetails => {
   const seen = new WeakMap<object, object>();
 
@@ -89,6 +81,6 @@ export class DetailedError<T extends string> extends Error {
 
     this.code = code;
     this.functionName = functionName;
-    this.details = details !== undefined ? deepCloneDetails(details) : undefined;
+    this.details = details !== undefined ? cloneWithWeakMap(details) : undefined;
   }
 }
