@@ -24,4 +24,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - `createMockLogger()` factory returning a `Logger` with `jest.fn()` stubs for all four methods
 
-[1.0.0]: https://github.com/couimet/ts-npm-packages/releases/tag/@couimet/logger-contract-testing@1.0.0
+[1.0.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Flogger-contract-testing%401.0.0...%40couimet%2Flogger-contract-testing%401.0.1
+[1.0.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Flogger-contract-testing%401.0.0

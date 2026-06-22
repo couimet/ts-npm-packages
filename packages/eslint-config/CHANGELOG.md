@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - All peer dependencies widened from `^` to `>=`
 
-## 0.2.0
+## [0.2.0]
 
 ### Changed
 
@@ -34,4 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Shared Prettier config (`printWidth: 160`, `singleQuote: true`, `trailingComma: 'all'`)
 - Subpath exports: `@couimet/eslint-config/eslint` and `@couimet/eslint-config/prettier`
 
-[0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/@couimet/eslint-config@0.1.0
+[0.4.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.3.0...%40couimet%2Feslint-config%400.4.0
+[0.3.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.2.0...%40couimet%2Feslint-config%400.3.0
+[0.2.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.1.0...%40couimet%2Feslint-config%400.2.0
+[0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Feslint-config%400.1.0
