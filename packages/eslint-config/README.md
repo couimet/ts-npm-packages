@@ -36,7 +36,7 @@ export default [
 
 ## Default ignores
 
-The ESLint config ignores `dist/`, `node_modules/`, `coverage/`, `pnpm-lock.yaml`, `*.tsbuildinfo`, and `*.d.ts.map` by default.
+The ESLint config includes a set of default ignores for build output, cache directories, and tooling artifacts. See the `ignores` array in `eslint.config.js` for the current list.
 
 ## Prettier
 

@@ -10,7 +10,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', 'pnpm-lock.yaml', '**/*.tsbuildinfo', '**/*.d.ts.map'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/.history/**', '**/.turbo/**', 'pnpm-lock.yaml', '**/*.tsbuildinfo', '**/*.d.ts.map'],
   },
   {
     files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
