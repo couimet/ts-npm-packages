@@ -38,7 +38,7 @@ Rules in this section apply repo-wide, to every package under `packages/*`. Conv
 - **Never write changeset files manually.** Do not create or edit files under `.changeset/`. The user runs `pnpm changeset` interactively to generate changeset files. When changesets are needed before merging, describe what package needs what bump and why, then tell the user to run the command. Include the full command as a copy-pasteable block, the package(s) to select, bump level, and description. Mention that `pnpm version:packages` (which runs `changeset version`) will later consume the changeset to bump the version and update the CHANGELOG.
 - **CHANGELOG compare links.** After `pnpm version:packages` bumps versions, add a link section to the bottom of each updated `CHANGELOG.md`. Use GitHub compare URLs for versions after the first, and a release tag URL for the first version. In scoped package tags, URL-encode `@` as `%40` and `/` as `%2F`. Example for a package named `example` with versions 0.1.0 and 0.1.1:
 
-```
+```text
 [0.1.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fexample%400.1.0...%40couimet%2Fexample%400.1.1
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Fexample%400.1.0
 ```
