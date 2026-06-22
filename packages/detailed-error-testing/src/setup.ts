@@ -1,4 +1,4 @@
-import { type ExpectedDetailedError } from './DetailedErrorMatcher';
+import { type ExpectedDetailedError } from './ExpectedDetailedError';
 import { toBeDetailedError } from './toBeDetailedError';
 import { toThrowDetailedError } from './toThrowDetailedError';
 import { toThrowDetailedErrorAsync } from './toThrowDetailedErrorAsync';

@@ -1,4 +1,4 @@
-import { type ExpectedDetailedError } from '../DetailedErrorMatcher';
+import { type ExpectedDetailedError } from '../ExpectedDetailedError';
 import { toThrowDetailedErrorAsync } from '../toThrowDetailedErrorAsync';
 
 import { DetailedError } from '@couimet/detailed-error';
@@ -66,5 +66,29 @@ describe('toThrowDetailedErrorAsync', () => {
 
     expect(result.pass).toBe(true);
     expect(result.message()).toContain('NOT to match');
+  });
+
+  it('detects throw undefined as a thrown value (not "nothing thrown")', async () => {
+    const fn = async () => {
+      await Promise.resolve();
+      throw undefined;
+    };
+
+    const result = await toThrowDetailedErrorAsync(fn, 'ERR', makeExpected());
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).not.toContain('nothing was thrown');
+  });
+
+  it('detects throw null as a thrown value (not "nothing thrown")', async () => {
+    const fn = async () => {
+      await Promise.resolve();
+      throw null;
+    };
+
+    const result = await toThrowDetailedErrorAsync(fn, 'ERR', makeExpected());
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).not.toContain('nothing was thrown');
   });
 });

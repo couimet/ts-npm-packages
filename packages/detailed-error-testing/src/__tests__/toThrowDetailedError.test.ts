@@ -1,4 +1,4 @@
-import { type ExpectedDetailedError } from '../DetailedErrorMatcher';
+import { type ExpectedDetailedError } from '../ExpectedDetailedError';
 import { toThrowDetailedError } from '../toThrowDetailedError';
 
 import { DetailedError } from '@couimet/detailed-error';
@@ -62,5 +62,27 @@ describe('toThrowDetailedError', () => {
 
     expect(result.pass).toBe(true);
     expect(result.message()).toContain('NOT to match');
+  });
+
+  it('detects throw undefined as a thrown value (not "nothing thrown")', () => {
+    const fn = () => {
+      throw undefined;
+    };
+
+    const result = toThrowDetailedError(fn, 'ERR', makeExpected());
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).not.toContain('nothing was thrown');
+  });
+
+  it('detects throw null as a thrown value (not "nothing thrown")', () => {
+    const fn = () => {
+      throw null;
+    };
+
+    const result = toThrowDetailedError(fn, 'ERR', makeExpected());
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).not.toContain('nothing was thrown');
   });
 });

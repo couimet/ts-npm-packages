@@ -1,4 +1,4 @@
-import { DetailedError, type ErrorOptions, SharedErrorCodes } from '../index';
+import { DetailedError, type ErrorDetails, type ErrorOptions, SharedErrorCodes } from '../index';
 
 describe('DetailedError with string codes', () => {
   it('constructs with all fields', () => {
@@ -179,5 +179,50 @@ describe('DetailedError with enum codes', () => {
 
     const code: SharedErrorCodes = err.code;
     expect(code).toBe(SharedErrorCodes.UNKNOWN);
+  });
+});
+
+describe('DetailedError constructor validation', () => {
+  it('throws when errorOptions is not an object', () => {
+    expect(() => new DetailedError(undefined as unknown as ErrorOptions<string>)).toThrow(TypeError);
+    expect(() => new DetailedError(null as unknown as ErrorOptions<string>)).toThrow(TypeError);
+  });
+
+  it('throws when code is not a string', () => {
+    expect(() => new DetailedError({ code: 123 as unknown as string, message: 'x' })).toThrow(TypeError);
+  });
+
+  it('throws when message is not a string', () => {
+    expect(() => new DetailedError({ code: 'X', message: 123 as unknown as string })).toThrow(TypeError);
+  });
+
+  it('throws when functionName is provided but not a string', () => {
+    expect(() => new DetailedError({ code: 'X', message: 'x', functionName: 123 as unknown as string })).toThrow(TypeError);
+  });
+
+  it('throws when details is provided but not an object', () => {
+    expect(() => new DetailedError({ code: 'X', message: 'x', details: 'not-an-object' as unknown as ErrorDetails })).toThrow(TypeError);
+    expect(() => new DetailedError({ code: 'X', message: 'x', details: null as unknown as ErrorDetails })).toThrow(TypeError);
+  });
+
+  it('does not throw when optional fields are omitted', () => {
+    expect(() => new DetailedError({ code: 'X', message: 'x' })).not.toThrow();
+  });
+});
+
+describe('DetailedError deep clone fallback', () => {
+  it('clones details containing a function via the WeakMap fallback', () => {
+    const fn = (): string => 'hello';
+    const circular: Record<string, unknown> = { key: 'value' };
+    circular.self = circular;
+    const details = { fn, circular, items: [{ id: 1 }, { id: 2 }], key: 'value' };
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details });
+
+    expect(err.details).toEqual({ fn, circular: { key: 'value', self: expect.any(Object) }, items: [{ id: 1 }, { id: 2 }], key: 'value' });
+    expect((err.details as Record<string, unknown>).fn).toBe(fn);
+    // Mutating the original should not affect the clone
+    (details.items[0] as Record<string, unknown>).id = 99;
+    const clonedItems = (err.details as Record<string, unknown>).items as Array<Record<string, unknown>>;
+    expect(clonedItems[0]!.id).toBe(1);
   });
 });

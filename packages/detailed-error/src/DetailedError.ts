@@ -15,6 +15,37 @@ export type ErrorOptions<T extends string> = {
   readonly cause?: unknown;
 };
 
+const deepCloneDetails = (details: ErrorDetails): ErrorDetails => {
+  try {
+    return structuredClone(details);
+  } catch {
+    return cloneWithWeakMap(details);
+  }
+};
+
+const cloneWithWeakMap = (obj: ErrorDetails): ErrorDetails => {
+  const seen = new WeakMap<object, object>();
+
+  const clone = (value: unknown): unknown => {
+    if (value === null || typeof value !== 'object') return value;
+    if (seen.has(value as object)) return seen.get(value as object);
+    if (Array.isArray(value)) {
+      const arr: unknown[] = [];
+      seen.set(value, arr);
+      for (const item of value) arr.push(clone(item));
+      return arr as unknown as ErrorDetails;
+    }
+    const result: Record<string, unknown> = {};
+    seen.set(value as object, result);
+    for (const key of Object.keys(value as Record<string, unknown>)) {
+      result[key] = clone((value as Record<string, unknown>)[key]);
+    }
+    return result;
+  };
+
+  return clone(obj) as ErrorDetails;
+};
+
 /**
  * Base class for all errors.
  *
@@ -35,12 +66,29 @@ export class DetailedError<T extends string> extends Error {
   public readonly details?: ErrorDetails;
 
   constructor(errorOptions: ErrorOptions<T>) {
+    if (typeof errorOptions !== 'object' || errorOptions === null) {
+      throw new TypeError('DetailedError constructor requires an errorOptions object');
+    }
+
     const { code, details, cause, message, functionName } = errorOptions;
+
+    if (typeof code !== 'string') {
+      throw new TypeError(`DetailedError "code" must be a string, received ${typeof code}`);
+    }
+    if (typeof message !== 'string') {
+      throw new TypeError(`DetailedError "message" must be a string, received ${typeof message}`);
+    }
+    if (functionName !== undefined && typeof functionName !== 'string') {
+      throw new TypeError(`DetailedError "functionName" must be a string if provided, received ${typeof functionName}`);
+    }
+    if (details !== undefined && (typeof details !== 'object' || details === null)) {
+      throw new TypeError(`DetailedError "details" must be an object if provided, received ${typeof details}`);
+    }
 
     super(message, cause !== undefined ? { cause } : undefined);
 
     this.code = code;
     this.functionName = functionName;
-    this.details = details !== undefined ? structuredClone(details) : undefined;
+    this.details = details !== undefined ? deepCloneDetails(details) : undefined;
   }
 }

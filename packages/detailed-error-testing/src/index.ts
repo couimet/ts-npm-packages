@@ -1,4 +1,4 @@
-export type { ExpectedDetailedError } from './DetailedErrorMatcher';
-export { toBeDetailedError } from './toBeDetailedError';
-export { toThrowDetailedError } from './toThrowDetailedError';
-export { toThrowDetailedErrorAsync } from './toThrowDetailedErrorAsync';
+export * from './ExpectedDetailedError';
+export * from './toBeDetailedError';
+export * from './toThrowDetailedError';
+export * from './toThrowDetailedErrorAsync';

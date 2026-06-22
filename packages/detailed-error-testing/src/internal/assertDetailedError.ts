@@ -1,6 +1,7 @@
-import { DetailedError, type ErrorOptions } from '@couimet/detailed-error';
+import type { ExpectedDetailedError } from '../ExpectedDetailedError';
 
-export type ExpectedDetailedError = Omit<ErrorOptions<string>, 'code'>;
+import { DetailedError } from '@couimet/detailed-error';
+import { inspect } from 'node:util';
 
 export const assertDetailedError = (received: unknown, expectedCode: string, expected: ExpectedDetailedError): jest.CustomMatcherResult => {
   const failures: string[] = [];
@@ -42,11 +43,11 @@ export const assertDetailedError = (received: unknown, expectedCode: string, exp
       expect(error.details).toEqual(expected.details);
     } catch {
       failures.push(
-        `  Details (toStrictEqual):\n    expected: ${JSON.stringify(expected.details, null, 2)}\n    received: ${JSON.stringify(error.details, null, 2)}`,
+        `  Details (toStrictEqual):\n    expected: ${inspect(expected.details, { depth: null })}\n    received: ${inspect(error.details, { depth: null })}`,
       );
     }
   } else if (error.details !== undefined) {
-    failures.push(`  Details: expected undefined, received ${JSON.stringify(error.details)}`);
+    failures.push(`  Details: expected undefined, received ${inspect(error.details, { depth: null })}`);
   }
 
   if (expected.cause !== undefined) {

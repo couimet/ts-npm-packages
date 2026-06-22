@@ -1,4 +1,5 @@
-import { assertDetailedError, type ExpectedDetailedError } from '../DetailedErrorMatcher';
+import type { ExpectedDetailedError } from '../ExpectedDetailedError';
+import { assertDetailedError } from '../internal/assertDetailedError';
 
 import { DetailedError } from '@couimet/detailed-error';
 
@@ -198,5 +199,15 @@ describe('assertDetailedError', () => {
     const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', functionName: undefined }));
 
     expect(result.pass).toBe(true);
+  });
+
+  it('does not throw when details contain circular references', () => {
+    const circular: Record<string, unknown> = { key: 'value' };
+    circular.self = circular;
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details: circular });
+    const result = assertDetailedError(err, 'ERR', makeExpected({ message: 'msg', details: { key: 'different' } }));
+
+    expect(result.pass).toBe(false);
+    expect(() => result.message()).not.toThrow();
   });
 });
