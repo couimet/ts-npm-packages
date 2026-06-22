@@ -29,6 +29,10 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 - Pretty print width is 160 (`.prettierrc` or equivalent in `@couimet/eslint-config`).
 - `src/index.ts` barrel files use `export * from './<module>';` rather than named re-exports, to keep git diffs minimal when modules gain or drop exports. Internal helpers (test-only or module-private) must live outside the module's public exports so `export *` doesn't leak them.
 
+## Dependency version ranges
+
+- **Packages that appear in both `peerDependencies` and `devDependencies`** (optional peer dependencies needed for testing) use matching `>=` ranges in both sections. The lower bound is the minimum supported major version. **All other devDependencies** use `^` ranges.
+
 ## Coding conventions
 
 Rules in this section apply repo-wide, to every package under `packages/*`. Conventions that only apply inside one package live in that package's `packages/<name>/CLAUDE.md`; Claude Code merges them when working in that directory tree. When adding a new convention, ask first whether it makes sense for every current and future package — if yes, it goes here; if no, put it in the package-local file.
