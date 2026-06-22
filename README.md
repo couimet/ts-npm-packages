@@ -2,15 +2,18 @@
 
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE) ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/couimet/ts-npm-packages?label=CodeRabbit+Reviews)
 
-A monorepo for a curated family of small TypeScript packages published under the [`@couimet`](https://www.npmjs.com/~couimet) scope on npm. Scaffold, tooling, and the first packages land in subsequent issues; see the planning docs below for the full plan and rationale.
+A monorepo for a curated family of small TypeScript packages published under the [`@couimet`](https://www.npmjs.com/~couimet) scope on npm.
 
-## Planned packages
+## Available packages
 
-| Package                            | Purpose                                                                                                             |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `@couimet/execution-context`       | Correlation ID, request ID, and async-local-storage propagation for call-chain tracing across service boundaries.   |
-| `@couimet/logger-contract`         | Minimal logger interface contract — libraries depend on this without committing consumers to any logging framework. |
-| `@couimet/logger-contract-testing` | Test mocks and helpers for the logger contract.                                                                     |
+| Package                            | Purpose                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `@couimet/detailed-error`          | Structured error base class with typed error codes and shared error codes.                        |
+| `@couimet/detailed-error-testing`  | Custom Jest matchers for testing code that throws or returns `DetailedError` instances.           |
+| `@couimet/dynamic-testing`         | Dynamic testing utilities with seeded randomness for TypeScript tests.                            |
+| `@couimet/eslint-config`           | Shared ESLint (flat config) and Prettier configuration for `@couimet/*` packages.                 |
+| `@couimet/logger-contract`         | Logger interface contract — libraries depend on this without committing to any logging framework. |
+| `@couimet/logger-contract-testing` | Zero-setup mock-logger factories for tests written against `@couimet/logger-contract`.            |
 
 ## Contributing
 
