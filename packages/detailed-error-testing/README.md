@@ -10,16 +10,33 @@ pnpm add -D @couimet/detailed-error-testing
 
 ## Overview
 
-`@couimet/detailed-error-testing` provides three Jest matchers — `toBeDetailedError`, `toThrowDetailedError`, and `toThrowDetailedErrorAsync` — that assert on `DetailedError` instances by their `code`, `message`, `functionName`, `details`, and `cause`. A one-line setup file registers the matchers and augments TypeScript types so `expect(...).toThrowDetailedError(...)` typechecks out of the box.
+`@couimet/detailed-error-testing` provides three Jest matchers — `toBeDetailedError`, `toThrowDetailedError`, and `toThrowDetailedErrorAsync` — that assert on `DetailedError` instances by their `code`, `message`, `functionName`, `details`, and `cause`. A one-line setup file registers the matchers and augments TypeScript types so `expect(...).toThrowDetailedError(...)` typechecks out of the box. All Jest versions are supported, including Jest 30+ which moved its matcher types to `@jest/expect`.
 
 ## Quick start
 
-Add the setup file to your Jest config:
+Add the setup file to your Jest config. Pick the entrypoint that matches your Jest version.
+
+### Jest 30+
 
 ```js
 // jest.config.js
 module.exports = {
   setupFilesAfterEnv: ['@couimet/detailed-error-testing/setup'],
+};
+```
+
+If your package manager does not hoist transitive dependencies (e.g. pnpm in strict mode), add `@jest/expect` to your devDependencies:
+
+```bash
+pnpm add -D @jest/expect
+```
+
+### Jest <30
+
+```js
+// jest.config.js
+module.exports = {
+  setupFilesAfterEnv: ['@couimet/detailed-error-testing/setup-before-jest-30'],
 };
 ```
 
