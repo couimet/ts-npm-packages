@@ -118,11 +118,12 @@ jobs:
 
       - name: Post PR comment
         if: steps.build-comment.outputs.skip != 'true'
-        uses: marocchino/sticky-pull-request-comment@v3.0.4
+        uses: couimet/github-actions/publish-pr-comment@main
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           header: ${{ github.ref == 'refs/heads/main' && 'publish-release' || 'pre-release-publish' }}
-          number: ${{ steps.build-comment.outputs.pr_number }}
-          path: ${{ steps.build-comment.outputs.comment_file }}
+          pr-number: ${{ steps.build-comment.outputs.pr_number }}
+          comment-file: ${{ steps.build-comment.outputs.comment_file }}
 
       - name: Push git tags
         if: github.ref == 'refs/heads/main'
