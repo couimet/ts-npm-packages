@@ -89,6 +89,9 @@ importers:
       '@couimet/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@jest/expect':
+        specifier: '>=30.0.0'
+        version: 30.4.1
       '@jest/globals':
         specifier: '>=30.0.0'
         version: 30.4.1

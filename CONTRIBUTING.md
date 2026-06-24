@@ -39,7 +39,7 @@ This drops a markdown file into `.changeset/`. Commit it alongside your code cha
 Before merging, run:
 
 ```bash
-pnpm version:packages
+pnpm changeset:version
 ```
 
 This consumes every pending changeset and writes the corresponding version bumps into `package.json` files and `CHANGELOG.md` entries. Commit the results. To check all package versions at a glance, run `pnpm version:list`.
@@ -70,7 +70,7 @@ If you prefer to run the steps by hand:
 3. **Apply the pre-release versions**:
 
    ```bash
-   pnpm version:packages
+   pnpm changeset:version
    ```
 
    This produces versions like `1.0.1-<tag>.0`. Verify with `pnpm version:list`. Commit the results.
@@ -91,7 +91,7 @@ If you prefer to run the steps by hand:
 
 ## Hot-fix path
 
-Follow the same steps as above but skip pre-release mode when you need to ship urgently. Add a changeset, run `pnpm version:packages`, create the PR against `main`, and publish from `main` after merge.
+Follow the same steps as above but skip pre-release mode when you need to ship urgently. Add a changeset, run `pnpm changeset:version`, create the PR against `main`, and publish from `main` after merge.
 
 ## Automated publishing
 
