@@ -14,14 +14,22 @@ pnpm add -D @couimet/detailed-error-testing
 
 ## Quick start
 
-Add the setup file to your Jest config. Pick the entrypoint that matches your Jest version.
+### 1. Create a setup file
 
-### Jest 30+
+Pick the import that matches your Jest version.
+
+```ts
+// tests/jest-setup.ts
+import '@couimet/detailed-error-testing/setup'; // Jest 30+
+// Or: import '@couimet/detailed-error-testing/setup-before-jest-30'; // Jest <30
+```
+
+### 2. Add it to your Jest config
 
 ```js
 // jest.config.js
 module.exports = {
-  setupFilesAfterEnv: ['@couimet/detailed-error-testing/setup'],
+  setupFilesAfterEnv: ['<rootDir>/tests/jest-setup.ts'],
 };
 ```
 
@@ -31,16 +39,15 @@ If your package manager does not hoist transitive dependencies (e.g. pnpm in str
 pnpm add -D @jest/expect
 ```
 
-### Jest <30
+That is all the setup needed. If your tsconfig doesn't already include your test directory, ensure it does:
 
-```js
-// jest.config.js
-module.exports = {
-  setupFilesAfterEnv: ['@couimet/detailed-error-testing/setup-before-jest-30'],
-};
+```json
+"include": ["src", "tests"]
 ```
 
-That is the only setup needed. Use the matchers in any test:
+The import handles both matcher registration at runtime and TypeScript type augmentation — no separate `.d.ts` file required.
+
+Use the matchers in any test:
 
 ```ts
 import { DetailedError } from '@couimet/detailed-error';

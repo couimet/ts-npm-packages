@@ -22,12 +22,12 @@
     "./setup": {
       "types": "./dist/setup.d.ts",
       "import": "./dist/setup.mjs",
-      "require": "./dist/setup.js"
+      "require": "./dist/setup.mjs"
     },
     "./setup-before-jest-30": {
       "types": "./dist/setup-before-jest-30.d.ts",
       "import": "./dist/setup-before-jest-30.mjs",
-      "require": "./dist/setup-before-jest-30.js"
+      "require": "./dist/setup-before-jest-30.mjs"
     }
   },
   "main": "./dist/index.js",
