@@ -9,5 +9,5 @@
     "@couimet/logger-contract": "1.0.0",
     "@couimet/logger-contract-testing": "1.0.1"
   },
-  "changesets": ["eighty-teams-taste"]
+  "changesets": ["eighty-teams-taste", "spotty-canyons-turn"]
 }
