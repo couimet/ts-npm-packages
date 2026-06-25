@@ -4,5 +4,5 @@
     "MD024": { "siblings_only": true },
     "MD033": false,
   },
-  "ignores": [".history/**", ".claude-work/**", "**/node_modules/**"],
+  "ignores": [".changeset/**", ".history/**", ".claude-work/**", "**/node_modules/**"],
 }

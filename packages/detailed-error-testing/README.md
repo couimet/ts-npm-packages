@@ -10,20 +10,44 @@ pnpm add -D @couimet/detailed-error-testing
 
 ## Overview
 
-`@couimet/detailed-error-testing` provides three Jest matchers — `toBeDetailedError`, `toThrowDetailedError`, and `toThrowDetailedErrorAsync` — that assert on `DetailedError` instances by their `code`, `message`, `functionName`, `details`, and `cause`. A one-line setup file registers the matchers and augments TypeScript types so `expect(...).toThrowDetailedError(...)` typechecks out of the box.
+`@couimet/detailed-error-testing` provides three Jest matchers — `toBeDetailedError`, `toThrowDetailedError`, and `toThrowDetailedErrorAsync` — that assert on `DetailedError` instances by their `code`, `message`, `functionName`, `details`, and `cause`. A one-line setup file registers the matchers and augments TypeScript types so `expect(...).toThrowDetailedError(...)` typechecks out of the box. All Jest versions are supported, including Jest 30+ which moved its matcher types to `@jest/expect`.
 
 ## Quick start
 
-Add the setup file to your Jest config:
+### 1. Create a setup file
+
+Pick the import that matches your Jest version.
+
+```ts
+// tests/jest-setup.ts
+import '@couimet/detailed-error-testing/setup'; // Jest 30+
+// Or: import '@couimet/detailed-error-testing/setup-before-jest-30'; // Jest <30
+```
+
+### 2. Add it to your Jest config
 
 ```js
 // jest.config.js
 module.exports = {
-  setupFilesAfterEnv: ['@couimet/detailed-error-testing/setup'],
+  setupFilesAfterEnv: ['<rootDir>/tests/jest-setup.ts'],
 };
 ```
 
-That is the only setup needed. Use the matchers in any test:
+If your package manager does not hoist transitive dependencies (e.g. pnpm in strict mode), add `@jest/expect` to your devDependencies:
+
+```bash
+pnpm add -D @jest/expect
+```
+
+That is all the setup needed. If your tsconfig doesn't already include your test directory, ensure it does:
+
+```json
+"include": ["src", "tests"]
+```
+
+The import handles both matcher registration at runtime and TypeScript type augmentation — no separate `.d.ts` file required.
+
+Use the matchers in any test:
 
 ```ts
 import { DetailedError } from '@couimet/detailed-error';
