@@ -9,42 +9,36 @@ permissions:
   contents: read
 
 jobs:
-  build-and-test:
+  typescript-ci-checks:
+    uses: couimet/github-actions/.github/workflows/typescript-ci-checks.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+
+  typecheck:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - &checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-          fetch-depth: 0
       - uses: couimet/github-actions/setup-node-pnpm@main
       - uses: couimet/github-actions/install-deps@main
-      - name: Format
-        run: pnpm format
-      - name: Build
-        run: pnpm build
-      - name: Test
-        run: pnpm test
-      - name: Lint
-        run: pnpm lint
       - name: Typecheck
         run: pnpm typecheck
 
   quality:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
-      - *checkout
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: couimet/github-actions/markdownlint@main
       - uses: couimet/github-actions/shellcheck@main
       - uses: couimet/github-actions/bats-test@main
         with:
           test-directory: tests/scripts
-
-  guard-versions:
-    if: github.base_ref == 'main'
-    runs-on: ubuntu-latest
-    steps:
-      - *checkout
-      - name: Block pre-release versions on main
-        run: bash scripts/guard-versions.sh "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
