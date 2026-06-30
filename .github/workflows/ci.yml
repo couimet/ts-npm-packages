@@ -43,3 +43,28 @@ jobs:
       - uses: couimet/github-actions/bats-test@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  changeset:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: couimet/github-actions/setup-node-pnpm@main
+      - uses: couimet/github-actions/install-deps@main
+      - name: Check changeset status
+        id: changeset-check
+        continue-on-error: true
+        run: bash scripts/ci-changeset-check.sh "origin/${{ github.base_ref }}"
+      - name: Comment on missing changeset
+        if: steps.changeset-check.outcome == 'failure'
+        run: bash scripts/ci-changeset-comment.sh upsert "${{ github.event.pull_request.number }}"
+      - name: Remove stale changeset comment
+        if: steps.changeset-check.outcome == 'success'
+        run: bash scripts/ci-changeset-comment.sh delete "${{ github.event.pull_request.number }}"
