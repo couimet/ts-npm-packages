@@ -31,23 +31,31 @@ fi
 comment_file="$(mktemp)"
 
 if [[ "$mode" == "main" ]]; then
+  specs=$(grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' "$publish_output" | sort -u) || true
+  if [[ -z "$specs" ]]; then
+    echo "::warning::No packages were published, skipping PR comment"
+    echo "skip=true"
+    rm -f "$comment_file"
+    exit 0
+  fi
   echo '## Published' >> "$comment_file"
   echo '' >> "$comment_file"
-  specs=$(grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' "$publish_output" | sort -u) || true
-  if [[ -n "$specs" ]]; then
-    while read -r spec; do
-      echo "- \`${spec}\`" >> "$comment_file"
-    done <<< "$specs"
-  fi
+  while read -r spec; do
+    echo "- \`${spec}\`" >> "$comment_file"
+  done <<< "$specs"
 elif [[ "$mode" == "prerelease" ]]; then
+  specs=$(grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' "$publish_output" | sort -u) || true
+  if [[ -z "$specs" ]]; then
+    echo "::warning::No packages were published, skipping PR comment"
+    echo "skip=true"
+    rm -f "$comment_file"
+    exit 0
+  fi
   echo '## Pre-release published' >> "$comment_file"
   echo '' >> "$comment_file"
-  specs=$(grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' "$publish_output" | sort -u) || true
-  if [[ -n "$specs" ]]; then
-    while read -r spec; do
-      echo "- \`${spec}\` (\`dev\` dist-tag)" >> "$comment_file"
-    done <<< "$specs"
-  fi
+  while read -r spec; do
+    echo "- \`${spec}\` (\`dev\` dist-tag)" >> "$comment_file"
+  done <<< "$specs"
 else
   echo "Invalid mode: ${mode}. Expected 'main' or 'prerelease'." >&2
   rm -f "$comment_file"

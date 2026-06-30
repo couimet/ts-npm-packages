@@ -110,10 +110,16 @@ SCRIPT
   [[ "$status" -eq 1 ]]
 }
 
-@test "empty publish output still succeeds" {
-  write_gh_mock '[{"number":1}]'
-
+@test "main: empty publish output skips with warning" {
   run bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode main --repo owner/repo --sha abc123
   [[ "$status" -eq 0 ]]
-  [[ "$output" == *"pr_number=1"* ]]
+  [[ "$output" == *"skip=true"* ]]
+  [[ "$output" == *"::warning::No packages were published"* ]]
+}
+
+@test "prerelease: empty publish output skips with warning" {
+  run bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode prerelease --branch feat/foo
+  [[ "$status" -eq 0 ]]
+  [[ "$output" == *"skip=true"* ]]
+  [[ "$output" == *"::warning::No packages were published"* ]]
 }
