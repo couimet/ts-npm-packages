@@ -3,12 +3,12 @@
 setup() {
   MOCK_DIR="$(mktemp -d)"
   export PATH="${MOCK_DIR}:${PATH}"
-  rm -f /tmp/changeset-packages.txt
+  rm -f /tmp/changeset-packages.txt /tmp/pnpm-args
 }
 
 teardown() {
   rm -rf "${MOCK_DIR}"
-  rm -f /tmp/changeset-packages.txt
+  rm -f /tmp/changeset-packages.txt /tmp/pnpm-args
 }
 
 # ── helpers ──
@@ -77,6 +77,7 @@ write_pnpm_mock() {
   cat > "${MOCK_DIR}/pnpm" << SCRIPT
 #!/usr/bin/env bash
 if [[ "\$*" == *"changeset status"* ]]; then
+  echo "\$*" > /tmp/pnpm-args
   exit ${exit_code}
 fi
 exit 0
@@ -154,4 +155,14 @@ SCRIPT
   run bash scripts/ci-changeset-check.sh "origin/main"
   [[ "$status" -eq 0 ]]
   [[ "$(cat /tmp/changeset-packages.txt)" == "" ]]
+}
+
+@test "gate check uses base ref, not tag ref" {
+  write_git_mock "@couimet/eslint-config@0.4.0" ""
+  write_pnpm_mock 0
+
+  run bash scripts/ci-changeset-check.sh "origin/main"
+
+  [[ "$status" -eq 0 ]]
+  [[ "$(cat /tmp/pnpm-args)" == *"--since=origin/main"* ]]
 }
