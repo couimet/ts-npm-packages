@@ -5,8 +5,10 @@ Shared ESLint (flat config) and Prettier configuration for `@couimet/*` packages
 ## Install
 
 ```bash
-pnpm add -D @couimet/eslint-config
+pnpm add -D @couimet/eslint-config eslint
 ```
+
+pnpm does not link binaries for auto-installed peer dependencies, so `eslint` must be installed as a direct devDependency. The other peer dependencies (`@typescript-eslint/*`, `eslint-plugin-*`, etc.) are loaded as Node modules by eslint at runtime and are resolved by pnpm without an explicit install.
 
 ## ESLint
 
