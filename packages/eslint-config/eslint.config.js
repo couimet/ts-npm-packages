@@ -5,6 +5,7 @@ import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import unicorn from 'eslint-plugin-unicorn';
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 
@@ -24,6 +25,7 @@ export default [
       '@typescript-eslint': tsPlugin,
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
+      unicorn,
       prettier: prettierPlugin,
     },
     rules: {
@@ -66,6 +68,14 @@ export default [
       ],
 
       'require-await': 'error',
+
+      'unicorn/expiring-todo-comments': [
+        'error',
+        {
+          checkDates: true,
+          allowWarningComments: false,
+        },
+      ],
     },
   },
 ];

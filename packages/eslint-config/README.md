@@ -57,3 +57,14 @@ Or in a `.prettierrc`:
 ```
 
 See [Prettier's documentation](https://prettier.io/docs/en/ignore) for `.prettierignore` setup.
+
+## Expiring TODOs
+
+The config enforces `unicorn/expiring-todo-comments` at `error`. Every TODO comment must carry an expiry condition. Bare TODOs (no condition) are errors, and comments whose condition has been met (past date, installed dependency version, etc.) also error.
+
+```ts
+// TODO [2046-06-30]: Remove this workaround once lib v3 is released
+// TODO [+react@19.0.0]: Migrate to the new concurrent API
+```
+
+See the [eslint-plugin-unicorn docs](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/expiring-todo-comments.md) for the full condition syntax (engine version, dependency presence, peer dependency version, and more).
