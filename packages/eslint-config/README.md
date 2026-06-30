@@ -63,7 +63,7 @@ See [Prettier's documentation](https://prettier.io/docs/en/ignore) for `.prettie
 The config enforces `unicorn/expiring-todo-comments` at `error`. Every TODO comment must carry an expiry condition. Bare TODOs (no condition) are errors, and comments whose condition has been met (past date, installed dependency version, etc.) also error.
 
 ```ts
-// TODO [2025-09-01]: Remove this workaround once lib v3 is released
+// TODO [2046-06-30]: Remove this workaround once lib v3 is released
 // TODO [+react@19.0.0]: Migrate to the new concurrent API
 ```
 
