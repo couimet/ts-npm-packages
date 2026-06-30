@@ -28,10 +28,25 @@ find_comment_id() {
 
 # ── generate the comment body ──
 generate_body() {
+  local packages=""
+  if [ -f /tmp/changeset-packages.txt ]; then
+    packages=$(cat /tmp/changeset-packages.txt)
+  fi
+
   cat << EOF
 ## ⚠️ Changeset required
+EOF
 
-Some packages have changed but no changeset file exists. Run one of:
+  if [ -n "${packages}" ]; then
+    cat << EOF
+
+Changed packages: \`${packages}\`
+EOF
+  fi
+
+  cat << EOF
+
+Run one of:
 
 \`\`\`bash
 pnpm changeset add          # create a changeset for the changed packages

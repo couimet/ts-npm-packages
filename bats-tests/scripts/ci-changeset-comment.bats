@@ -3,10 +3,12 @@
 setup() {
   MOCK_DIR="$(mktemp -d)"
   export PATH="${MOCK_DIR}:${PATH}"
+  rm -f /tmp/changeset-packages.txt /tmp/gh-payload.json
 }
 
 teardown() {
   rm -rf "${MOCK_DIR}"
+  rm -f /tmp/changeset-packages.txt /tmp/gh-payload.json
 }
 
 # ── helpers ──
@@ -22,6 +24,9 @@ prev=""
 for arg in "\$@"; do
   if [[ "\$prev" == "--jq" ]]; then
     jq_expr="\$arg"
+  fi
+  if [[ "\$prev" == "--input" ]]; then
+    cp "\$arg" /tmp/gh-payload.json
   fi
   prev="\$arg"
 done
@@ -89,4 +94,32 @@ SCRIPT
 
   run bash scripts/ci-changeset-comment.sh delete 42
   [[ "$status" -eq 0 ]]
+}
+
+# ── comment body tests ──
+
+@test "comment body includes changed packages when file exists" {
+  write_gh_mock "" # no existing comment
+  echo "eslint-config, logger" > /tmp/changeset-packages.txt
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 0 ]]
+  grep -q 'Changed packages.*eslint-config, logger' /tmp/gh-payload.json
+}
+
+@test "comment body omits package list when file is empty" {
+  write_gh_mock "" # no existing comment
+  echo -n "" > /tmp/changeset-packages.txt
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 0 ]]
+  ! grep -q 'Changed packages' /tmp/gh-payload.json
+}
+
+@test "comment body omits package list when file does not exist" {
+  write_gh_mock "" # no existing comment
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 0 ]]
+  ! grep -q 'Changed packages' /tmp/gh-payload.json
 }
