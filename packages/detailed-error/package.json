@@ -36,7 +36,6 @@
   },
   "prettier": "@couimet/eslint-config/prettier",
   "devDependencies": {
-    "@couimet/detailed-error-testing": "workspace:*",
     "@couimet/eslint-config": "workspace:*",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.13.2",
