@@ -87,18 +87,17 @@ export class DetailedError<T extends string> extends Error {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static forUnexpectedSwitchDefault<C extends new (...args: any[]) => DetailedError<any>>(
+  static forUnexpectedSwitchDefault<T extends string, C extends new (...args: any[]) => DetailedError<T>>(
     this: C,
     label: string,
     value: unknown,
     functionName: string,
-    options?: { message?: string; extraDetails?: ErrorDetails; code?: string },
+    options?: { message?: string; extraDetails?: ErrorDetails; code?: NoInfer<T> },
   ): InstanceType<C> {
     // SharedErrorCodes.UNEXPECTED_CODE_PATH is the recommended default — override
     // via options.code when the subclass uses a standalone enum without SharedErrorCodes.
     return new this({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      code: (options?.code ?? SharedErrorCodes.UNEXPECTED_CODE_PATH) as any,
+      code: (options?.code ?? SharedErrorCodes.UNEXPECTED_CODE_PATH) as T,
       message: options?.message ?? `Unexpected ${label}: ${JSON.stringify(value)}`,
       functionName,
       details: { ...options?.extraDetails, unexpectedValue: value },

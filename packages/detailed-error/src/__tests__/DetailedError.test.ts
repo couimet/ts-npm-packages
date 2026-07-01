@@ -350,6 +350,36 @@ describe('DetailedError with enum codes', () => {
       expect(err).toBeInstanceOf(ProjectError);
       expect(err.name).toBe('ProjectError');
     });
+
+    it('accepts a project-specific enum value as the code override', () => {
+      const err = ProjectError.forUnexpectedSwitchDefault('mode', 'unknown', 'switchMode', {
+        code: ProjectCodes.BAD_INPUT,
+      });
+
+      expect(err).toBeDetailedError('BAD_INPUT', {
+        message: 'Unexpected mode: "unknown"',
+        functionName: 'switchMode',
+        details: { unexpectedValue: 'unknown' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+      expect(err).toBeInstanceOf(ProjectError);
+    });
+
+    it('accepts a shared error code as the code override', () => {
+      const err = ProjectError.forUnexpectedSwitchDefault('mode', 'unknown', 'switchMode', {
+        code: SharedErrorCodes.VALIDATION,
+      });
+
+      expect(err).toBeDetailedError('VALIDATION', {
+        message: 'Unexpected mode: "unknown"',
+        functionName: 'switchMode',
+        details: { unexpectedValue: 'unknown' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+      expect(err).toBeInstanceOf(ProjectError);
+    });
   });
 });
 
