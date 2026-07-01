@@ -4,6 +4,8 @@ All notable changes to the `@couimet/logger-contract` package will be documented
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!-- changelog-entries -->
+
 ## [1.0.0]
 
 ### Added
@@ -13,5 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `NoOpLogger` default implementation that silently discards all messages
 - Global logger registry via `setLogger()` / `getLogger()`
 - `pingLog()` smoke-test utility that exercises all four log levels
+
+<!-- changelog-links -->
 
 [1.0.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Flogger-contract%401.0.0

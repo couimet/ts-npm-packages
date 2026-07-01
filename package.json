@@ -17,7 +17,7 @@
     "changeset:pre-alpha": "pnpm guard:not-main && changeset pre enter alpha",
     "changeset:pre-beta": "pnpm guard:not-main && changeset pre enter beta",
     "changeset:pre-exit": "pnpm guard:not-main && changeset pre exit",
-    "changeset:version": "changeset version",
+    "changeset:version": "changeset version && scripts/fix-changelogs.sh",
     "clean": "turbo run clean",
     "clean:all": "turbo run clean:all",
     "clean:deps": "turbo run clean:deps",
