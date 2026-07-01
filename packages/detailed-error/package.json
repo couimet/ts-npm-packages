@@ -1,6 +1,6 @@
 {
   "name": "@couimet/detailed-error",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Structured error base class with typed error codes and shared error codes",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error#readme",
   "bugs": {

@@ -1,6 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@couimet/detailed-error-testing": ["../detailed-error-testing/dist/index.d.ts"]
+    },
     "types": ["jest", "node"],
     "module": "CommonJS",
     "noEmit": true

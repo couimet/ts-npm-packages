@@ -9,6 +9,14 @@
       "dependsOn": ["build"],
       "outputs": []
     },
+    "@couimet/detailed-error#test": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
+      "outputs": []
+    },
+    "@couimet/detailed-error#typecheck": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": ["build"],
       "outputs": []
