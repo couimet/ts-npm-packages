@@ -1,3 +1,5 @@
+import { SharedErrorCodes } from './SharedErrorCodes';
+
 /** Base type for error details */
 export type ErrorDetails = { readonly [key: string]: unknown };
 
@@ -82,5 +84,24 @@ export class DetailedError<T extends string> extends Error {
     this.code = code;
     this.functionName = functionName;
     this.details = details !== undefined ? cloneWithWeakMap(details) : undefined;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static forUnexpectedSwitchDefault<C extends new (...args: any[]) => DetailedError<any>>(
+    this: C,
+    label: string,
+    value: unknown,
+    functionName: string,
+    options?: { message?: string; extraDetails?: ErrorDetails; code?: string },
+  ): InstanceType<C> {
+    // SharedErrorCodes.UNEXPECTED_CODE_PATH is the recommended default — override
+    // via options.code when the subclass uses a standalone enum without SharedErrorCodes.
+    return new this({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      code: (options?.code ?? SharedErrorCodes.UNEXPECTED_CODE_PATH) as any,
+      message: options?.message ?? `Unexpected ${label}: ${JSON.stringify(value)}`,
+      functionName,
+      details: { ...options?.extraDetails, unexpectedValue: value },
+    }) as InstanceType<C>;
   }
 }

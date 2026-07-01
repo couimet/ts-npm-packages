@@ -22,5 +22,8 @@ module.exports = {
     },
   },
   coverageDirectory: 'coverage',
+  moduleNameMapper: {
+    '^@couimet/detailed-error$': '<rootDir>/src/index.ts',
+  },
   verbose: true,
 };

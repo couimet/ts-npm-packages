@@ -1,21 +1,28 @@
 import { DetailedError, type ErrorDetails, type ErrorOptions, SharedErrorCodes } from '../index';
 
+import { toBeDetailedError } from '@couimet/detailed-error-testing';
+
+expect.extend({ toBeDetailedError });
+
 describe('DetailedError with string codes', () => {
   it('constructs with all fields', () => {
+    const root = new Error('root cause');
     const err = new DetailedError({
       code: 'TEST_CODE',
       message: 'Something went wrong',
       functionName: 'doStuff',
       details: { key: 'value' },
-      cause: new Error('root cause'),
+      cause: root,
     });
 
-    expect(err.code).toBe('TEST_CODE');
-    expect(err.message).toBe('Something went wrong');
-    expect(err.functionName).toBe('doStuff');
-    expect(err.details).toEqual({ key: 'value' });
-    expect(err.cause).toBeInstanceOf(Error);
-    expect((err.cause as Error).message).toBe('root cause');
+    expect(err).toBeDetailedError('TEST_CODE', {
+      message: 'Something went wrong',
+      functionName: 'doStuff',
+      details: { key: 'value' },
+      cause: root,
+    });
+    expect(err).toBeInstanceOf(Error);
+    expect(err).toBeInstanceOf(DetailedError);
   });
 
   it('constructs with only required fields', () => {
@@ -24,11 +31,9 @@ describe('DetailedError with string codes', () => {
       message: 'Just the essentials',
     });
 
-    expect(err.code).toBe('MINIMAL');
-    expect(err.message).toBe('Just the essentials');
-    expect(err.functionName).toBeUndefined();
-    expect(err.details).toBeUndefined();
-    expect(err.cause).toBeUndefined();
+    expect(err).toBeDetailedError('MINIMAL', {
+      message: 'Just the essentials',
+    });
   });
 
   it('is instanceof Error and DetailedError', () => {
@@ -42,13 +47,19 @@ describe('DetailedError with string codes', () => {
     const root = new Error('root');
     const err = new DetailedError({ code: 'WRAPPED', message: 'wrapper', cause: root });
 
+    expect(err).toBeDetailedError('WRAPPED', {
+      message: 'wrapper',
+      cause: root,
+    });
     expect(err.cause).toBe(root);
   });
 
   it('does not set cause when cause is undefined', () => {
     const err = new DetailedError({ code: 'NO_CAUSE', message: 'no cause here' });
 
-    expect(err.cause).toBeUndefined();
+    expect(err).toBeDetailedError('NO_CAUSE', {
+      message: 'no cause here',
+    });
   });
 
   it('details is a defensive deep copy — mutating a nested object does not affect the error', () => {
@@ -58,16 +69,21 @@ describe('DetailedError with string codes', () => {
     (original.nested as Record<string, unknown>).key = 'mutated';
     (original as Record<string, unknown>).extra = 'added';
 
-    expect(err.details).toEqual({ nested: { key: 'original' } });
-    expect(err.details).not.toHaveProperty('extra');
+    expect(err).toBeDetailedError('X', {
+      message: 'msg',
+      details: { nested: { key: 'original' } },
+    });
   });
 
   it('details is not the same object reference as the input', () => {
     const original = { key: 'value' };
     const err = new DetailedError({ code: 'X', message: 'msg', details: original });
 
+    expect(err).toBeDetailedError('X', {
+      message: 'msg',
+      details: { key: 'value' },
+    });
     expect(err.details).not.toBe(original);
-    expect((err.details as Record<string, unknown>).nested).toBeUndefined();
   });
 
   it('deep-clones circular references without throwing', () => {
@@ -76,9 +92,14 @@ describe('DetailedError with string codes', () => {
 
     const err = new DetailedError({ code: 'CIRCULAR', message: 'circular details', details: circular });
 
+    const expectedDetails: Record<string, unknown> = { key: 'value' };
+    expectedDetails.self = expectedDetails;
+
+    expect(err).toBeDetailedError('CIRCULAR', {
+      message: 'circular details',
+      details: expectedDetails,
+    });
     expect(err.details).not.toBe(circular);
-    expect((err.details as Record<string, unknown>).key).toBe('value');
-    expect((err.details as Record<string, unknown>).self).toBe(err.details);
     // Original circular still references itself, not the clone
     circular.key = 'mutated';
     expect((err.details as Record<string, unknown>).key).toBe('value');
@@ -91,7 +112,10 @@ describe('DetailedError with string codes', () => {
     (original.items[0] as Record<string, unknown>).id = 99;
     original.items.push({ id: 3 });
 
-    expect(err.details).toEqual({ items: [{ id: 1 }, { id: 2 }] });
+    expect(err).toBeDetailedError('X', {
+      message: 'msg',
+      details: { items: [{ id: 1 }, { id: 2 }] },
+    });
   });
 
   it('is catchable via instanceof DetailedError', () => {
@@ -100,10 +124,119 @@ describe('DetailedError with string codes', () => {
     try {
       throw thrown;
     } catch (err) {
-      expect(err).toBeInstanceOf(DetailedError);
+      expect(err).toBeDetailedError('BOOM', {
+        message: 'it blew up',
+      });
       expect(err).toBeInstanceOf(Error);
-      expect((err as DetailedError<string>).code).toBe('BOOM');
+      expect(err).toBeInstanceOf(DetailedError);
     }
+  });
+
+  describe('forUnexpectedSwitchDefault', () => {
+    it('constructs with default message from label and value', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('state', 'invalid', 'doWork');
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected state: "invalid"',
+        functionName: 'doWork',
+        details: { unexpectedValue: 'invalid' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('uses custom message when provided', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('poll outcome', 'stale', 'PollDetector.handle', {
+        message: 'Poll returned unrecognized status',
+      });
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Poll returned unrecognized status',
+        functionName: 'PollDetector.handle',
+        details: { unexpectedValue: 'stale' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('uses custom code from options when provided', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('mode', 'unknown', 'switchMode', {
+        code: 'MY_CUSTOM_CODE',
+      });
+
+      expect(err).toBeDetailedError('MY_CUSTOM_CODE', {
+        message: 'Unexpected mode: "unknown"',
+        functionName: 'switchMode',
+        details: { unexpectedValue: 'unknown' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('includes extraDetails alongside unexpectedValue', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('type', 'unknown', 'parse', {
+        extraDetails: { context: 'deserialization', inputId: 42 },
+      });
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected type: "unknown"',
+        functionName: 'parse',
+        details: { context: 'deserialization', inputId: 42, unexpectedValue: 'unknown' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('explicit unexpectedValue in extraDetails is overwritten by the value argument', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('type', 'actual', 'parse', {
+        extraDetails: { unexpectedValue: 'stale' },
+      });
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected type: "actual"',
+        functionName: 'parse',
+        details: { unexpectedValue: 'actual' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('handles null value', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('result', null, 'fetchData');
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected result: null',
+        functionName: 'fetchData',
+        details: { unexpectedValue: null },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('handles undefined value', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('result', undefined, 'fetchData');
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected result: undefined',
+        functionName: 'fetchData',
+        details: { unexpectedValue: undefined },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+    });
+
+    it('error name is Error (DetailedError does not set a custom name)', () => {
+      const err = DetailedError.forUnexpectedSwitchDefault('key', 'bad', 'validate');
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected key: "bad"',
+        functionName: 'validate',
+        details: { unexpectedValue: 'bad' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+      expect(err.name).toBe('Error');
+    });
   });
 });
 
@@ -127,17 +260,21 @@ describe('DetailedError with enum codes', () => {
   it('accepts a project-specific enum value', () => {
     const err = new ProjectError({ code: ProjectCodes.BAD_INPUT, message: 'bad input' });
 
+    expect(err).toBeDetailedError('BAD_INPUT', {
+      message: 'bad input',
+    });
     expect(err).toBeInstanceOf(ProjectError);
     expect(err).toBeInstanceOf(DetailedError);
     expect(err).toBeInstanceOf(Error);
     expect(err.name).toBe('ProjectError');
-    expect(err.code).toBe('BAD_INPUT');
   });
 
   it('accepts a shared error code', () => {
     const err = new ProjectError({ code: SharedErrorCodes.VALIDATION, message: 'invalid' });
 
-    expect(err.code).toBe('VALIDATION');
+    expect(err).toBeDetailedError('VALIDATION', {
+      message: 'invalid',
+    });
     expect(err).toBeInstanceOf(ProjectError);
   });
 
@@ -150,7 +287,9 @@ describe('DetailedError with enum codes', () => {
     } catch (err) {
       if (err instanceof ProjectError) {
         caught = true;
-        expect(err.code).toBe(ProjectCodes.TIMEOUT);
+        expect(err).toBeDetailedError('TIMEOUT', {
+          message: 'timed out',
+        });
       } else {
         throw err;
       }
@@ -164,10 +303,11 @@ describe('DetailedError with enum codes', () => {
     try {
       throw thrown;
     } catch (err) {
+      expect(err).toBeDetailedError('BAD_INPUT', {
+        message: 'bad',
+      });
       expect(err).toBeInstanceOf(DetailedError);
       expect(err).toBeInstanceOf(Error);
-      // Narrow enough to see code, but not the project enum type
-      expect((err as DetailedError<string>).code).toBe('BAD_INPUT');
     }
   });
 
@@ -178,7 +318,38 @@ describe('DetailedError with enum codes', () => {
     });
 
     const code: SharedErrorCodes = err.code;
-    expect(code).toBe(SharedErrorCodes.UNKNOWN);
+    expect(err).toBeDetailedError(code, {
+      message: 'Something unexpected',
+    });
+  });
+
+  describe('forUnexpectedSwitchDefault', () => {
+    it('returns a ProjectError instance when called on the subclass', () => {
+      const err = ProjectError.forUnexpectedSwitchDefault('state column', 'invalid', 'SystemStateRepositoryImpl.setState');
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected state column: "invalid"',
+        functionName: 'SystemStateRepositoryImpl.setState',
+        details: { unexpectedValue: 'invalid' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+      expect(err).toBeInstanceOf(ProjectError);
+    });
+
+    it('sets the error name to the subclass name', () => {
+      const err = ProjectError.forUnexpectedSwitchDefault('key', 'bad', 'validate');
+
+      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+        message: 'Unexpected key: "bad"',
+        functionName: 'validate',
+        details: { unexpectedValue: 'bad' },
+      });
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toBeInstanceOf(DetailedError);
+      expect(err).toBeInstanceOf(ProjectError);
+      expect(err.name).toBe('ProjectError');
+    });
   });
 });
 
@@ -218,7 +389,13 @@ describe('DetailedError deep clone fallback', () => {
     const details = { fn, circular, items: [{ id: 1 }, { id: 2 }], key: 'value' };
     const err = new DetailedError({ code: 'ERR', message: 'msg', details });
 
-    expect(err.details).toEqual({ fn, circular: { key: 'value', self: expect.any(Object) }, items: [{ id: 1 }, { id: 2 }], key: 'value' });
+    const expectedCircular: Record<string, unknown> = { key: 'value' };
+    expectedCircular.self = expectedCircular;
+
+    expect(err).toBeDetailedError('ERR', {
+      message: 'msg',
+      details: { fn, circular: expectedCircular, items: [{ id: 1 }, { id: 2 }], key: 'value' },
+    });
     expect((err.details as Record<string, unknown>).fn).toBe(fn);
     // Mutating the original should not affect the clone
     (details.items[0] as Record<string, unknown>).id = 99;

@@ -53,6 +53,9 @@ importers:
 
   packages/detailed-error:
     devDependencies:
+      '@couimet/detailed-error-testing':
+        specifier: workspace:*
+        version: link:../detailed-error-testing
       '@couimet/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
