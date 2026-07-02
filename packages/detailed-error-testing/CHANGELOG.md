@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.1.2]
+
+### Fixed
+
+- Fixed CJS require conditions for `./setup` and `./setup-before-jest-30` subpath exports so they resolve to the correct `.js` files instead of `.mjs`.
+- Updated dependencies
+  - @couimet/detailed-error@0.2.1
+
 ## [0.1.1]
 
 ### Fixed
@@ -23,5 +31,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.1.2]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error-testing%400.1.1...%40couimet%2Fdetailed-error-testing%400.1.2
 [0.1.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error-testing%400.1.0...%40couimet%2Fdetailed-error-testing%400.1.1
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Fdetailed-error-testing%400.1.0

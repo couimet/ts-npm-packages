@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.2.1]
+
+### Fixed
+
+- Fixed stack traces to point to the call site instead of the constructor, and Error instances in details are now preserved during deep cloning instead of being reduced to empty objects.
+
 ## [0.2.0]
 
 ### Added
@@ -20,5 +26,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.2.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error%400.2.0...%40couimet%2Fdetailed-error%400.2.1
 [0.2.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error%400.1.0...%40couimet%2Fdetailed-error%400.2.0
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Fdetailed-error%400.1.0

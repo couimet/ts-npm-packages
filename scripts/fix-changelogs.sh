@@ -52,10 +52,13 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
 
     function flush_block() {
       if (!in_version_block) return
+      # Strip trailing newlines absorbed from separator blank lines between entries,
+      # then add exactly one blank line as the block separator.
+      sub(/\n+$/, "", current_block)
       if (section == "pre_boilerplate") {
-        misplaced_blocks = misplaced_blocks current_block
+        misplaced_blocks = misplaced_blocks current_block "\n\n"
       } else {
-        entries_content = entries_content current_block
+        entries_content = entries_content current_block "\n\n"
       }
       current_block = ""
       in_version_block = 0
@@ -158,9 +161,12 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
       printf "%s", post_boilerplate
 
       # ── Entries marker ──
-      print "<!-- changelog-entries -->"
+      print "<!-- changelog-entries -->\n"
 
       # ── Output version blocks (misplaced blocks moved here + normal entries) ──
+      # Strip leading newlines absorbed from blank lines between the marker and the first block
+      sub(/^\n+/, "", misplaced_blocks)
+      sub(/^\n+/, "", entries_content)
       printf "%s", misplaced_blocks
       printf "%s", entries_content
 

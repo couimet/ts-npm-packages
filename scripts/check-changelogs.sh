@@ -34,6 +34,17 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
       violations=$((violations + 1))
     fi
   done < <(grep -E '^## \[[0-9]+\.[0-9]+\.[0-9]+' "$changelog" | sed 's/^## \[//;s/\].*$//')
+
+  # Check 5: Empty line between <!-- changelog-entries --> marker and first version header
+  if grep -q '^<!-- changelog-entries -->' "$changelog"; then
+    marker_line="$(grep -n '^<!-- changelog-entries -->' "$changelog" | head -1 | cut -d: -f1)"
+    next_line_num=$((marker_line + 1))
+    next_line="$(sed -n "${next_line_num}p" "$changelog" 2>/dev/null || true)"
+    if echo "$next_line" | grep -qE '^## \['; then
+      echo "ERROR: $changelog is missing an empty line between <!-- changelog-entries --> marker and first version header." >&2
+      violations=$((violations + 1))
+    fi
+  fi
 done
 
 if [ "$violations" -gt 0 ]; then
