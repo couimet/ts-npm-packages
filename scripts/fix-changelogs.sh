@@ -4,6 +4,9 @@ set -euo pipefail
 REPO_ROOT="${1:-$(pwd)}"
 REPO_URL="https://github.com/couimet/ts-npm-packages"
 
+tmp_files=()
+trap '[[ ${#tmp_files[@]} -gt 0 ]] && rm -f "${tmp_files[@]}"' EXIT
+
 for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
   [ -f "$changelog" ] || continue
 
@@ -16,6 +19,7 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
 
   # ── Step 1: Replace semver bump headings with keep-a-changelog categories ──
   tmp="$(mktemp)"
+  tmp_files+=("$tmp")
   sed \
     -e 's/^### Major Changes$/### Changed/' \
     -e 's/^### Minor Changes$/### Added/' \
@@ -25,6 +29,7 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
 
   # ── Step 2: Add brackets to bare version headers (## X.Y.Z → ## [X.Y.Z]) ──
   tmp="$(mktemp)"
+  tmp_files+=("$tmp")
   while IFS= read -r line; do
     if [[ "$line" =~ ^##\ [0-9]+\.[0-9]+\.[0-9]+ ]] && [[ ! "$line" =~ ^##\ \[ ]]; then
       rest="${line#\#\# }"
@@ -32,11 +37,12 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
     else
       echo "$line"
     fi
-  done < "$changelog" > "$tmp"
+  done < <(cat "$changelog"; echo) > "$tmp"
   mv "$tmp" "$changelog"
 
   # ── Step 3: Structure, markers, and links ──
   tmp="$(mktemp)"
+  tmp_files+=("$tmp")
   awk -v pkg_name="$pkg_name" -v repo_url="$REPO_URL" '
     function encode_tag(pkg, ver) {
       gsub(/@/, "%40", pkg)
@@ -161,10 +167,8 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
       # ── Links marker ──
       print "<!-- changelog-links -->"
 
-      # ── Existing links ──
-      printf "%s", links_content
-
-      # ── Generate missing compare links ──
+      # ── Rebuild links section in version order ──
+      if (version_count > 0) print ""
       split(links_content, link_lines, "\n")
       for (i = 1; i in link_lines; i++) {
         line = link_lines[i]
@@ -173,12 +177,15 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
           sub(/^\[/, "", v)
           sub(/\]:.*$/, "", v)
           existing[v] = 1
+          link_for[v] = line
         }
       }
 
       for (i = 1; i <= version_count; i++) {
         v = versions[i]
-        if (!(v in existing)) {
+        if (v in existing) {
+          printf "%s\n", link_for[v]
+        } else {
           if (i == version_count) {
             tag = encode_tag(pkg_name, v)
             printf "[%s]: %s/releases/tag/%s\n", v, repo_url, tag
