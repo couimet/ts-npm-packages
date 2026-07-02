@@ -28,9 +28,43 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-  quality:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
+  markdownlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: couimet/github-actions/markdownlint@main
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: couimet/github-actions/shellcheck@main
+
+  check-changelogs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Check changelogs
+        run: bash scripts/check-changelogs.sh
+
+  bats-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
     permissions:
       contents: read
       pull-requests: write
@@ -38,10 +72,6 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
-      - uses: couimet/github-actions/markdownlint@main
-      - uses: couimet/github-actions/shellcheck@main
-      - name: Check changelogs
-        run: bash scripts/check-changelogs.sh
       - uses: couimet/github-actions/bats-test@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
