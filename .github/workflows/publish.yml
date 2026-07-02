@@ -124,6 +124,7 @@ jobs:
           header: ${{ github.ref == 'refs/heads/main' && 'publish-release' || 'pre-release-publish' }}
           pr-number: ${{ steps.build-comment.outputs.pr_number }}
           comment-file: ${{ steps.build-comment.outputs.comment_file }}
+          create-new: true
 
       - name: Push git tags
         if: github.ref == 'refs/heads/main'
