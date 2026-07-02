@@ -40,6 +40,8 @@ jobs:
           persist-credentials: false
       - uses: couimet/github-actions/markdownlint@main
       - uses: couimet/github-actions/shellcheck@main
+      - name: Check changelogs
+        run: bash scripts/check-changelogs.sh
       - uses: couimet/github-actions/bats-test@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
