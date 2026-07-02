@@ -110,16 +110,36 @@ SCRIPT
   [[ "$status" -eq 1 ]]
 }
 
-@test "main: empty publish output skips with warning" {
-  run bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode main --repo owner/repo --sha abc123
+@test "main: empty publish output skips with warning to stderr" {
+  run --separate-stderr bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode main --repo owner/repo --sha abc123
   [[ "$status" -eq 0 ]]
   [[ "$output" == *"skip=true"* ]]
-  [[ "$output" == *"::warning::No packages were published"* ]]
+  [[ "$stderr" == *"::warning::No packages were published"* ]]
 }
 
-@test "prerelease: empty publish output skips with warning" {
-  run bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode prerelease --branch feat/foo
+@test "prerelease: empty publish output skips with warning to stderr" {
+  run --separate-stderr bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode prerelease --branch feat/foo
   [[ "$status" -eq 0 ]]
   [[ "$output" == *"skip=true"* ]]
-  [[ "$output" == *"::warning::No packages were published"* ]]
+  [[ "$stderr" == *"::warning::No packages were published"* ]]
+}
+
+@test "main: no PR found warns to stderr" {
+  write_publish_output
+  write_gh_mock '[]'
+
+  run --separate-stderr bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode main --repo owner/repo --sha abc123
+  [[ "$status" -eq 0 ]]
+  [[ "$output" == *"skip=true"* ]]
+  [[ "$stderr" == *"::warning::No PR found"* ]]
+}
+
+@test "prerelease: no PR found warns to stderr" {
+  write_publish_output
+  write_gh_mock '[]'
+
+  run --separate-stderr bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode prerelease --branch feat/bar
+  [[ "$status" -eq 0 ]]
+  [[ "$output" == *"skip=true"* ]]
+  [[ "$stderr" == *"::warning::No PR found"* ]]
 }

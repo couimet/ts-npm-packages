@@ -33,7 +33,7 @@ comment_file="$(mktemp)"
 if [[ "$mode" == "main" ]]; then
   specs=$(grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' "$publish_output" | sort -u) || true
   if [[ -z "$specs" ]]; then
-    echo "::warning::No packages were published, skipping PR comment"
+    echo "::warning::No packages were published, skipping PR comment" >&2
     echo "skip=true"
     rm -f "$comment_file"
     exit 0
@@ -46,7 +46,7 @@ if [[ "$mode" == "main" ]]; then
 elif [[ "$mode" == "prerelease" ]]; then
   specs=$(grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' "$publish_output" | sort -u) || true
   if [[ -z "$specs" ]]; then
-    echo "::warning::No packages were published, skipping PR comment"
+    echo "::warning::No packages were published, skipping PR comment" >&2
     echo "skip=true"
     rm -f "$comment_file"
     exit 0
@@ -82,7 +82,7 @@ else
 fi
 
 if [[ -z "${pr_number}" || "${pr_number}" == "null" ]]; then
-  echo "::warning::No PR found, skipping comment"
+  echo "::warning::No PR found, skipping comment" >&2
   echo "skip=true"
 else
   echo "pr_number=${pr_number}"
