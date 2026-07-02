@@ -68,3 +68,48 @@ The config enforces `unicorn/expiring-todo-comments` at `error`. Every TODO comm
 ```
 
 See the [eslint-plugin-unicorn docs](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/expiring-todo-comments.md) for the full condition syntax (engine version, dependency presence, peer dependency version, and more).
+
+## React
+
+The config exports a `reactConfig(options)` function that adds React hooks and JSX safety rules. Use it when your project has React components.
+
+Install the required plugins:
+
+```bash
+pnpm add -D eslint-plugin-react eslint-plugin-react-hooks
+```
+
+Then import and spread `reactConfig()` into your config array:
+
+```js
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import baseConfig, { reactConfig } from '@couimet/eslint-config';
+
+export default [
+  ...baseConfig,
+  ...reactConfig({
+    plugins: { 'react-hooks': reactHooksPlugin, react: reactPlugin },
+  }),
+];
+```
+
+Both `react-hooks` and `react` are required in the plugins map. Passing them is the explicit opt-in gate.
+
+The default rules are:
+
+| Rule                          | Severity |
+| ----------------------------- | -------- |
+| `react-hooks/rules-of-hooks`  | error    |
+| `react-hooks/exhaustive-deps` | warn     |
+| `react/jsx-key`               | error    |
+| `react/jsx-no-target-blank`   | error    |
+
+Override individual rules with `options.rules`:
+
+```js
+...reactConfig({
+  plugins: { 'react-hooks': reactHooksPlugin, react: reactPlugin },
+  rules: { 'react-hooks/exhaustive-deps': 'off' },
+}),
+```

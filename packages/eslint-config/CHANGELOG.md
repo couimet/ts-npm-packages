@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.6.0]
+
+### Added
+
+- Added `reactConfig()` named export with React hooks (`rules-of-hooks`, `exhaustive-deps`) and JSX safety (`jsx-key`, `jsx-no-target-blank`) rules.
+
 ## [0.5.0]
 
 ### Added
@@ -44,6 +50,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.6.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.5.0...%40couimet%2Feslint-config%400.6.0
 [0.5.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.4.0...%40couimet%2Feslint-config%400.5.0
 [0.4.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.3.0...%40couimet%2Feslint-config%400.4.0
 [0.3.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.2.0...%40couimet%2Feslint-config%400.3.0
