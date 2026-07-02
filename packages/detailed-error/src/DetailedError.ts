@@ -22,6 +22,18 @@ const cloneWithWeakMap = (obj: ErrorDetails): ErrorDetails => {
 
   const clone = (value: unknown): unknown => {
     if (value === null || typeof value !== 'object') return value;
+    if (value instanceof Error) {
+      const result: Record<string, unknown> = {
+        name: value.name,
+        message: value.message,
+        stack: value.stack,
+      };
+      seen.set(value, result);
+      if (value.cause !== undefined) {
+        result.cause = clone(value.cause);
+      }
+      return result;
+    }
     if (seen.has(value as object)) return seen.get(value as object);
     if (Array.isArray(value)) {
       const arr: unknown[] = [];
@@ -84,6 +96,8 @@ export class DetailedError<T extends string> extends Error {
     this.code = code;
     this.functionName = functionName;
     this.details = details !== undefined ? cloneWithWeakMap(details) : undefined;
+
+    Error.captureStackTrace(this, new.target);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

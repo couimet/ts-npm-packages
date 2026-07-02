@@ -269,3 +269,49 @@ MD
 
   [[ "$status" -eq 0 ]]
 }
+
+@test "detects missing empty line after entries marker" {
+  write_clean_changelog
+  # Remove the blank line after <!-- changelog-entries -->
+  cat > "${PKG_DIR}/CHANGELOG.md" << 'MD'
+# Changelog
+
+All notable changes are recorded here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+<!-- changelog-entries -->
+## [0.1.0]
+
+### Added
+
+- Initial release
+
+<!-- changelog-links -->
+
+[0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/test-pkg%400.1.0
+MD
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -ne 0 ]]
+  [[ "$output" == *"missing an empty line between <!-- changelog-entries --> marker"* ]]
+}
+
+@test "allows empty line after entries marker when no entries exist" {
+  cat > "${PKG_DIR}/CHANGELOG.md" << 'MD'
+# Changelog
+
+All notable changes are recorded here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+<!-- changelog-entries -->
+
+<!-- changelog-links -->
+MD
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -eq 0 ]]
+}

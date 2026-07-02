@@ -433,3 +433,70 @@ describe('DetailedError deep clone fallback', () => {
     expect(clonedItems[0]!.id).toBe(1);
   });
 });
+
+describe('DetailedError stack trace', () => {
+  it('stack trace does not include the DetailedError constructor', () => {
+    const err = new DetailedError({ code: 'ERR', message: 'msg' });
+
+    expect(err.stack).toBeDefined();
+    // The constructor frame should be trimmed so the stack points to the call site (this test).
+    expect(err.stack).not.toContain('DetailedError.ts');
+  });
+
+  it('stack trace does not include the subclass constructor', () => {
+    class SubError extends DetailedError<string> {
+      constructor(code: string, message: string) {
+        super({ code, message });
+        this.name = 'SubError';
+      }
+    }
+
+    const err = new SubError('ERR', 'msg');
+
+    expect(err.stack).toBeDefined();
+    expect(err.stack).not.toContain('DetailedError.ts');
+  });
+});
+
+describe('DetailedError clone preserves Error instances in details', () => {
+  it('preserves name, message, and stack of an Error in details', () => {
+    const original = new Error('inner error');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details: { cause: original } });
+
+    const cloned = (err.details as Record<string, unknown>).cause as Record<string, unknown>;
+    expect(cloned).not.toBe(original);
+    expect(cloned.name).toBe('Error');
+    expect(cloned.message).toBe('inner error');
+    expect(cloned.stack).toBe(original.stack);
+  });
+
+  it('preserves Error cause recursively', () => {
+    const root = new Error('root');
+    const inner = new Error('inner', { cause: root });
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details: { error: inner } });
+
+    const cloned = (err.details as Record<string, unknown>).error as Record<string, unknown>;
+    expect(cloned.message).toBe('inner');
+    expect(cloned.cause).toBeDefined();
+    expect((cloned.cause as Record<string, unknown>).message).toBe('root');
+  });
+
+  it('preserves Error instances nested inside an array', () => {
+    const inner = new Error('nested');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details: { errors: [inner] } });
+
+    const cloned = ((err.details as Record<string, unknown>).errors as Array<Record<string, unknown>>)[0]!;
+    expect(cloned.message).toBe('nested');
+    expect(cloned.name).toBe('Error');
+  });
+
+  it('mutating the original Error does not affect the cloned details', () => {
+    const original = new Error('original');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details: { error: original } });
+
+    original.message = 'mutated';
+
+    const cloned = (err.details as Record<string, unknown>).error as Record<string, unknown>;
+    expect(cloned.message).toBe('original');
+  });
+});
