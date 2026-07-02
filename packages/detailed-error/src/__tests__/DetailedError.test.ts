@@ -499,4 +499,38 @@ describe('DetailedError clone preserves Error instances in details', () => {
     const cloned = (err.details as Record<string, unknown>).error as Record<string, unknown>;
     expect(cloned.message).toBe('original');
   });
+
+  it('terminates when cloning an Error with a cyclic cause', () => {
+    const root = new Error('root');
+    const inner = new Error('inner');
+    // Create a cycle: inner.cause -> root.cause -> inner
+    Object.defineProperty(root, 'cause', { value: inner, enumerable: true, configurable: true, writable: true });
+    Object.defineProperty(inner, 'cause', { value: root, enumerable: true, configurable: true, writable: true });
+
+    expect(() => new DetailedError({ code: 'ERR', message: 'msg', details: { error: inner } })).not.toThrow();
+  });
+
+  it('returns the same clone for the same Error instance', () => {
+    const shared = new Error('shared');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', details: { a: shared, b: shared } });
+
+    const a = (err.details as Record<string, unknown>).a;
+    const b = (err.details as Record<string, unknown>).b;
+    expect(a).toBe(b);
+  });
+
+  it('preserves subclass fields when cloning a nested DetailedError', () => {
+    const inner = new DetailedError({ code: 'INNER', message: 'inner msg', functionName: 'doInner', details: { key: 'val' } });
+    const err = new DetailedError({ code: 'OUTER', message: 'outer msg', details: { wrapped: inner } });
+
+    const cloned = (err.details as Record<string, unknown>).wrapped as Record<string, unknown>;
+    expect(cloned).not.toBe(inner);
+    expect(cloned.code).toBe('INNER');
+    expect(cloned.message).toBe('inner msg');
+    expect(cloned.functionName).toBe('doInner');
+    expect((cloned.details as Record<string, unknown>).key).toBe('val');
+    // Mutating the inner details should not affect the cloned copy
+    (inner.details as Record<string, unknown>).key = 'mutated';
+    expect((cloned.details as Record<string, unknown>).key).toBe('val');
+  });
 });
