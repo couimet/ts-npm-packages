@@ -31,7 +31,10 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 
 ## Dependency version ranges
 
-- **Packages that appear in both `peerDependencies` and `devDependencies`** (optional peer dependencies needed for testing) use matching `>=` ranges in both sections. The lower bound is the minimum supported major version. **All other devDependencies** use `^` ranges.
+- **Our own monorepo packages in `devDependencies`** always use `workspace:*`. This is how pnpm knows to link to the local package rather than fetching from the registry.
+- **Our own monorepo packages in `peerDependencies`** use `>=<minimum-supported-version>` ranges. The lower bound is the oldest version the package is compatible with. During publish, pnpm replaces `workspace:*` in peer dependencies with the exact workspace version; a manual `>=` range stays as-is and lets npm consumers satisfy it with any compatible version.
+- **Third-party packages that appear in both `peerDependencies` and `devDependencies`** (optional peer dependencies needed for testing) use matching `>=` ranges in both sections. The lower bound is the minimum supported major version.
+- **All other devDependencies** use `^` ranges.
 
 ## Coding conventions
 
