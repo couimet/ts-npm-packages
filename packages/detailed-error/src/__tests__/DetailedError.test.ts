@@ -136,7 +136,7 @@ describe('DetailedError with string codes', () => {
     it('constructs with default message from label and value', () => {
       const err = DetailedError.forUnexpectedSwitchDefault('state', 'invalid', 'doWork');
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected state: "invalid"',
         functionName: 'doWork',
         details: { unexpectedValue: 'invalid' },
@@ -150,7 +150,7 @@ describe('DetailedError with string codes', () => {
         message: 'Poll returned unrecognized status',
       });
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Poll returned unrecognized status',
         functionName: 'PollDetector.handle',
         details: { unexpectedValue: 'stale' },
@@ -178,7 +178,7 @@ describe('DetailedError with string codes', () => {
         extraDetails: { context: 'deserialization', inputId: 42 },
       });
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected type: "unknown"',
         functionName: 'parse',
         details: { context: 'deserialization', inputId: 42, unexpectedValue: 'unknown' },
@@ -192,7 +192,7 @@ describe('DetailedError with string codes', () => {
         extraDetails: { unexpectedValue: 'stale' },
       });
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected type: "actual"',
         functionName: 'parse',
         details: { unexpectedValue: 'actual' },
@@ -204,7 +204,7 @@ describe('DetailedError with string codes', () => {
     it('handles null value', () => {
       const err = DetailedError.forUnexpectedSwitchDefault('result', null, 'fetchData');
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected result: null',
         functionName: 'fetchData',
         details: { unexpectedValue: null },
@@ -216,7 +216,7 @@ describe('DetailedError with string codes', () => {
     it('handles undefined value', () => {
       const err = DetailedError.forUnexpectedSwitchDefault('result', undefined, 'fetchData');
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected result: undefined',
         functionName: 'fetchData',
         details: { unexpectedValue: undefined },
@@ -228,7 +228,7 @@ describe('DetailedError with string codes', () => {
     it('error name is Error (DetailedError does not set a custom name)', () => {
       const err = DetailedError.forUnexpectedSwitchDefault('key', 'bad', 'validate');
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected key: "bad"',
         functionName: 'validate',
         details: { unexpectedValue: 'bad' },
@@ -327,7 +327,7 @@ describe('DetailedError with enum codes', () => {
     it('returns a ProjectError instance when called on the subclass', () => {
       const err = ProjectError.forUnexpectedSwitchDefault('state column', 'invalid', 'SystemStateRepositoryImpl.setState');
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected state column: "invalid"',
         functionName: 'SystemStateRepositoryImpl.setState',
         details: { unexpectedValue: 'invalid' },
@@ -340,7 +340,7 @@ describe('DetailedError with enum codes', () => {
     it('sets the error name to the subclass name', () => {
       const err = ProjectError.forUnexpectedSwitchDefault('key', 'bad', 'validate');
 
-      expect(err).toBeDetailedError('UNEXPECTED_CODE_PATH', {
+      expect(err).toBeDetailedError('UNEXPECTED_SWITCH_VALUE', {
         message: 'Unexpected key: "bad"',
         functionName: 'validate',
         details: { unexpectedValue: 'bad' },

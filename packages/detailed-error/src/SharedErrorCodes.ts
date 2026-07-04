@@ -25,6 +25,12 @@ export enum SharedErrorCodes {
   UNEXPECTED_CODE_PATH = 'UNEXPECTED_CODE_PATH',
 
   /**
+   * A switch statement received an unexpected value.
+   * Use {@link DetailedError.forUnexpectedSwitchDefault} to create errors with this code.
+   */
+  UNEXPECTED_SWITCH_VALUE = 'UNEXPECTED_SWITCH_VALUE',
+
+  /**
    * Catch-all for errors that do not fit a more specific code.
    */
   UNKNOWN = 'UNKNOWN',

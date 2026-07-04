@@ -116,10 +116,10 @@ export class DetailedError<T extends string> extends Error {
     functionName: string,
     options?: { message?: string; extraDetails?: ErrorDetails; code?: NoInfer<T> },
   ): InstanceType<C> {
-    // SharedErrorCodes.UNEXPECTED_CODE_PATH is the recommended default — override
+    // SharedErrorCodes.UNEXPECTED_SWITCH_VALUE is the recommended default — override
     // via options.code when the subclass uses a standalone enum without SharedErrorCodes.
     return new this({
-      code: (options?.code ?? SharedErrorCodes.UNEXPECTED_CODE_PATH) as T,
+      code: (options?.code ?? SharedErrorCodes.UNEXPECTED_SWITCH_VALUE) as T,
       message: options?.message ?? `Unexpected ${label}: ${JSON.stringify(value)}`,
       functionName,
       details: { ...options?.extraDetails, unexpectedValue: value },
