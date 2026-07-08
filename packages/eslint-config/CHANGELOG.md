@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.6.1]
+
+### Fixed
+
+- Fixed `@typescript-eslint/no-unused-vars` `args` from `none` to `all` so unused function parameters are now flagged as errors. The `argsIgnorePattern: '^_'` escape hatch still applies.
+
 ## [0.6.0]
 
 ### Added
@@ -50,6 +56,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.6.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.0...%40couimet%2Feslint-config%400.6.1
 [0.6.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.5.0...%40couimet%2Feslint-config%400.6.0
 [0.5.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.4.0...%40couimet%2Feslint-config%400.5.0
 [0.4.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.3.0...%40couimet%2Feslint-config%400.4.0
