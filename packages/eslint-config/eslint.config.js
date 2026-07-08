@@ -85,7 +85,7 @@ export default [
         {
           varsIgnorePattern: '^_',
           argsIgnorePattern: '^_',
-          args: 'none',
+          args: 'all',
           ignoreRestSiblings: true,
           vars: 'all',
         },
