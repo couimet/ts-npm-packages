@@ -1,7 +1,8 @@
 import { assertDetailedError } from './internal/assertDetailedError';
+import type { MatcherThis } from './internal/MatcherThis';
 import type { ExpectedDetailedError } from './ExpectedDetailedError';
 
-export const toThrowDetailedError = (received: () => void, expectedCode: string, expected: ExpectedDetailedError): jest.CustomMatcherResult => {
+export function toThrowDetailedError(this: MatcherThis, received: () => void, expectedCode: string, expected: ExpectedDetailedError): jest.CustomMatcherResult {
   let caughtError: unknown;
   let wasThrown = false;
 
@@ -15,9 +16,11 @@ export const toThrowDetailedError = (received: () => void, expectedCode: string,
   if (!wasThrown) {
     return {
       pass: false,
-      message: () => `Expected function to throw DetailedError with code "${expectedCode}", but nothing was thrown`,
+      message: () =>
+        `${this.utils.matcherHint('toThrowDetailedError', undefined, undefined, { isNot: this.isNot })}\n\n` +
+        `Expected function to throw, but it did not throw.`,
     };
   }
 
-  return assertDetailedError(caughtError, expectedCode, expected);
-};
+  return assertDetailedError.call(this, caughtError, expectedCode, expected);
+}

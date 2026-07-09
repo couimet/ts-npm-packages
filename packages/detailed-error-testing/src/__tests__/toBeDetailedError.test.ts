@@ -1,6 +1,8 @@
 import { type ExpectedDetailedError } from '../ExpectedDetailedError';
 import { toBeDetailedError } from '../toBeDetailedError';
 
+import { createMockMatcherContext } from './mockMatcherContext';
+
 import { DetailedError } from '@couimet/detailed-error';
 
 const makeExpected = (overrides?: Partial<ExpectedDetailedError>): ExpectedDetailedError => ({
@@ -9,11 +11,13 @@ const makeExpected = (overrides?: Partial<ExpectedDetailedError>): ExpectedDetai
   ...overrides,
 });
 
+const ctx = createMockMatcherContext();
+
 describe('toBeDetailedError', () => {
   it('passes when error matches expected code and fields', () => {
     const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn' });
 
-    const result = toBeDetailedError(err, 'ERR', makeExpected());
+    const result = toBeDetailedError.call(ctx, err, 'ERR', makeExpected());
 
     expect(result.pass).toBe(true);
   });
@@ -21,23 +25,24 @@ describe('toBeDetailedError', () => {
   it('fails when error does not match', () => {
     const err = new DetailedError({ code: 'WRONG', message: 'msg', functionName: 'fn' });
 
-    const result = toBeDetailedError(err, 'ERR', makeExpected());
+    const result = toBeDetailedError.call(ctx, err, 'ERR', makeExpected());
 
     expect(result.pass).toBe(false);
   });
 
   it('fails when received is not a DetailedError', () => {
-    const result = toBeDetailedError('not an error', 'ERR', makeExpected());
+    const result = toBeDetailedError.call(ctx, 'not an error', 'ERR', makeExpected());
 
     expect(result.pass).toBe(false);
   });
 
-  it('pass message describes negation when passing', () => {
+  it('pass message uses matcherHint with negation format when isNot', () => {
+    const ctxNot = createMockMatcherContext({ isNot: true });
     const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn' });
 
-    const result = toBeDetailedError(err, 'ERR', makeExpected());
+    const result = toBeDetailedError.call(ctxNot, err, 'ERR', makeExpected());
 
     expect(result.pass).toBe(true);
-    expect(result.message()).toContain('NOT to match');
+    expect(result.message()).toContain('.not');
   });
 });

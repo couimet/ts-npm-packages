@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.1.4]
+
+### Fixed
+
+- Matchers now use Jest's `this` context for native-formatted failure output (`matcherHint`, `printExpected`/`printReceived`, `isNot`).
+
 ## [0.1.3]
 
 ### Fixed
@@ -37,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.1.4]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error-testing%400.1.3...%40couimet%2Fdetailed-error-testing%400.1.4
 [0.1.3]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error-testing%400.1.2...%40couimet%2Fdetailed-error-testing%400.1.3
 [0.1.2]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error-testing%400.1.1...%40couimet%2Fdetailed-error-testing%400.1.2
 [0.1.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-error-testing%400.1.0...%40couimet%2Fdetailed-error-testing%400.1.1
