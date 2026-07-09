@@ -4,7 +4,13 @@ import type { MatcherThis } from './MatcherThis';
 
 import { DetailedError } from '@couimet/detailed-error';
 
-export function assertDetailedError(this: MatcherThis, received: unknown, expectedCode: string, expected: ExpectedDetailedError): jest.CustomMatcherResult {
+export function assertDetailedError(
+  this: MatcherThis,
+  received: unknown,
+  expectedCode: string,
+  expected: ExpectedDetailedError,
+  matcherName: string,
+): jest.CustomMatcherResult {
   if (!(received instanceof DetailedError)) {
     return {
       pass: false,
@@ -13,12 +19,12 @@ export function assertDetailedError(this: MatcherThis, received: unknown, expect
         const typeofStr = typeof received;
         if (typeofStr === 'string' || typeofStr === 'number' || typeofStr === 'boolean' || typeofStr === 'undefined') {
           return (
-            `${this.utils.matcherHint('toBeDetailedError', undefined, undefined, { isNot: this.isNot })}\n\n` +
+            `${this.utils.matcherHint(matcherName, undefined, undefined, { isNot: this.isNot })}\n\n` +
             `${this.utils.printWithType('Received', received, this.utils.printReceived)}`
           );
         }
         return (
-          `${this.utils.matcherHint('toBeDetailedError', undefined, undefined, { isNot: this.isNot })}\n\n` +
+          `${this.utils.matcherHint(matcherName, undefined, undefined, { isNot: this.isNot })}\n\n` +
           `Expected value to be an instance of DetailedError, but received: ${receivedTypeName}`
         );
       },
@@ -39,7 +45,7 @@ export function assertDetailedError(this: MatcherThis, received: unknown, expect
   if (expected.functionName !== undefined) {
     if (error.functionName !== expected.functionName) {
       failures.push(
-        `Function name:\n  Expected: ${this.utils.printExpected(expected.functionName)}\n  Received: ${this.utils.printReceived(error.functionName || 'undefined')}`,
+        `Function name:\n  Expected: ${this.utils.printExpected(expected.functionName)}\n  Received: ${this.utils.printReceived(error.functionName)}`,
       );
     }
   } else if (error.functionName !== undefined) {
@@ -72,7 +78,7 @@ export function assertDetailedError(this: MatcherThis, received: unknown, expect
   return {
     pass,
     message: () => {
-      const hint = this.utils.matcherHint('toBeDetailedError', undefined, undefined, { isNot: this.isNot });
+      const hint = this.utils.matcherHint(matcherName, undefined, undefined, { isNot: this.isNot });
 
       if (pass) {
         return [

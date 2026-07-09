@@ -1,6 +1,7 @@
 import type { MatcherThis } from '../internal/MatcherThis';
 
 const utils = jest.requireActual('jest-matcher-utils');
+const { equals: defaultEquals } = jest.requireActual('@jest/expect-utils');
 
 /**
  * Build a minimal `MatcherThis` suitable for unit-testing matchers that
@@ -13,7 +14,7 @@ const utils = jest.requireActual('jest-matcher-utils');
 export function createMockMatcherContext(overrides?: Partial<MatcherThis>): MatcherThis {
   return {
     isNot: overrides?.isNot ?? false,
-    equals: overrides?.equals ?? jest.requireActual('@jest/expect-utils').equals,
+    equals: overrides?.equals ?? defaultEquals,
     utils: {
       matcherHint: utils.matcherHint,
       printExpected: utils.printExpected,

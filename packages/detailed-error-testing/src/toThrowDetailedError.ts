@@ -22,5 +22,5 @@ export function toThrowDetailedError(this: MatcherThis, received: () => void, ex
     };
   }
 
-  return assertDetailedError.call(this, caughtError, expectedCode, expected);
+  return assertDetailedError.call(this, caughtError, expectedCode, expected, 'toThrowDetailedError');
 }

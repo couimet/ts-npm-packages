@@ -27,5 +27,5 @@ export async function toThrowDetailedErrorAsync(
     };
   }
 
-  return assertDetailedError.call(this, caughtError, expectedCode, expected);
+  return assertDetailedError.call(this, caughtError, expectedCode, expected, 'toThrowDetailedErrorAsync');
 }
