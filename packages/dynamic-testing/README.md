@@ -113,6 +113,15 @@ price.plus(10).toNumber(); // e.g. 11.58
 
 Throws `'Install decimal.js to use getUniqueDecimal()'` if `decimal.js` is not installed.
 
+### UUID generation
+
+```typescript
+getUuid(): string       // UUID v4, delegates to getUuidV4()
+getUuidV4(): string     // UUID v4 via the `uuid` package
+```
+
+Both return a standard UUID v4 string (e.g. `"550e8400-e29b-41d4-a716-446655440000"`). `getUuid()` is the concise form; use `getUuidV4()` when you want the version to be explicit in the call site.
+
 ## Quick start
 
 ```bash
