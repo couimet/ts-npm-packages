@@ -1,5 +1,5 @@
+import { getRandomAlphaString, getRandomHexString, getRandomNumericString, getRandomString, getUniqueString } from '../index';
 import { _reset } from '../internal/uniqueTestUtils';
-import { getRandomAlphaString, getRandomHexString, getRandomNumericString, getRandomString, getUniqueString } from '../string';
 
 describe('getRandomString', () => {
   it('returns a string of the default length', () => {
