@@ -17,6 +17,14 @@
       "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
       "outputs": []
     },
+    "@couimet/dynamic-testing#test": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
+      "outputs": []
+    },
+    "@couimet/dynamic-testing#typecheck": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": ["build"],
       "outputs": []

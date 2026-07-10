@@ -18,8 +18,10 @@
 
 import { COUNTER_START, MAX_COUNTER_START } from '../counterStart';
 
-import { pkgError } from './errors';
+import { DynamicTestingErrorCodes } from './DynamicTestingErrorCodes';
 import { isPositiveInteger } from './validation';
+
+import { DetailedError } from '@couimet/detailed-error';
 
 export const MODULE_LOAD_TIME = Date.now();
 
@@ -30,10 +32,20 @@ export const _getCounter = (): number => COUNTER;
 export const _resetCounter = (value?: number): void => {
   const start = value ?? COUNTER_START;
   if (!isPositiveInteger(start)) {
-    throw pkgError('_resetCounter requires a positive integer');
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.RESET_COUNTER_NOT_POSITIVE_INTEGER,
+      message: '_resetCounter requires a positive integer',
+      functionName: '_resetCounter',
+      details: { received: start },
+    });
   }
   if (start > MAX_COUNTER_START) {
-    throw pkgError(`_resetCounter value ${start} exceeds cap (${MAX_COUNTER_START})`);
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.RESET_COUNTER_EXCEEDS_CAP,
+      message: '_resetCounter value exceeds cap',
+      functionName: '_resetCounter',
+      details: { received: start, cap: MAX_COUNTER_START },
+    });
   }
   COUNTER = start;
 };

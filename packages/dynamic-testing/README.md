@@ -113,6 +113,74 @@ price.plus(10).toNumber(); // e.g. 11.58
 
 Throws `'Install decimal.js to use getUniqueDecimal()'` if `decimal.js` is not installed.
 
+### SCM references
+
+Generate unique, recognizable SCM (source control) identifiers for tests that exercise repository logic. All values are unique per call (counter-based) and bear a human-readable prefix for quick debugging.
+
+**GitHub-specific** — always produce GitHub-style values:
+
+```typescript
+getUniqueGitHubOwner(): string           // e.g. gh-owner-aBcDeF-1
+getUniqueGitHubRepo(): string            // e.g. gh-repo-xYzAbC-2
+getUniqueGitHubRepoRef(): UniqueRepoRef  // { owner, repo, fullName }
+```
+
+`UniqueRepoRef` carries the owner, repo, and `owner/repo` full name:
+
+```typescript
+interface UniqueRepoRef {
+  owner: string;
+  repo: string;
+  fullName: string;
+}
+```
+
+**GitLab-specific** — always produce GitLab-style values:
+
+```typescript
+getUniqueGitLabNamespace(): string            // e.g. gl-namespace-aBcDeF-3
+getUniqueGitLabProject(): string              // e.g. gl-project-xYzAbC-4
+getUniqueGitLabProjectRef(): UniqueProjectRef // { namespace, project, fullName }
+```
+
+`UniqueProjectRef` carries the namespace, project, and `namespace/project` full name:
+
+```typescript
+interface UniqueProjectRef {
+  namespace: string;
+  project: string;
+  fullName: string;
+}
+```
+
+**Generic aliases** — portable across SCMs via `configure()`. Default to GitHub; switch to GitLab with `configure({ scm: 'gitlab' })`.
+
+```typescript
+getUniqueRepoOwner(): string          // delegates to GitHub owner or GitLab namespace
+getUniqueRepo(): string               // delegates to GitHub repo or GitLab project
+getUniqueRepoRef(): UniqueRepoRef     // always returns UniqueRepoRef
+```
+
+The generic aliases always return `UniqueRepoRef` (owner / repo / fullName). When `scm` is set to `'gitlab'`, `owner` holds the GitLab namespace and `repo` holds the GitLab project. This lingua franca keeps test code portable across SCMs without type-level branching.
+
+**Prefix convention.** Values use short prefix tokens so you can identify the SCM and function at a glance:
+
+| Prefix          | SCM    | Example value           |
+| --------------- | ------ | ----------------------- |
+| `gh-owner-`     | GitHub | `gh-owner-aBcDeF-1`     |
+| `gh-repo-`      | GitHub | `gh-repo-xYzAbC-2`      |
+| `gl-namespace-` | GitLab | `gl-namespace-aBcDeF-3` |
+| `gl-project-`   | GitLab | `gl-project-xYzAbC-4`   |
+
+**Configuration** (typically in `jest.setup.js` or a test setup file):
+
+```typescript
+import { configure } from '@couimet/dynamic-testing';
+
+// Use GitLab-style identifiers everywhere via the generic aliases
+configure({ scm: 'gitlab' });
+```
+
 ### UUID generation
 
 ```typescript

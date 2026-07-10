@@ -56,7 +56,13 @@ describe('getRandomEnumValue', () => {
   });
 
   it('throws when exclusion leaves no values', () => {
-    expect(() => getRandomEnumValue(StringEnum, StringEnum.Alpha, StringEnum.Beta, StringEnum.Gamma, StringEnum.Delta)).toThrow('No enum values available');
+    expect(() => getRandomEnumValue(StringEnum, StringEnum.Alpha, StringEnum.Beta, StringEnum.Gamma, StringEnum.Delta)).toThrowDetailedError(
+      'NO_ENUM_VALUES_AVAILABLE',
+      {
+        message: 'No enum values available after exclusion',
+        functionName: 'getRandomEnumValue',
+      },
+    );
   });
 });
 
@@ -78,19 +84,35 @@ describe('getRandomBoolean', () => {
   });
 
   it('throws when trueProbability is less than 0', () => {
-    expect(() => getRandomBoolean(-0.1)).toThrow('trueProbability must be a finite number between 0 and 1');
+    expect(() => getRandomBoolean(-0.1)).toThrowDetailedError('TRUE_PROBABILITY_OUT_OF_RANGE', {
+      message: 'trueProbability must be a finite number between 0 and 1',
+      functionName: 'getRandomBoolean',
+      details: { received: -0.1 },
+    });
   });
 
   it('throws when trueProbability is greater than 1', () => {
-    expect(() => getRandomBoolean(1.1)).toThrow('trueProbability must be a finite number between 0 and 1');
+    expect(() => getRandomBoolean(1.1)).toThrowDetailedError('TRUE_PROBABILITY_OUT_OF_RANGE', {
+      message: 'trueProbability must be a finite number between 0 and 1',
+      functionName: 'getRandomBoolean',
+      details: { received: 1.1 },
+    });
   });
 
   it('throws when trueProbability is NaN', () => {
-    expect(() => getRandomBoolean(NaN)).toThrow('trueProbability must be a finite number between 0 and 1');
+    expect(() => getRandomBoolean(NaN)).toThrowDetailedError('TRUE_PROBABILITY_OUT_OF_RANGE', {
+      message: 'trueProbability must be a finite number between 0 and 1',
+      functionName: 'getRandomBoolean',
+      details: { received: NaN },
+    });
   });
 
   it('throws when trueProbability is Infinity', () => {
-    expect(() => getRandomBoolean(Infinity)).toThrow('trueProbability must be a finite number between 0 and 1');
+    expect(() => getRandomBoolean(Infinity)).toThrowDetailedError('TRUE_PROBABILITY_OUT_OF_RANGE', {
+      message: 'trueProbability must be a finite number between 0 and 1',
+      functionName: 'getRandomBoolean',
+      details: { received: Infinity },
+    });
   });
 });
 
@@ -120,26 +142,50 @@ describe('getRandomInt', () => {
   });
 
   it('throws when min is greater than max', () => {
-    expect(() => getRandomInt(10, 5)).toThrow('min (10) must not be greater than max (5)');
+    expect(() => getRandomInt(10, 5)).toThrowDetailedError('MIN_EXCEEDS_MAX', {
+      message: 'min must not be greater than max',
+      functionName: 'getRandomInt',
+      details: { min: 10, max: 5 },
+    });
   });
 
   it('throws when min is not an integer', () => {
-    expect(() => getRandomInt(1.5, 10)).toThrow('min (1.5) must be a finite integer');
+    expect(() => getRandomInt(1.5, 10)).toThrowDetailedError('MIN_NOT_FINITE_INTEGER', {
+      message: 'min must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: 1.5 },
+    });
   });
 
   it('throws when max is not an integer', () => {
-    expect(() => getRandomInt(1, 3.5)).toThrow('max (3.5) must be a finite integer');
+    expect(() => getRandomInt(1, 3.5)).toThrowDetailedError('MAX_NOT_FINITE_INTEGER', {
+      message: 'max must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: 3.5 },
+    });
   });
 
   it('throws when min is NaN', () => {
-    expect(() => getRandomInt(NaN, 10)).toThrow('min (NaN) must be a finite integer');
+    expect(() => getRandomInt(NaN, 10)).toThrowDetailedError('MIN_NOT_FINITE_INTEGER', {
+      message: 'min must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: NaN },
+    });
   });
 
   it('throws when max is Infinity', () => {
-    expect(() => getRandomInt(1, Infinity)).toThrow('max (Infinity) must be a finite integer');
+    expect(() => getRandomInt(1, Infinity)).toThrowDetailedError('MAX_NOT_FINITE_INTEGER', {
+      message: 'max must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: Infinity },
+    });
   });
 
   it('throws when min is -Infinity', () => {
-    expect(() => getRandomInt(-Infinity, 10)).toThrow('min (-Infinity) must be a finite integer');
+    expect(() => getRandomInt(-Infinity, 10)).toThrowDetailedError('MIN_NOT_FINITE_INTEGER', {
+      message: 'min must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: -Infinity },
+    });
   });
 });

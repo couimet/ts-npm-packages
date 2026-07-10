@@ -27,18 +27,18 @@ describe('COUNTER_START (resolveCounterStart)', () => {
   });
 
   it('throws when the env var is zero', () => {
-    expect(() => loadCounterStart('0')).toThrow('not a valid positive integer');
+    expect(() => loadCounterStart('0')).toThrow('Environment variable value is not a valid positive integer');
   });
 
   it('throws when the env var is a negative integer', () => {
-    expect(() => loadCounterStart('-5')).toThrow('not a valid positive integer');
+    expect(() => loadCounterStart('-5')).toThrow('Environment variable value is not a valid positive integer');
   });
 
   it('throws when the env var is a non-integer string', () => {
-    expect(() => loadCounterStart('hello')).toThrow('not a valid positive integer');
+    expect(() => loadCounterStart('hello')).toThrow('Environment variable value is not a valid positive integer');
   });
 
   it('throws when the env var exceeds the cap', () => {
-    expect(() => loadCounterStart('2000000')).toThrow('exceeds cap');
+    expect(() => loadCounterStart('2000000')).toThrow('Environment variable value exceeds cap');
   });
 });

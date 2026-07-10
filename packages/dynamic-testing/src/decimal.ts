@@ -1,5 +1,7 @@
-import { pkgError } from './internal/errors';
+import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
 import { getUniqueBigDecimal } from './unique';
+
+import { DetailedError } from '@couimet/detailed-error';
 
 // Minimal interface covering the Decimal.js API surface consumers need.
 // Avoids a hard compile-time dependency on decimal.js for consumers who don't use getUniqueDecimal().
@@ -30,7 +32,11 @@ const getDecimalConstructor = (): DecimalConstructor => {
       _Decimal = require('decimal.js');
       _loaded = true;
     } catch {
-      throw pkgError('Install decimal.js to use getUniqueDecimal()');
+      throw new DetailedError({
+        code: DynamicTestingErrorCodes.MISSING_OPTIONAL_DEPENDENCY,
+        message: 'Install decimal.js to use getUniqueDecimal()',
+        functionName: 'getDecimalConstructor',
+      });
     }
   }
   return _Decimal!;

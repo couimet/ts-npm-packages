@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.3.0]
+
+### Added
+
+- Add `getUniqueRepo*()` SCM utilities (GitHub/GitLab identifiers with generic aliases via `configure()`)
+
 ## [0.2.0]
 
 ### Added
@@ -26,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.3.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdynamic-testing%400.2.0...%40couimet%2Fdynamic-testing%400.3.0
 [0.2.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdynamic-testing%400.1.1...%40couimet%2Fdynamic-testing%400.2.0
 [0.1.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdynamic-testing%400.1.0...%40couimet%2Fdynamic-testing%400.1.1
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Fdynamic-testing%400.1.0
