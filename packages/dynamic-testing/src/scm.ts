@@ -1,5 +1,7 @@
-import { pkgError } from './internal/errors';
+import { getConfig, setConfig } from './internal/scmState';
 import { getUniqueString } from './string';
+
+import { DetailedError, SharedErrorCodes } from '@couimet/detailed-error';
 
 export interface UniqueRepoRef {
   owner: string;
@@ -17,15 +19,19 @@ export type Scm = 'github' | 'gitlab';
 
 export type ScmConfig = { scm: Scm };
 
-const DEFAULT_CONFIG = { scm: 'github' } as const;
-
-let config: ScmConfig = DEFAULT_CONFIG;
+const SUPPORTED_SCMS: readonly Scm[] = ['github', 'gitlab'];
 
 export const configure = (cfg: Partial<ScmConfig>): void => {
-  config = { ...config, ...cfg };
+  if (cfg.scm !== undefined && !(SUPPORTED_SCMS as readonly string[]).includes(cfg.scm)) {
+    throw new DetailedError({
+      code: SharedErrorCodes.VALIDATION,
+      message: `Unsupported SCM: ${cfg.scm}`,
+      functionName: 'configure',
+      details: { scm: cfg.scm },
+    });
+  }
+  setConfig(cfg);
 };
-
-const getConfig = (): ScmConfig => config;
 
 export const getUniqueGitHubOwner = (): string => getUniqueString({ charset: 'alpha', prefix: 'gh-owner-' });
 
@@ -54,10 +60,8 @@ export const getUniqueRepoOwner = (): string => {
       return getUniqueGitHubOwner();
     case 'gitlab':
       return getUniqueGitLabNamespace();
-    default: {
-      const _exhaustive: never = scm;
-      throw pkgError(`Unsupported SCM: ${String(_exhaustive)}`);
-    }
+    default:
+      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepoOwner');
   }
 };
 
@@ -68,10 +72,8 @@ export const getUniqueRepo = (): string => {
       return getUniqueGitHubRepo();
     case 'gitlab':
       return getUniqueGitLabProject();
-    default: {
-      const _exhaustive: never = scm;
-      throw pkgError(`Unsupported SCM: ${String(_exhaustive)}`);
-    }
+    default:
+      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepo');
   }
 };
 
@@ -84,9 +86,7 @@ export const getUniqueRepoRef = (): UniqueRepoRef => {
       const { namespace, project, fullName } = getUniqueGitLabProjectRef();
       return { owner: namespace, repo: project, fullName };
     }
-    default: {
-      const _exhaustive: never = scm;
-      throw pkgError(`Unsupported SCM: ${String(_exhaustive)}`);
-    }
+    default:
+      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepoRef');
   }
 };

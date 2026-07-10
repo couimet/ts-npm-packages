@@ -1,3 +1,4 @@
+import { _setScm } from '../internal/scmState';
 import type { Scm } from '../scm';
 import {
   configure,
@@ -12,6 +13,8 @@ import {
   getUniqueRepoRef,
 } from '../scm';
 
+import { SharedErrorCodes } from '@couimet/detailed-error';
+
 describe('scm', () => {
   beforeEach(() => {
     configure({ scm: 'github' });
@@ -20,26 +23,26 @@ describe('scm', () => {
   describe('getUniqueGitHubOwner', () => {
     it('returns a string starting with gh-owner-', () => {
       const value = getUniqueGitHubOwner();
-      expect(value).toMatch('gh-owner-');
+      expect(value).toStartWith('gh-owner-');
     });
   });
 
   describe('getUniqueGitHubRepo', () => {
     it('returns a string starting with gh-repo-', () => {
       const value = getUniqueGitHubRepo();
-      expect(value).toMatch('gh-repo-');
+      expect(value).toStartWith('gh-repo-');
     });
   });
 
   describe('getUniqueGitHubRepoRef', () => {
     it('returns owner starting with gh-owner-', () => {
       const ref = getUniqueGitHubRepoRef();
-      expect(ref.owner).toMatch('gh-owner-');
+      expect(ref.owner).toStartWith('gh-owner-');
     });
 
     it('returns repo starting with gh-repo-', () => {
       const ref = getUniqueGitHubRepoRef();
-      expect(ref.repo).toMatch('gh-repo-');
+      expect(ref.repo).toStartWith('gh-repo-');
     });
 
     it('returns fullName as owner/repo', () => {
@@ -51,26 +54,26 @@ describe('scm', () => {
   describe('getUniqueGitLabNamespace', () => {
     it('returns a string starting with gl-namespace-', () => {
       const value = getUniqueGitLabNamespace();
-      expect(value).toMatch('gl-namespace-');
+      expect(value).toStartWith('gl-namespace-');
     });
   });
 
   describe('getUniqueGitLabProject', () => {
     it('returns a string starting with gl-project-', () => {
       const value = getUniqueGitLabProject();
-      expect(value).toMatch('gl-project-');
+      expect(value).toStartWith('gl-project-');
     });
   });
 
   describe('getUniqueGitLabProjectRef', () => {
     it('returns namespace starting with gl-namespace-', () => {
       const ref = getUniqueGitLabProjectRef();
-      expect(ref.namespace).toMatch('gl-namespace-');
+      expect(ref.namespace).toStartWith('gl-namespace-');
     });
 
     it('returns project starting with gl-project-', () => {
       const ref = getUniqueGitLabProjectRef();
-      expect(ref.project).toMatch('gl-project-');
+      expect(ref.project).toStartWith('gl-project-');
     });
 
     it('returns fullName as namespace/project', () => {
@@ -82,42 +85,42 @@ describe('scm', () => {
   describe('getUniqueRepoOwner', () => {
     it('returns a GitHub-style owner by default', () => {
       const value = getUniqueRepoOwner();
-      expect(value).toMatch('gh-owner-');
+      expect(value).toStartWith('gh-owner-');
     });
 
     it('returns a GitLab-style namespace after configure({ scm: "gitlab" })', () => {
       configure({ scm: 'gitlab' });
       const value = getUniqueRepoOwner();
-      expect(value).toMatch('gl-namespace-');
+      expect(value).toStartWith('gl-namespace-');
     });
   });
 
   describe('getUniqueRepo', () => {
     it('returns a GitHub-style repo by default', () => {
       const value = getUniqueRepo();
-      expect(value).toMatch('gh-repo-');
+      expect(value).toStartWith('gh-repo-');
     });
 
     it('returns a GitLab-style project after configure({ scm: "gitlab" })', () => {
       configure({ scm: 'gitlab' });
       const value = getUniqueRepo();
-      expect(value).toMatch('gl-project-');
+      expect(value).toStartWith('gl-project-');
     });
   });
 
   describe('getUniqueRepoRef', () => {
     it('returns a GitHub-style ref by default', () => {
       const ref = getUniqueRepoRef();
-      expect(ref.owner).toMatch('gh-owner-');
-      expect(ref.repo).toMatch('gh-repo-');
+      expect(ref.owner).toStartWith('gh-owner-');
+      expect(ref.repo).toStartWith('gh-repo-');
       expect(ref.fullName).toBe(`${ref.owner}/${ref.repo}`);
     });
 
     it('returns a GitLab-style ref mapped to UniqueRepoRef after configure({ scm: "gitlab" })', () => {
       configure({ scm: 'gitlab' });
       const ref = getUniqueRepoRef();
-      expect(ref.owner).toMatch('gl-namespace-');
-      expect(ref.repo).toMatch('gl-project-');
+      expect(ref.owner).toStartWith('gl-namespace-');
+      expect(ref.repo).toStartWith('gl-project-');
       expect(ref.fullName).toBe(`${ref.owner}/${ref.repo}`);
     });
   });
@@ -179,19 +182,60 @@ describe('scm', () => {
   });
 
   describe('exhaustiveness', () => {
-    it('getUniqueRepoOwner throws on an unsupported SCM value', () => {
-      configure({ scm: 'bitbucket' as Scm });
-      expect(() => getUniqueRepoOwner()).toThrow('[dynamic-testing] Unsupported SCM: bitbucket');
+    describe('configure() validation', () => {
+      it('throws on an unsupported SCM value', () => {
+        expect(() => configure({ scm: 'bitbucket' as Scm })).toThrow('Unsupported SCM: bitbucket');
+      });
+
+      it('error has VALIDATION code, functionName, and details', () => {
+        let caught: unknown;
+        try {
+          configure({ scm: 'bitbucket' as Scm });
+        } catch (e) {
+          caught = e;
+        }
+        expect(caught).toHaveProperty('code', SharedErrorCodes.VALIDATION);
+        expect(caught).toHaveProperty('functionName', 'configure');
+        expect(caught).toHaveProperty('details', { scm: 'bitbucket' });
+      });
     });
 
-    it('getUniqueRepo throws on an unsupported SCM value', () => {
-      configure({ scm: 'bitbucket' as Scm });
-      expect(() => getUniqueRepo()).toThrow('[dynamic-testing] Unsupported SCM: bitbucket');
-    });
+    describe('exhaustive-switch defaults', () => {
+      it('getUniqueRepoOwner throws when scm is an unexpected runtime value', () => {
+        _setScm('bitbucket');
+        let caught: unknown;
+        try {
+          getUniqueRepoOwner();
+        } catch (e) {
+          caught = e;
+        }
+        expect(caught).toHaveProperty('code', SharedErrorCodes.UNEXPECTED_SWITCH_VALUE);
+        expect(caught).toHaveProperty('functionName', 'getUniqueRepoOwner');
+      });
 
-    it('getUniqueRepoRef throws on an unsupported SCM value', () => {
-      configure({ scm: 'bitbucket' as Scm });
-      expect(() => getUniqueRepoRef()).toThrow('[dynamic-testing] Unsupported SCM: bitbucket');
+      it('getUniqueRepo throws when scm is an unexpected runtime value', () => {
+        _setScm('bitbucket');
+        let caught: unknown;
+        try {
+          getUniqueRepo();
+        } catch (e) {
+          caught = e;
+        }
+        expect(caught).toHaveProperty('code', SharedErrorCodes.UNEXPECTED_SWITCH_VALUE);
+        expect(caught).toHaveProperty('functionName', 'getUniqueRepo');
+      });
+
+      it('getUniqueRepoRef throws when scm is an unexpected runtime value', () => {
+        _setScm('bitbucket');
+        let caught: unknown;
+        try {
+          getUniqueRepoRef();
+        } catch (e) {
+          caught = e;
+        }
+        expect(caught).toHaveProperty('code', SharedErrorCodes.UNEXPECTED_SWITCH_VALUE);
+        expect(caught).toHaveProperty('functionName', 'getUniqueRepoRef');
+      });
     });
   });
 });
