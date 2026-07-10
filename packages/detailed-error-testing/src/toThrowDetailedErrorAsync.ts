@@ -1,11 +1,13 @@
 import { assertDetailedError } from './internal/assertDetailedError';
+import type { MatcherThis } from './internal/MatcherThis';
 import type { ExpectedDetailedError } from './ExpectedDetailedError';
 
-export const toThrowDetailedErrorAsync = async (
+export async function toThrowDetailedErrorAsync(
+  this: MatcherThis,
   received: () => Promise<unknown>,
   expectedCode: string,
   expected: ExpectedDetailedError,
-): Promise<jest.CustomMatcherResult> => {
+): Promise<jest.CustomMatcherResult> {
   let caughtError: unknown;
   let wasThrown = false;
 
@@ -19,9 +21,11 @@ export const toThrowDetailedErrorAsync = async (
   if (!wasThrown) {
     return {
       pass: false,
-      message: () => `Expected async function to throw DetailedError with code "${expectedCode}", but nothing was thrown`,
+      message: () =>
+        `${this.utils.matcherHint('toThrowDetailedErrorAsync', undefined, undefined, { isNot: this.isNot })}\n\n` +
+        `Expected async function to throw, but it did not throw.`,
     };
   }
 
-  return assertDetailedError(caughtError, expectedCode, expected);
-};
+  return assertDetailedError.call(this, caughtError, expectedCode, expected, 'toThrowDetailedErrorAsync');
+}
