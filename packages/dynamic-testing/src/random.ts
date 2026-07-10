@@ -1,5 +1,7 @@
-import { pkgError } from './internal/errors';
+import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
 import { isFiniteInteger } from './internal/validation';
+
+import { DetailedError } from '@couimet/detailed-error';
 
 /**
  * Returns every value from a TypeScript enum, excluding any values passed as varargs.
@@ -16,7 +18,11 @@ export const getEnumValues = <T extends Record<string | number, string | number>
 export const getRandomEnumValue = <T extends Record<string | number, string | number>>(enumClass: T, ...excluded: T[keyof T][]): T[keyof T] => {
   const values = getEnumValues(enumClass, ...excluded);
   if (values.length === 0) {
-    throw pkgError('No enum values available after exclusion');
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.NO_ENUM_VALUES_AVAILABLE,
+      message: 'No enum values available after exclusion',
+      functionName: 'getRandomEnumValue',
+    });
   }
   return values[getRandomInt(0, values.length - 1)]!;
 };
@@ -24,7 +30,12 @@ export const getRandomEnumValue = <T extends Record<string | number, string | nu
 /** Returns a random boolean. `trueProbability` defaults to 0.5. Throws if not a finite number in [0, 1]. */
 export const getRandomBoolean = (trueProbability = 0.5): boolean => {
   if (!Number.isFinite(trueProbability) || trueProbability < 0 || trueProbability > 1) {
-    throw pkgError(`trueProbability must be a finite number between 0 and 1, got ${trueProbability}`);
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.TRUE_PROBABILITY_OUT_OF_RANGE,
+      message: 'trueProbability must be a finite number between 0 and 1',
+      functionName: 'getRandomBoolean',
+      details: { received: trueProbability },
+    });
   }
   return Math.random() < trueProbability;
 };
@@ -32,13 +43,28 @@ export const getRandomBoolean = (trueProbability = 0.5): boolean => {
 /** Returns a random integer in [min, max] (inclusive on both boundaries). Throws if either bound is not a finite integer, or if min > max. */
 export const getRandomInt = (min: number, max: number): number => {
   if (!isFiniteInteger(min)) {
-    throw pkgError(`min (${min}) must be a finite integer`);
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.MIN_NOT_FINITE_INTEGER,
+      message: 'min must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: min },
+    });
   }
   if (!isFiniteInteger(max)) {
-    throw pkgError(`max (${max}) must be a finite integer`);
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.MAX_NOT_FINITE_INTEGER,
+      message: 'max must be a finite integer',
+      functionName: 'getRandomInt',
+      details: { received: max },
+    });
   }
   if (min > max) {
-    throw pkgError(`min (${min}) must not be greater than max (${max})`);
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.MIN_EXCEEDS_MAX,
+      message: 'min must not be greater than max',
+      functionName: 'getRandomInt',
+      details: { min, max },
+    });
   }
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };

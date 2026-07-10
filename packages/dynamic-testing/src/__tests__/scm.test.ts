@@ -1,5 +1,4 @@
-import { _setScm } from '../internal/scmState';
-import type { Scm } from '../scm';
+import type { Scm } from '../index';
 import {
   configure,
   getUniqueGitHubOwner,
@@ -11,9 +10,8 @@ import {
   getUniqueRepo,
   getUniqueRepoOwner,
   getUniqueRepoRef,
-} from '../scm';
-
-import { SharedErrorCodes } from '@couimet/detailed-error';
+} from '../index';
+import { _setScm } from '../internal/scmState';
 
 describe('scm', () => {
   beforeEach(() => {
@@ -183,58 +181,60 @@ describe('scm', () => {
 
   describe('exhaustiveness', () => {
     describe('configure() validation', () => {
-      it('throws on an unsupported SCM value', () => {
-        expect(() => configure({ scm: 'bitbucket' as Scm })).toThrow('Unsupported SCM: bitbucket');
-      });
-
-      it('error has VALIDATION code, functionName, and details', () => {
-        let caught: unknown;
-        try {
-          configure({ scm: 'bitbucket' as Scm });
-        } catch (e) {
-          caught = e;
-        }
-        expect(caught).toHaveProperty('code', SharedErrorCodes.VALIDATION);
-        expect(caught).toHaveProperty('functionName', 'configure');
-        expect(caught).toHaveProperty('details', { scm: 'bitbucket' });
+      it('throws a DetailedError with VALIDATION code, functionName, and details', () => {
+        expect(() => configure({ scm: 'bitbucket' as Scm })).toThrowDetailedError('UNSUPPORTED_SCM', {
+          message: 'Unsupported SCM',
+          functionName: 'configure',
+          details: { received: 'bitbucket' },
+        });
       });
     });
 
     describe('exhaustive-switch defaults', () => {
       it('getUniqueRepoOwner throws when scm is an unexpected runtime value', () => {
         _setScm('bitbucket');
-        let caught: unknown;
-        try {
-          getUniqueRepoOwner();
-        } catch (e) {
-          caught = e;
-        }
-        expect(caught).toHaveProperty('code', SharedErrorCodes.UNEXPECTED_SWITCH_VALUE);
-        expect(caught).toHaveProperty('functionName', 'getUniqueRepoOwner');
+        expect(() => getUniqueRepoOwner()).toThrowDetailedError('UNEXPECTED_SCM', {
+          message: 'Unexpected SCM: "bitbucket"',
+          functionName: 'getUniqueRepoOwner',
+          details: { unexpectedValue: 'bitbucket' },
+        });
       });
 
       it('getUniqueRepo throws when scm is an unexpected runtime value', () => {
         _setScm('bitbucket');
-        let caught: unknown;
-        try {
-          getUniqueRepo();
-        } catch (e) {
-          caught = e;
-        }
-        expect(caught).toHaveProperty('code', SharedErrorCodes.UNEXPECTED_SWITCH_VALUE);
-        expect(caught).toHaveProperty('functionName', 'getUniqueRepo');
+        expect(() => getUniqueRepo()).toThrowDetailedError('UNEXPECTED_SCM', {
+          message: 'Unexpected SCM: "bitbucket"',
+          functionName: 'getUniqueRepo',
+          details: { unexpectedValue: 'bitbucket' },
+        });
       });
 
       it('getUniqueRepoRef throws when scm is an unexpected runtime value', () => {
         _setScm('bitbucket');
-        let caught: unknown;
-        try {
-          getUniqueRepoRef();
-        } catch (e) {
-          caught = e;
-        }
-        expect(caught).toHaveProperty('code', SharedErrorCodes.UNEXPECTED_SWITCH_VALUE);
-        expect(caught).toHaveProperty('functionName', 'getUniqueRepoRef');
+        expect(() => getUniqueRepoRef()).toThrowDetailedError('UNEXPECTED_SCM', {
+          message: 'Unexpected SCM: "bitbucket"',
+          functionName: 'getUniqueRepoRef',
+          details: { unexpectedValue: 'bitbucket' },
+        });
+      });
+    });
+    describe('_setScm validation', () => {
+      it('throws when passed a non-string value', () => {
+        expect(() => _setScm(null)).toThrowDetailedError('SET_SCM_INVALID_TYPE', {
+          message: '_setScm expects a string',
+          functionName: '_setScm',
+          details: { received: null },
+        });
+        expect(() => _setScm(123)).toThrowDetailedError('SET_SCM_INVALID_TYPE', {
+          message: '_setScm expects a string',
+          functionName: '_setScm',
+          details: { received: 123 },
+        });
+        expect(() => _setScm(undefined)).toThrowDetailedError('SET_SCM_INVALID_TYPE', {
+          message: '_setScm expects a string',
+          functionName: '_setScm',
+          details: { received: undefined },
+        });
       });
     });
   });

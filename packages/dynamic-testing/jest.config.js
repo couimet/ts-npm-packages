@@ -7,7 +7,7 @@ module.exports = {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
-  setupFilesAfterEnv: ['jest-extended/all'],
+  setupFilesAfterEnv: ['jest-extended/all', '<rootDir>/src/setupTests.ts'],
   errorOnDeprecated: true,
   testTimeout: 5000,
   maxWorkers: '50%',

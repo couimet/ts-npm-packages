@@ -1,7 +1,9 @@
-import { pkgError } from './internal/errors';
+import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
 import { isNonNegativeInteger } from './internal/validation';
 import { getRandomInt } from './random';
 import { getUniqueInt } from './unique';
+
+import { DetailedError } from '@couimet/detailed-error';
 
 const UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const LOWER = UPPER.toLowerCase();
@@ -48,7 +50,12 @@ const DEFAULTS = { length: 8, charset: 'alphanumeric' as const, prefix: '' };
 export const getRandomString = (options: StringOptions = {}): string => {
   const { length = DEFAULTS.length, charset = DEFAULTS.charset, prefix = DEFAULTS.prefix } = options;
   if (!isNonNegativeInteger(length)) {
-    throw pkgError('length must be a non-negative integer');
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.LENGTH_NOT_NON_NEGATIVE_INTEGER,
+      message: 'length must be a non-negative integer',
+      functionName: 'getRandomString',
+      details: { received: length },
+    });
   }
   const chars = resolveCharset(charset);
   let result = prefix;
@@ -77,7 +84,12 @@ export const getRandomHexString = (length?: number): string => getRandomString({
 export const getUniqueString = (options: UniqueStringOptions = {}): string => {
   const { maxLength, charset = 'alphanumeric', prefix = '' } = options;
   if (maxLength !== undefined && !isNonNegativeInteger(maxLength)) {
-    throw pkgError('maxLength must be a non-negative integer');
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.MAX_LENGTH_NOT_NON_NEGATIVE_INTEGER,
+      message: 'maxLength must be a non-negative integer',
+      functionName: 'getUniqueString',
+      details: { received: maxLength },
+    });
   }
   const counter = getUniqueInt();
   const suffix = `-${counter}`;

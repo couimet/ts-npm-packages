@@ -153,6 +153,9 @@ importers:
       '@couimet/detailed-error':
         specifier: workspace:*
         version: link:../detailed-error
+      '@couimet/detailed-error-testing':
+        specifier: workspace:*
+        version: link:../detailed-error-testing
       '@couimet/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config

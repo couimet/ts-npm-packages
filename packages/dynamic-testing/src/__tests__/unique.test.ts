@@ -57,10 +57,26 @@ describe('getUniqueFloat', () => {
   });
 
   it('throws on invalid precision', () => {
-    expect(() => getUniqueFloat(0)).toThrow();
-    expect(() => getUniqueFloat(-1)).toThrow();
-    expect(() => getUniqueFloat(1.5)).toThrow();
-    expect(() => getUniqueFloat(31)).toThrow();
+    expect(() => getUniqueFloat(0)).toThrowDetailedError('PRECISION_NOT_POSITIVE_INTEGER', {
+      message: 'Precision must be a positive integer',
+      functionName: 'nextUniqueDecimal',
+      details: { received: 0 },
+    });
+    expect(() => getUniqueFloat(-1)).toThrowDetailedError('PRECISION_NOT_POSITIVE_INTEGER', {
+      message: 'Precision must be a positive integer',
+      functionName: 'nextUniqueDecimal',
+      details: { received: -1 },
+    });
+    expect(() => getUniqueFloat(1.5)).toThrowDetailedError('PRECISION_NOT_POSITIVE_INTEGER', {
+      message: 'Precision must be a positive integer',
+      functionName: 'nextUniqueDecimal',
+      details: { received: 1.5 },
+    });
+    expect(() => getUniqueFloat(31)).toThrowDetailedError('PRECISION_EXCEEDS_MAXIMUM', {
+      message: 'Precision must not exceed maximum',
+      details: { max: 30, received: 31 },
+      functionName: 'nextUniqueDecimal',
+    });
   });
 });
 
@@ -93,8 +109,16 @@ describe('getUniqueBigDecimal', () => {
   });
 
   it('throws on invalid precision', () => {
-    expect(() => getUniqueBigDecimal(0)).toThrow();
-    expect(() => getUniqueBigDecimal(31)).toThrow();
+    expect(() => getUniqueBigDecimal(0)).toThrowDetailedError('PRECISION_NOT_POSITIVE_INTEGER', {
+      message: 'Precision must be a positive integer',
+      functionName: 'nextUniqueDecimal',
+      details: { received: 0 },
+    });
+    expect(() => getUniqueBigDecimal(31)).toThrowDetailedError('PRECISION_EXCEEDS_MAXIMUM', {
+      message: 'Precision must not exceed maximum',
+      details: { max: 30, received: 31 },
+      functionName: 'nextUniqueDecimal',
+    });
   });
 });
 
@@ -154,23 +178,43 @@ describe('_reset', () => {
   });
 
   it('throws when seeded above the 1,000,000 cap', () => {
-    expect(() => _reset(5_000_000)).toThrow('exceeds cap');
+    expect(() => _reset(5_000_000)).toThrowDetailedError('RESET_COUNTER_EXCEEDS_CAP', {
+      message: '_resetCounter value exceeds cap',
+      functionName: '_resetCounter',
+      details: { received: 5_000_000, cap: 1_000_000 },
+    });
   });
 
   it('throws when seeded with zero', () => {
-    expect(() => _reset(0)).toThrow('_resetCounter requires a positive integer');
+    expect(() => _reset(0)).toThrowDetailedError('RESET_COUNTER_NOT_POSITIVE_INTEGER', {
+      message: '_resetCounter requires a positive integer',
+      functionName: '_resetCounter',
+      details: { received: 0 },
+    });
   });
 
   it('throws when seeded with a negative value', () => {
-    expect(() => _reset(-5)).toThrow('_resetCounter requires a positive integer');
+    expect(() => _reset(-5)).toThrowDetailedError('RESET_COUNTER_NOT_POSITIVE_INTEGER', {
+      message: '_resetCounter requires a positive integer',
+      functionName: '_resetCounter',
+      details: { received: -5 },
+    });
   });
 
   it('throws when seeded with NaN', () => {
-    expect(() => _reset(NaN)).toThrow('_resetCounter requires a positive integer');
+    expect(() => _reset(NaN)).toThrowDetailedError('RESET_COUNTER_NOT_POSITIVE_INTEGER', {
+      message: '_resetCounter requires a positive integer',
+      functionName: '_resetCounter',
+      details: { received: NaN },
+    });
   });
 
   it('throws when seeded with a non-integer', () => {
-    expect(() => _reset(1.5)).toThrow('_resetCounter requires a positive integer');
+    expect(() => _reset(1.5)).toThrowDetailedError('RESET_COUNTER_NOT_POSITIVE_INTEGER', {
+      message: '_resetCounter requires a positive integer',
+      functionName: '_resetCounter',
+      details: { received: 1.5 },
+    });
   });
 });
 

@@ -1,6 +1,8 @@
-import { pkgError } from './internal/errors';
+import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
 import { incCounter, incTimestampOffset, MODULE_LOAD_TIME } from './internal/state';
 import { isPositiveInteger } from './internal/validation';
+
+import { DetailedError } from '@couimet/detailed-error';
 
 const MAX_PRECISION = 30;
 
@@ -9,10 +11,20 @@ export const getUniqueInt = (): number => incCounter();
 
 const nextUniqueDecimal = (precision: number): { value: number; fixed: string } => {
   if (!isPositiveInteger(precision)) {
-    throw pkgError('Precision must be a positive integer');
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.PRECISION_NOT_POSITIVE_INTEGER,
+      message: 'Precision must be a positive integer',
+      functionName: 'nextUniqueDecimal',
+      details: { received: precision },
+    });
   }
   if (precision > MAX_PRECISION) {
-    throw pkgError(`Precision must not exceed ${MAX_PRECISION}`);
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.PRECISION_EXCEEDS_MAXIMUM,
+      message: 'Precision must not exceed maximum',
+      functionName: 'nextUniqueDecimal',
+      details: { max: MAX_PRECISION, received: precision },
+    });
   }
 
   const integer = getUniqueInt();

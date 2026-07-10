@@ -41,19 +41,35 @@ describe('getRandomString', () => {
   });
 
   it('throws when length is negative', () => {
-    expect(() => getRandomString({ length: -1 })).toThrow('length must be a non-negative integer');
+    expect(() => getRandomString({ length: -1 })).toThrowDetailedError('LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'length must be a non-negative integer',
+      functionName: 'getRandomString',
+      details: { received: -1 },
+    });
   });
 
   it('throws when length is NaN', () => {
-    expect(() => getRandomString({ length: NaN })).toThrow('length must be a non-negative integer');
+    expect(() => getRandomString({ length: NaN })).toThrowDetailedError('LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'length must be a non-negative integer',
+      functionName: 'getRandomString',
+      details: { received: NaN },
+    });
   });
 
   it('throws when length is a non-integer', () => {
-    expect(() => getRandomString({ length: 1.5 })).toThrow('length must be a non-negative integer');
+    expect(() => getRandomString({ length: 1.5 })).toThrowDetailedError('LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'length must be a non-negative integer',
+      functionName: 'getRandomString',
+      details: { received: 1.5 },
+    });
   });
 
   it('throws when length is Infinity', () => {
-    expect(() => getRandomString({ length: Infinity })).toThrow('length must be a non-negative integer');
+    expect(() => getRandomString({ length: Infinity })).toThrowDetailedError('LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'length must be a non-negative integer',
+      functionName: 'getRandomString',
+      details: { received: Infinity },
+    });
   });
 });
 
@@ -136,14 +152,26 @@ describe('getUniqueString', () => {
   });
 
   it('throws when maxLength is negative', () => {
-    expect(() => getUniqueString({ maxLength: -1 })).toThrow('maxLength must be a non-negative integer');
+    expect(() => getUniqueString({ maxLength: -1 })).toThrowDetailedError('MAX_LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'maxLength must be a non-negative integer',
+      functionName: 'getUniqueString',
+      details: { received: -1 },
+    });
   });
 
   it('throws when maxLength is a non-integer', () => {
-    expect(() => getUniqueString({ maxLength: 1.5 })).toThrow('maxLength must be a non-negative integer');
+    expect(() => getUniqueString({ maxLength: 1.5 })).toThrowDetailedError('MAX_LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'maxLength must be a non-negative integer',
+      functionName: 'getUniqueString',
+      details: { received: 1.5 },
+    });
   });
 
   it('throws when maxLength is NaN', () => {
-    expect(() => getUniqueString({ maxLength: NaN })).toThrow('maxLength must be a non-negative integer');
+    expect(() => getUniqueString({ maxLength: NaN })).toThrowDetailedError('MAX_LENGTH_NOT_NON_NEGATIVE_INTEGER', {
+      message: 'maxLength must be a non-negative integer',
+      functionName: 'getUniqueString',
+      details: { received: NaN },
+    });
   });
 });

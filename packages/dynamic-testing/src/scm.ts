@@ -1,7 +1,8 @@
+import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
 import { getConfig, setConfig } from './internal/scmState';
 import { getUniqueString } from './string';
 
-import { DetailedError, SharedErrorCodes } from '@couimet/detailed-error';
+import { DetailedError } from '@couimet/detailed-error';
 
 export interface UniqueRepoRef {
   owner: string;
@@ -24,10 +25,10 @@ const SUPPORTED_SCMS: readonly Scm[] = ['github', 'gitlab'];
 export const configure = (cfg: Partial<ScmConfig>): void => {
   if (cfg.scm !== undefined && !(SUPPORTED_SCMS as readonly string[]).includes(cfg.scm)) {
     throw new DetailedError({
-      code: SharedErrorCodes.VALIDATION,
-      message: `Unsupported SCM: ${cfg.scm}`,
+      code: DynamicTestingErrorCodes.UNSUPPORTED_SCM,
+      message: 'Unsupported SCM',
       functionName: 'configure',
-      details: { scm: cfg.scm },
+      details: { received: cfg.scm },
     });
   }
   setConfig(cfg);
@@ -61,7 +62,9 @@ export const getUniqueRepoOwner = (): string => {
     case 'gitlab':
       return getUniqueGitLabNamespace();
     default:
-      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepoOwner');
+      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepoOwner', {
+        code: DynamicTestingErrorCodes.UNEXPECTED_SCM,
+      });
   }
 };
 
@@ -73,7 +76,9 @@ export const getUniqueRepo = (): string => {
     case 'gitlab':
       return getUniqueGitLabProject();
     default:
-      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepo');
+      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepo', {
+        code: DynamicTestingErrorCodes.UNEXPECTED_SCM,
+      });
   }
 };
 
@@ -87,6 +92,8 @@ export const getUniqueRepoRef = (): UniqueRepoRef => {
       return { owner: namespace, repo: project, fullName };
     }
     default:
-      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepoRef');
+      throw DetailedError.forUnexpectedSwitchDefault('SCM', scm satisfies never, 'getUniqueRepoRef', {
+        code: DynamicTestingErrorCodes.UNEXPECTED_SCM,
+      });
   }
 };

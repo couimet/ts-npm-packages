@@ -1,12 +1,12 @@
 # @couimet/dynamic-testing
 
-## Validation
-
-Use the shared predicates in `src/internal/validation.ts` (`isPositiveInteger`, `isNonNegativeInteger`, `isFiniteInteger`) for numeric input checks rather than inlining `Number.isInteger(x) && x > 0`. Pair the predicate with `throw pkgError(...)` per the repo-wide rule in the root `CLAUDE.md`.
-
 ## Error messages
 
-Every error thrown from this package must use `pkgError` from `src/internal/errors.ts` rather than `new Error(...)` directly. `pkgError` prefixes the message with `[dynamic-testing]` so a consumer seeing a stack trace can immediately attribute the failure. The prefix lives in exactly one constant — do not hand-write it in error messages.
+Every error thrown from this package must use `DetailedError` from `@couimet/detailed-error` rather than `new Error(...)` directly. Use codes from `DynamicTestingErrorCodes` in `src/internal/DynamicTestingErrorCodes.ts` for package-specific errors; leverage `SharedErrorCodes` when a code is truly shared. Always set `functionName` to the calling function's name so consumers can identify the error source without a stack trace.
+
+## Validation
+
+Use the shared predicates in `src/internal/validation.ts` (`isPositiveInteger`, `isNonNegativeInteger`, `isFiniteInteger`) for numeric input checks rather than inlining `Number.isInteger(x) && x > 0`. Pair the predicate with `throw new DetailedError({ code: DynamicTestingErrorCodes.VALIDATION, message: '...', functionName: '...' })`.
 
 ## Internal vs. public
 

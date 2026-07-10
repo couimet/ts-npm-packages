@@ -8,6 +8,10 @@
 
 import type { ScmConfig } from '../scm';
 
+import { DynamicTestingErrorCodes } from './DynamicTestingErrorCodes';
+
+import { DetailedError } from '@couimet/detailed-error';
+
 const DEFAULT_CONFIG = { scm: 'github' } as const;
 
 let config: ScmConfig = DEFAULT_CONFIG;
@@ -20,5 +24,13 @@ export const setConfig = (cfg: Partial<ScmConfig>): void => {
 
 /** @internal Bypass validation — test-only. Do not use in consumer code. */
 export const _setScm = (scm: unknown): void => {
+  if (typeof scm !== 'string') {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.SET_SCM_INVALID_TYPE,
+      message: '_setScm expects a string',
+      functionName: '_setScm',
+      details: { received: scm },
+    });
+  }
   config = { ...config, scm: scm as ScmConfig['scm'] };
 };
