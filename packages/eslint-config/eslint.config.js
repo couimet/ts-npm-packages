@@ -30,6 +30,7 @@ import globals from 'globals';
  * @param {ReactConfigOptions} options
  * @returns {import('eslint').Linter.FlatConfig[]}
  */
+// eslint-disable-next-line @typescript-eslint/typedef -- JSDoc @param already provides the type
 export function reactConfig(options) {
   if (!options?.plugins?.['react-hooks']) {
     throw new Error('reactConfig: options.plugins["react-hooks"] is required');
@@ -91,6 +92,13 @@ export default [
         },
       ],
       '@typescript-eslint/no-empty-function': 'off',
+
+      '@typescript-eslint/typedef': [
+        'error',
+        {
+          parameter: true,
+        },
+      ],
 
       'simple-import-sort/imports': [
         'error',
