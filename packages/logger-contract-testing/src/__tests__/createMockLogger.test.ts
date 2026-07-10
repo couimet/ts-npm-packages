@@ -1,4 +1,4 @@
-import { createMockLogger } from '../createMockLogger';
+import { createMockLogger } from '../index';
 
 import { Logger } from '@couimet/logger-contract';
 import { jest } from '@jest/globals';

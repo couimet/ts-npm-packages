@@ -1,4 +1,4 @@
-import { NoOpLogger } from '../NoOpLogger';
+import { NoOpLogger } from '../index';
 
 describe('NoOpLogger', () => {
   it('should not throw when calling debug', () => {

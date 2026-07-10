@@ -1,5 +1,4 @@
-import { type ExpectedDetailedError } from '../ExpectedDetailedError';
-import { toThrowDetailedErrorAsync } from '../toThrowDetailedErrorAsync';
+import { type ExpectedDetailedError, toThrowDetailedErrorAsync } from '../index';
 
 import { createMockMatcherContext } from './mockMatcherContext';
 
