@@ -1,6 +1,6 @@
+import { getUniqueBigDecimal, getUniqueDate, getUniqueFloat, getUniqueInt, getUniqueTimestamp } from '../index';
 import { _getCounter } from '../internal/state';
 import { _reset } from '../internal/uniqueTestUtils';
-import { getUniqueBigDecimal, getUniqueDate, getUniqueFloat, getUniqueInt, getUniqueTimestamp } from '../unique';
 
 describe('getUniqueInt', () => {
   beforeEach(() => _reset(1));

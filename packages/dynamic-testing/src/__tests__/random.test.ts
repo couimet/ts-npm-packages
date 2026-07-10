@@ -1,4 +1,4 @@
-import { getEnumValues, getRandomBoolean, getRandomEnumValue, getRandomInt } from '../random';
+import { getEnumValues, getRandomBoolean, getRandomEnumValue, getRandomInt } from '../index';
 
 enum StringEnum {
   Alpha = 'A',

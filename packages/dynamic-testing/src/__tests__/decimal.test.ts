@@ -1,4 +1,4 @@
-import { getUniqueDecimal } from '../decimal';
+import { getUniqueDecimal } from '../index';
 import { _reset } from '../internal/uniqueTestUtils';
 
 describe('getUniqueDecimal', () => {
