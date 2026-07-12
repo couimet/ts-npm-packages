@@ -1,6 +1,4 @@
-import { Logger } from '../Logger';
-import { getLogger, setLogger } from '../LogManager';
-import { NoOpLogger } from '../NoOpLogger';
+import { getLogger, Logger, NoOpLogger, setLogger } from '../index';
 
 describe('LogManager', () => {
   it('should return NoOpLogger by default', () => {

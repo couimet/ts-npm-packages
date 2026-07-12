@@ -1,7 +1,4 @@
-import { Logger } from '../Logger';
-import { setLogger } from '../LogManager';
-import { NoOpLogger } from '../NoOpLogger';
-import { pingLog } from '../pingLog';
+import { Logger, NoOpLogger, pingLog, setLogger } from '../index';
 
 describe('pingLog', () => {
   let mockLogger: Logger;
