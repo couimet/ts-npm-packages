@@ -40,6 +40,36 @@ export default [
 
 The ESLint config includes a set of default ignores for build output, cache directories, and tooling artifacts. See the `ignores` array in `eslint.config.js` for the current list.
 
+## Explicit parameter types
+
+Function and method parameters must carry explicit type annotations, even when TypeScript can infer them from contextual typing. This keeps callback signatures readable without tracing back to the property or parameter type.
+
+```ts
+type OnDetected = (comment: ReviewLimitComment, waitSeconds: number) => Promise<void>;
+
+class EnqueueService {
+  // With the typedef rule, parameter types must be written out:
+  readonly handle: OnDetected = async (comment: ReviewLimitComment, waitSeconds: number) => {
+    // ...
+  };
+}
+```
+
+Without this rule, `comment` and `waitSeconds` would compile fine with inferred types, but a reader scanning the implementation body would need to jump to the `OnDetected` definition to know what they are.
+
+The rule is `@typescript-eslint/typedef` with `parameter: true`. See the [rule docs](https://typescript-eslint.io/rules/typedef/) for the full option set.
+
+## Expiring TODOs
+
+The config enforces `unicorn/expiring-todo-comments` at `error`. Every TODO comment must carry an expiry condition. Bare TODOs (no condition) are errors, and comments whose condition has been met (past date, installed dependency version, etc.) also error.
+
+```ts
+// TODO [2046-06-30]: Remove this workaround once lib v3 is released
+// TODO [+react@19.0.0]: Migrate to the new concurrent API
+```
+
+See the [eslint-plugin-unicorn docs](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/expiring-todo-comments.md) for the full condition syntax (engine version, dependency presence, peer dependency version, and more).
+
 ## Prettier
 
 In your package's `package.json`:
@@ -57,17 +87,6 @@ Or in a `.prettierrc`:
 ```
 
 See [Prettier's documentation](https://prettier.io/docs/en/ignore) for `.prettierignore` setup.
-
-## Expiring TODOs
-
-The config enforces `unicorn/expiring-todo-comments` at `error`. Every TODO comment must carry an expiry condition. Bare TODOs (no condition) are errors, and comments whose condition has been met (past date, installed dependency version, etc.) also error.
-
-```ts
-// TODO [2046-06-30]: Remove this workaround once lib v3 is released
-// TODO [+react@19.0.0]: Migrate to the new concurrent API
-```
-
-See the [eslint-plugin-unicorn docs](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/expiring-todo-comments.md) for the full condition syntax (engine version, dependency presence, peer dependency version, and more).
 
 ## React
 

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.6.2]
+
+### Fixed
+
+- Added `@typescript-eslint/typedef` with `parameter: true` to require explicit type annotations on function and method parameters, even when TypeScript can infer them from contextual typing.
+
 ## [0.6.1]
 
 ### Fixed
@@ -56,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.6.2]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.1...%40couimet%2Feslint-config%400.6.2
 [0.6.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.0...%40couimet%2Feslint-config%400.6.1
 [0.6.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.5.0...%40couimet%2Feslint-config%400.6.0
 [0.5.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.4.0...%40couimet%2Feslint-config%400.5.0
