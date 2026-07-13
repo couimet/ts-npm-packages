@@ -1,6 +1,6 @@
 {
   "name": "@couimet/detailed-result",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Functional Result type for explicit error handling paired with @couimet/detailed-error",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-result#readme",
   "bugs": {

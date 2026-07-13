@@ -18,8 +18,8 @@ export enum DetailedResultErrorCodes {
   /**
    * {@link DetailedResult} was constructed with an invalid combination of arguments:
    * either a success result with an error defined, or an error result with a value defined.
-   * This should never happen through the public factory methods ({@link DetailedResult.ok} /
-   * {@link DetailedResult.err}); it can only be triggered by a subclass constructor
+   * This should never happen through the public factory methods ({@link DetailedResult.success} /
+   * {@link DetailedResult.failure}); it can only be triggered by a subclass constructor
    * passing inconsistent arguments.
    */
   RESULT_INVALID_STATE = 'RESULT_INVALID_STATE',
