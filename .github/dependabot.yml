@@ -12,6 +12,8 @@ updates:
       deps:
         patterns:
           - '*'
+        exclude-patterns:
+          - '@couimet/*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
