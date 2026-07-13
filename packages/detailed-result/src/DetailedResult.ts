@@ -50,6 +50,18 @@ export class DetailedResult<T, E> {
         },
       });
     }
+    if (!success && error === undefined) {
+      throw new DetailedError({
+        code: DetailedResultErrorCodes.RESULT_INVALID_STATE,
+        message: 'DetailedResult marked as error must have an error defined',
+        functionName: 'DetailedResult.constructor',
+        details: {
+          success,
+          hasValue: value !== undefined,
+          hasError: error !== undefined,
+        },
+      });
+    }
     this._success = success;
     this._value = value;
     this._error = error;

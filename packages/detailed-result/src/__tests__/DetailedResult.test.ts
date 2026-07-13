@@ -143,6 +143,14 @@ describe('DetailedResult', () => {
       });
     });
 
+    it('throws RESULT_INVALID_STATE when error result has no error defined', () => {
+      expect(() => new TestResult(false, undefined, undefined)).toThrowDetailedError('RESULT_INVALID_STATE', {
+        message: 'DetailedResult marked as error must have an error defined',
+        functionName: 'DetailedResult.constructor',
+        details: { success: false, hasValue: false, hasError: false },
+      });
+    });
+
     it('constructor invariant details include success, hasValue, and hasError', () => {
       expect(() => new TestResult(true, 'val', new Error('err'))).toThrowDetailedError('RESULT_INVALID_STATE', {
         message: 'DetailedResult marked as success cannot have an error defined',
