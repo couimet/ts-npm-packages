@@ -27,6 +27,8 @@ if (result.success) {
 **Pin the error type** by subclassing — the base class uses `success`/`failure`, freeing `ok`/`err` for subclasses to override with a pinned error type:
 
 ```ts
+class MyError extends Error {}
+
 class MyResult<T> extends DetailedResult<T, MyError> {
   private constructor(success: boolean, value: T | undefined, error: MyError | undefined) {
     super(success, value, error);
