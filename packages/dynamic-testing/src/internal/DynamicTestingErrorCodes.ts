@@ -8,10 +8,14 @@
  * Keep sorted alphabetically.
  */
 export enum DynamicTestingErrorCodes {
+  /** The `count` argument to a batch unique function is not a positive integer. */
+  COUNT_NOT_POSITIVE_INTEGER = 'COUNT_NOT_POSITIVE_INTEGER',
   /** An environment variable value exceeds the configured cap. */
   ENV_VAR_EXCEEDS_CAP = 'ENV_VAR_EXCEEDS_CAP',
   /** An environment variable value is not a valid positive integer. */
   ENV_VAR_NOT_POSITIVE_INTEGER = 'ENV_VAR_NOT_POSITIVE_INTEGER',
+  /** The `keys` argument to a named batch unique function is an empty array. */
+  KEYS_ARRAY_EMPTY = 'KEYS_ARRAY_EMPTY',
   /** The `length` option to `getRandomString` is not a non-negative integer. */
   LENGTH_NOT_NON_NEGATIVE_INTEGER = 'LENGTH_NOT_NON_NEGATIVE_INTEGER',
   /** The `maxLength` option to `getUniqueString` is not a non-negative integer. */

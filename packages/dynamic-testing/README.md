@@ -51,15 +51,21 @@ The counter (`UNIQUE_NUMBER++`) is the foundation. Every call increments it. Val
 
 ```typescript
 getUniqueInt(): number
+getUniqueInts(count: number): number[]
+getUniqueIntsNamed<K extends string>(keys: readonly K[]): Record<K, number>
 getUniqueFloat(precision?: number): number       // default precision 2 → e.g. 1.58, 2.91
 getUniqueBigDecimal(precision?: number): string  // default precision 2 → e.g. "1.58", "2.91"
 getUniqueTimestamp(): number                      // 1-minute increments from module load
 getUniqueDate(): Date
+getUniqueDates(count: number): Date[]
+getUniqueDatesNamed<K extends string>(keys: readonly K[]): Record<K, Date>
 ```
 
 `getUniqueFloat` and `getUniqueBigDecimal` combine a counter-derived integer with a random decimal part. The decimal never ends with zero to avoid `parseFloat` truncation. `precision` controls the number of decimal places (default 2, max 30).
 
 Timestamps are anchored to `Date.now()` at module load and increment by 60,000ms (1 minute) per call. This makes diffs in human-readable dates obvious.
+
+Batch wrappers (`getUniqueInts`, `getUniqueIntsNamed`, `getUniqueDates`, `getUniqueDatesNamed`) generate multiple unique values in a single call. `*Named` variants accept an array of string keys and return a matching `Record`. Empty `keys` arrays throw; `count` must be a positive integer.
 
 ### Seeded-random values (`getRandom*`)
 
