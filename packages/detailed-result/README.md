@@ -4,16 +4,16 @@ Functional Result type for explicit error handling paired with `@couimet/detaile
 
 ## Usage
 
-Create results with the `ok()` and `err()` factories, then check `.success` before accessing `.value` or `.error`:
+Create results with the `success()` and `failure()` factories, then check `.success` before accessing `.value` or `.error`:
 
 ```ts
 import { DetailedResult } from '@couimet/detailed-result';
 
 function divide(a: number, b: number): DetailedResult<number, string> {
   if (b === 0) {
-    return DetailedResult.err('Division by zero');
+    return DetailedResult.failure('Division by zero');
   }
-  return DetailedResult.ok(a / b);
+  return DetailedResult.success(a / b);
 }
 
 const result = divide(10, 2);
@@ -24,13 +24,20 @@ if (result.success) {
 }
 ```
 
-**Pin the error type** by subclassing — override the factories, keep the constructor hidden:
+**Pin the error type** by subclassing — the base class uses `success`/`failure`, freeing `ok`/`err` for subclasses to override with a pinned error type:
 
 ```ts
+class MyError extends Error {}
+
 class MyResult<T> extends DetailedResult<T, MyError> {
+  private constructor(success: boolean, value: T | undefined, error: MyError | undefined) {
+    super(success, value, error);
+  }
+
   static ok<T>(value: T): MyResult<T> {
     return new MyResult(true, value, undefined);
   }
+
   static err(error: MyError): MyResult<never> {
     return new MyResult(false, undefined, error);
   }

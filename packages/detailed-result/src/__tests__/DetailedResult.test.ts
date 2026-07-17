@@ -3,23 +3,23 @@ import { DetailedResult, DetailedResultErrorCodes } from '../index';
 import { DetailedError } from '@couimet/detailed-error';
 
 describe('DetailedResult', () => {
-  describe('ok', () => {
+  describe('success', () => {
     it('creates a successful result with the given value', () => {
-      const result = DetailedResult.ok(42);
+      const result = DetailedResult.success(42);
 
       expect(result.success).toBe(true);
       expect(result.value).toBe(42);
     });
 
     it('works with undefined value', () => {
-      const result = DetailedResult.ok(undefined);
+      const result = DetailedResult.success(undefined);
 
       expect(result.success).toBe(true);
       expect(result.value).toBeUndefined();
     });
 
     it('works with null value', () => {
-      const result = DetailedResult.ok(null);
+      const result = DetailedResult.success(null);
 
       expect(result.success).toBe(true);
       expect(result.value).toBeNull();
@@ -27,17 +27,17 @@ describe('DetailedResult', () => {
 
     it('works with object values', () => {
       const obj = { key: 'value' };
-      const result = DetailedResult.ok(obj);
+      const result = DetailedResult.success(obj);
 
       expect(result.success).toBe(true);
       expect(result.value).toBe(obj);
     });
   });
 
-  describe('err', () => {
+  describe('failure', () => {
     it('creates an error result with the given error', () => {
       const error = new Error('something went wrong');
-      const result = DetailedResult.err(error);
+      const result = DetailedResult.failure(error);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(error);
@@ -45,7 +45,7 @@ describe('DetailedResult', () => {
 
     it('works with DetailedError', () => {
       const error = new DetailedError({ code: 'NOT_FOUND', message: 'Resource not found' });
-      const result = DetailedResult.err(error);
+      const result = DetailedResult.failure(error);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(error);
@@ -60,7 +60,7 @@ describe('DetailedResult', () => {
         details: { userId: 42, retryable: true },
         cause,
       });
-      const result = DetailedResult.err(error);
+      const result = DetailedResult.failure(error);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(error);
@@ -68,7 +68,7 @@ describe('DetailedResult', () => {
     });
 
     it('works with string errors', () => {
-      const result = DetailedResult.err('something went wrong');
+      const result = DetailedResult.failure('something went wrong');
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('something went wrong');
@@ -76,24 +76,24 @@ describe('DetailedResult', () => {
   });
 
   describe('success discriminator', () => {
-    it('returns true for ok results', () => {
-      expect(DetailedResult.ok(1).success).toBe(true);
+    it('returns true for success results', () => {
+      expect(DetailedResult.success(1).success).toBe(true);
     });
 
-    it('returns false for err results', () => {
-      expect(DetailedResult.err(new Error('fail')).success).toBe(false);
+    it('returns false for failure results', () => {
+      expect(DetailedResult.failure(new Error('fail')).success).toBe(false);
     });
   });
 
   describe('value getter', () => {
     it('returns the value on a success result', () => {
-      const result = DetailedResult.ok('hello');
+      const result = DetailedResult.success('hello');
 
       expect(result.value).toBe('hello');
     });
 
     it('throws DetailedError with RESULT_VALUE_ACCESS_ON_ERROR on an error result', () => {
-      const result = DetailedResult.err(new Error('fail'));
+      const result = DetailedResult.failure(new Error('fail'));
 
       expect(() => result.value).toThrowDetailedError('RESULT_VALUE_ACCESS_ON_ERROR', {
         message: 'Cannot access value on an error DetailedResult. Check .success before accessing .value',
@@ -105,13 +105,13 @@ describe('DetailedResult', () => {
   describe('error getter', () => {
     it('returns the error on an error result', () => {
       const error = new Error('fail');
-      const result = DetailedResult.err(error);
+      const result = DetailedResult.failure(error);
 
       expect(result.error).toBe(error);
     });
 
     it('throws DetailedError with RESULT_ERROR_ACCESS_ON_SUCCESS on a success result', () => {
-      const result = DetailedResult.ok(42);
+      const result = DetailedResult.success(42);
 
       expect(() => result.error).toThrowDetailedError('RESULT_ERROR_ACCESS_ON_SUCCESS', {
         message: 'Cannot access error on a successful DetailedResult. Check .success before accessing .error',
@@ -169,13 +169,21 @@ describe('DetailedResult', () => {
     }
 
     class MyResult<T> extends DetailedResult<T, MyError> {
-      constructor(success: boolean, value: T | undefined, error: MyError | undefined) {
+      private constructor(success: boolean, value: T | undefined, error: MyError | undefined) {
         super(success, value, error);
+      }
+
+      static ok<T>(value: T): MyResult<T> {
+        return new MyResult(true, value, undefined);
+      }
+
+      static err(error: MyError): MyResult<never> {
+        return new MyResult<never>(false, undefined, error);
       }
     }
 
-    it('subclass can pin the error type and hold a success value', () => {
-      const result = new MyResult(true, 42, undefined);
+    it('subclass ok factory creates a success result', () => {
+      const result = MyResult.ok(42);
 
       expect(result).toBeInstanceOf(MyResult);
       expect(result).toBeInstanceOf(DetailedResult);
@@ -183,9 +191,9 @@ describe('DetailedResult', () => {
       expect(result.value).toBe(42);
     });
 
-    it('subclass can pin the error type and hold an error', () => {
+    it('subclass err factory creates an error result', () => {
       const error = new MyError('something failed');
-      const result = new MyResult<number>(false, undefined, error);
+      const result = MyResult.err(error);
 
       expect(result).toBeInstanceOf(MyResult);
       expect(result).toBeInstanceOf(DetailedResult);
@@ -194,7 +202,7 @@ describe('DetailedResult', () => {
     });
 
     it('subclass error getter throws DetailedError on success', () => {
-      const result = new MyResult(true, 42, undefined);
+      const result = MyResult.ok(42);
 
       expect(() => result.error).toThrowDetailedError('RESULT_ERROR_ACCESS_ON_SUCCESS', {
         message: 'Cannot access error on a successful DetailedResult. Check .success before accessing .error',
@@ -203,7 +211,7 @@ describe('DetailedResult', () => {
     });
 
     it('subclass value getter throws DetailedError on error', () => {
-      const result = new MyResult<number>(false, undefined, new MyError('fail'));
+      const result = MyResult.err(new MyError('fail'));
 
       expect(() => result.value).toThrowDetailedError('RESULT_VALUE_ACCESS_ON_ERROR', {
         message: 'Cannot access value on an error DetailedResult. Check .success before accessing .value',

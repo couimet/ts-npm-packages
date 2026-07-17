@@ -1,4 +1,14 @@
-import { getUniqueBigDecimal, getUniqueDate, getUniqueFloat, getUniqueInt, getUniqueTimestamp } from '../index';
+import {
+  getUniqueBigDecimal,
+  getUniqueDate,
+  getUniqueDates,
+  getUniqueDatesNamed,
+  getUniqueFloat,
+  getUniqueInt,
+  getUniqueInts,
+  getUniqueIntsNamed,
+  getUniqueTimestamp,
+} from '../index';
 import { _getCounter } from '../internal/state';
 import { _reset } from '../internal/uniqueTestUtils';
 
@@ -150,6 +160,127 @@ describe('getUniqueDate', () => {
     const a = getUniqueDate();
     const b = getUniqueDate();
     expect(b.getTime() - a.getTime()).toBe(60_000);
+  });
+});
+
+describe('getUniqueInts', () => {
+  beforeEach(() => _reset(1));
+
+  it('returns an array of the requested length with sequential values', () => {
+    const count = 5;
+    const result = getUniqueInts(count);
+    expect(result).toHaveLength(count);
+    expect(result[0]).toBe(1);
+    expect(result[count - 1]).toBe(count);
+  });
+
+  it('returns unique values', () => {
+    const count = 10;
+    const result = getUniqueInts(count);
+    expect(new Set(result).size).toBe(count);
+  });
+
+  it('throws on non-positive-integer count', () => {
+    expect(() => getUniqueInts(0)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueInts',
+      details: { received: 0 },
+    });
+    expect(() => getUniqueInts(-3)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueInts',
+      details: { received: -3 },
+    });
+    expect(() => getUniqueInts(1.5)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueInts',
+      details: { received: 1.5 },
+    });
+  });
+});
+
+describe('getUniqueIntsNamed', () => {
+  beforeEach(() => _reset(1));
+
+  it('returns an object with the given keys mapped to numbers', () => {
+    const keys = ['alpha', 'beta', 'gamma'] as const;
+    const result = getUniqueIntsNamed(keys);
+    expect(Object.keys(result)).toStrictEqual(keys);
+    for (const key of keys) {
+      expect(typeof result[key]).toBe('number');
+    }
+  });
+
+  it('maps each key to a unique integer', () => {
+    const keys = ['alpha', 'beta', 'gamma'] as const;
+    const result = getUniqueIntsNamed(keys);
+    const values = Object.values(result);
+    expect(new Set(values).size).toBe(keys.length);
+  });
+
+  it('throws on an empty keys array', () => {
+    expect(() => getUniqueIntsNamed([])).toThrowDetailedError('KEYS_ARRAY_EMPTY', {
+      message: 'keys must not be empty',
+      functionName: 'getUniqueIntsNamed',
+    });
+  });
+});
+
+describe('getUniqueDates', () => {
+  beforeEach(() => _reset(1));
+
+  it('returns an array of the requested length with Date instances', () => {
+    const count = 3;
+    const result = getUniqueDates(count);
+    expect(result).toHaveLength(count);
+    for (const item of result) {
+      expect(item).toBeInstanceOf(Date);
+    }
+  });
+
+  it('returns unique timestamps', () => {
+    const count = 3;
+    const result = getUniqueDates(count);
+    const timestamps = result.map((d: Date) => d.getTime());
+    expect(new Set(timestamps).size).toBe(count);
+  });
+
+  it('throws on non-positive-integer count', () => {
+    expect(() => getUniqueDates(0)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueDates',
+      details: { received: 0 },
+    });
+  });
+});
+
+describe('getUniqueDatesNamed', () => {
+  beforeEach(() => _reset(1));
+
+  it('returns an object with the given keys mapped to Date instances', () => {
+    const keys = ['first', 'second'] as const;
+    const result = getUniqueDatesNamed(keys);
+    expect(Object.keys(result)).toStrictEqual(keys);
+    for (const key of keys) {
+      expect(result[key]).toBeInstanceOf(Date);
+    }
+  });
+
+  it('maps each key to a unique Date', () => {
+    const keys = ['first', 'second', 'third'] as const;
+    const result = getUniqueDatesNamed(keys);
+    const timestamps = Object.values(result).map((d: Date) => {
+      expect(d).toBeInstanceOf(Date);
+      return d.getTime();
+    });
+    expect(new Set(timestamps).size).toBe(keys.length);
+  });
+
+  it('throws on an empty keys array', () => {
+    expect(() => getUniqueDatesNamed([])).toThrowDetailedError('KEYS_ARRAY_EMPTY', {
+      message: 'keys must not be empty',
+      functionName: 'getUniqueDatesNamed',
+    });
   });
 });
 

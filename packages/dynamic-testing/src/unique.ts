@@ -58,3 +58,59 @@ export const getUniqueTimestamp = (): number => MODULE_LOAD_TIME + incTimestampO
 
 /** Convenience wrapping `getUniqueTimestamp()` via `new Date(timestamp)`. */
 export const getUniqueDate = (): Date => new Date(getUniqueTimestamp());
+
+/**
+ * Returns an array of `count` unique integers. Each value is drawn from the
+ * shared counter so integers increment by 1 within the batch.
+ */
+export const getUniqueInts = (count: number): number[] => {
+  if (!isPositiveInteger(count)) {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.COUNT_NOT_POSITIVE_INTEGER,
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueInts',
+      details: { received: count },
+    });
+  }
+  return Array.from({ length: count }, () => getUniqueInt());
+};
+
+/** Returns an object mapping each key to a unique integer from the shared counter. */
+export const getUniqueIntsNamed = <K extends string>(keys: readonly K[]): Record<K, number> => {
+  if (keys.length === 0) {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.KEYS_ARRAY_EMPTY,
+      message: 'keys must not be empty',
+      functionName: 'getUniqueIntsNamed',
+    });
+  }
+  return Object.fromEntries(keys.map((k) => [k, getUniqueInt()])) as Record<K, number>;
+};
+
+/**
+ * Returns an array of `count` unique Date objects. Each call to `getUniqueDate()`
+ * advances the timestamp offset by 1 minute, so dates within the batch are 1 minute apart.
+ */
+export const getUniqueDates = (count: number): Date[] => {
+  if (!isPositiveInteger(count)) {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.COUNT_NOT_POSITIVE_INTEGER,
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueDates',
+      details: { received: count },
+    });
+  }
+  return Array.from({ length: count }, () => getUniqueDate());
+};
+
+/** Returns an object mapping each key to a unique Date (1 minute apart per key). */
+export const getUniqueDatesNamed = <K extends string>(keys: readonly K[]): Record<K, Date> => {
+  if (keys.length === 0) {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.KEYS_ARRAY_EMPTY,
+      message: 'keys must not be empty',
+      functionName: 'getUniqueDatesNamed',
+    });
+  }
+  return Object.fromEntries(keys.map((k) => [k, getUniqueDate()])) as Record<K, Date>;
+};

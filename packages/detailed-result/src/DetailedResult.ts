@@ -5,8 +5,8 @@ import { DetailedError } from '@couimet/detailed-error';
 /**
  * Functional error handling Value Object.
  *
- * Represents either a successful value or an error. Use {@link DetailedResult.ok} and
- * {@link DetailedResult.err} factories to create instances, check `.success` before
+ * Represents either a successful value or an error. Use {@link DetailedResult.success} and
+ * {@link DetailedResult.failure} factories to create instances, check `.success` before
  * accessing `.value` or `.error`.
  *
  * The constructor is `protected` so subclasses can pin the error type by overriding
@@ -21,7 +21,7 @@ export class DetailedResult<T, E> {
   private readonly _error: E | undefined;
 
   /**
-   * Not for public use. Use {@link DetailedResult.ok} or {@link DetailedResult.err} factories instead.
+   * Not for public use. Use {@link DetailedResult.success} or {@link DetailedResult.failure} factories instead.
    *
    * Marked `protected` so subclasses can extend to pin the error type.
    */
@@ -68,12 +68,12 @@ export class DetailedResult<T, E> {
   }
 
   /** Create a successful {@link DetailedResult} containing a value. */
-  static ok<T>(value: T): DetailedResult<T, never> {
+  static success<T>(value: T): DetailedResult<T, never> {
     return new DetailedResult<T, never>(true, value, undefined);
   }
 
   /** Create an error {@link DetailedResult} containing an error. */
-  static err<E>(error: E): DetailedResult<never, E> {
+  static failure<E>(error: E): DetailedResult<never, E> {
     return new DetailedResult<never, E>(false, undefined, error);
   }
 
