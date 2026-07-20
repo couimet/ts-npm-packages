@@ -23,10 +23,12 @@ git fetch origin
 ## Step 2: Find Changed Workspace Packages
 
 ```bash
-git diff --name-only <base> -- packages/ | cut -d'/' -f2 | sort -u
+{ git diff --name-only <base> -- packages/
+  git ls-files --others --exclude-standard -- packages/
+} | cut -d'/' -f2 | sort -u
 ```
 
-Uses `<base>` without `..HEAD` so uncommitted working-tree changes are included. On a fresh branch with zero commits, `..HEAD` compares identical refs and always produces an empty diff.
+Uses `<base>` without `..HEAD` so uncommitted working-tree changes are included, and `git ls-files --others` adds untracked files that `git diff` would otherwise miss (e.g., a newly scaffolded package not yet staged). On a fresh branch with zero commits, `..HEAD` compares identical refs and always produces an empty diff.
 
 If the output is empty, no workspace packages changed. Write a note via `/note` with description `changeset-prep` saying "No workspace packages changed. No changeset needed." and STOP.
 
@@ -38,7 +40,7 @@ Run:
 git branch --show-current
 ```
 
-If the branch matches `issues/<NUMBER>`, extract the issue number. Record it for description generation in Step 5. The `<NUMBER>` is characters after `issues/` up to the first `-` or `_`, only if those characters are purely numeric; otherwise use the full segment.
+If the branch starts with `issues/`, extract the segment after `issues/`. Take characters up to the first `-` or `_`. If those characters are purely numeric, treat this as an issue branch: record the issue number for description generation in Step 5. If the segment is non-numeric (e.g., `issues/foo-bar` or `issues/123abc`), skip issue lookup entirely and use the commit-summary description path in Step 5 instead.
 
 ## Step 4: Categorize Changes per Package
 
@@ -75,6 +77,8 @@ Use the issue title as the description for the first (or only) changed package. 
 git log --oneline <base>..HEAD | head -1
 ```
 
+If the output is empty (no commits on the branch, only uncommitted changes), use `"Uncommitted changes"` as the fallback description.
+
 Strip any leading `[issues/<NUMBER>]` prefix from the commit message.
 
 Prefix each description with a Keep a Changelog category that matches the change: `Added:` for new exports (minor), `Fixed:` for source changes without API surface changes (patch), `Changed:` or `Removed:` for breaking changes (major). The user copies these directly into the interactive `pnpm changeset` description prompt.
@@ -94,7 +98,7 @@ Use `/note` with description `changeset-prep`.
 The note content must include:
 
 - A `pnpm changeset` command header
-- A table of package / bump / description rows, one per changed package
+- A table of package / bump / description rows, one per changed package. Omit packages classified as `skip` — they need no changeset entry. When every changed package is skip, write "No changeset needed." instead of a command table.
 - Reasoning for each recommendation (one-line summary of what the diff showed)
 - If existing changesets were found, a note listing them
 
@@ -115,7 +119,7 @@ Reasoning:
 - @couimet/<name>: internal refactor, no API changes → patch (Fixed)
 ```
 
-Omit the Reasoning section if all packages are skip-level. If existing changesets were found, add:
+Omit both the command table and the Reasoning section when all packages are skip-level. Write "No changeset needed." instead. If existing changesets were found, add:
 
 ```text
 Note: existing changeset files found in .changeset/:

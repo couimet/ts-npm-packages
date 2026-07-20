@@ -2,7 +2,7 @@
 name: finish-issue-hook
 description: Auto-generate changeset inputs during /finish-issue
 user-invocable: false
-allowed-tools: Bash, Read, Write, Glob, Grep
+allowed-tools: Bash, Read, Write, Glob, Grep, Skill
 ---
 
 # Finish-Issue Hook
