@@ -1,5 +1,7 @@
 # @couimet/logger-contract-testing
 
+[![npm version](https://img.shields.io/npm/v/@couimet/logger-contract-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/logger-contract-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/logger-contract-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/logger-contract-testing)
+
 Zero-setup mock-logger factories for tests written against [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract).
 
 ## Install

@@ -1,5 +1,7 @@
 # @couimet/dynamic-testing
 
+[![npm version](https://img.shields.io/npm/v/@couimet/dynamic-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/dynamic-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/dynamic-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/dynamic-testing)
+
 Dynamic testing utilities for TypeScript tests. See also: [Dynamic Testing](https://www.guru99.com/dynamic-testing.html).
 
 `@couimet/dynamic-testing` helps you write tests that surface bugs through controlled non-determinism. Instead of hard-coding static values, you request unique or random values from the library. Set `DYNAMIC_TESTING_COUNTER_START` to control where the counter begins and make runs reproducible.

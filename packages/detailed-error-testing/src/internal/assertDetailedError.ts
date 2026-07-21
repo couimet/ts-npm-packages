@@ -63,9 +63,9 @@ export function assertDetailedError(
   }
 
   if (expected.cause !== undefined) {
-    if (error.cause !== expected.cause) {
-      const expectedCauseMsg = expected.cause instanceof Error ? expected.cause.message : String(expected.cause);
-      const receivedCauseMsg = error.cause instanceof Error ? (error.cause as Error).message : String(error.cause);
+    if (!this.equals(error.cause, expected.cause)) {
+      const expectedCauseMsg = expected.cause instanceof Error ? expected.cause.message : expected.cause;
+      const receivedCauseMsg = error.cause instanceof Error ? (error.cause as Error).message : error.cause;
       failures.push(`Cause:\n  Expected: ${this.utils.printExpected(expectedCauseMsg)}\n  Received: ${this.utils.printReceived(receivedCauseMsg)}`);
     }
   } else if (error.cause !== undefined) {

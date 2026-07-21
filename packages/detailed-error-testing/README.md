@@ -1,5 +1,7 @@
 # @couimet/detailed-error-testing
 
+[![npm version](https://img.shields.io/npm/v/@couimet/detailed-error-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-error-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error-testing)
+
 Custom Jest matchers for testing code that throws or returns [`DetailedError`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error).
 
 ## Install
@@ -127,17 +129,24 @@ try {
 
 ### Asserting on cause
 
-Pass the exact `cause` reference — the matcher uses reference equality:
+The matcher uses `this.equals()` for cause comparison, which supports both exact references and asymmetric matchers:
 
 ```ts
 const root = new Error('Disk full');
 const err = new DetailedError({ code: 'WRITE_FAILED', message: 'Cannot write', functionName: 'save', cause: root });
 
-// Passes — same reference
+// Exact reference (same as before)
 expect(err).toBeDetailedError('WRITE_FAILED', {
   message: 'Cannot write',
   functionName: 'save',
   cause: root,
+});
+
+// Asymmetric matcher — matches any Error without needing the exact reference
+expect(err).toBeDetailedError('WRITE_FAILED', {
+  message: 'Cannot write',
+  functionName: 'save',
+  cause: expect.any(Error),
 });
 ```
 

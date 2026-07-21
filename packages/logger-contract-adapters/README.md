@@ -1,5 +1,7 @@
 # @couimet/logger-contract-adapters
 
+[![npm version](https://img.shields.io/npm/v/@couimet/logger-contract-adapters.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/logger-contract-adapters) [![npm downloads](https://img.shields.io/npm/dm/@couimet/logger-contract-adapters.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/logger-contract-adapters)
+
 Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries. Provides a zero-dependency `ConsoleLogger` plus adapters for the most widely used Node.js loggers.
 
 ## Install

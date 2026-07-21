@@ -1,5 +1,7 @@
 # @couimet/logger-contract
 
+[![npm version](https://img.shields.io/npm/v/@couimet/logger-contract.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/logger-contract) [![npm downloads](https://img.shields.io/npm/dm/@couimet/logger-contract.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/logger-contract)
+
 A logging interface contract for TypeScript. Libraries depend on this package without committing consumers to any particular logging framework.
 
 ## Install
