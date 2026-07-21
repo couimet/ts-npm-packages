@@ -1,5 +1,7 @@
 # @couimet/eslint-config
 
+[![npm version](https://img.shields.io/npm/v/@couimet/eslint-config.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/eslint-config) [![npm downloads](https://img.shields.io/npm/dm/@couimet/eslint-config.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/eslint-config)
+
 Shared ESLint (flat config) and Prettier configuration for `@couimet/*` packages.
 
 ## Install

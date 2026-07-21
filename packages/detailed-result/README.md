@@ -1,5 +1,7 @@
 # @couimet/detailed-result
 
+[![npm version](https://img.shields.io/npm/v/@couimet/detailed-result.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-result.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result)
+
 Functional Result type for explicit error handling paired with `@couimet/detailed-error`.
 
 ## Usage
