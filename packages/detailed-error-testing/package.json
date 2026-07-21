@@ -1,6 +1,6 @@
 {
   "name": "@couimet/detailed-error-testing",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Custom Jest matchers for testing code that throws or returns DetailedError",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error-testing#readme",
   "bugs": {
