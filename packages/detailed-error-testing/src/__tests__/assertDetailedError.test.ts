@@ -267,7 +267,7 @@ describe('assertDetailedError', () => {
     expect(result.pass).toBe(true);
   });
 
-  it('handles cause message formatting when expected cause is expect.any(Error)', () => {
+  it('handles cause message formatting when expected cause is expect.stringContaining("expected")', () => {
     const cause = new Error('actual cause');
     const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', cause });
     const result = assertDetailedError.call(
