@@ -237,6 +237,51 @@ describe('assertDetailedError', () => {
     expect(msg).toContain('actual');
   });
 
+  // --- cause with asymmetric matchers ---
+
+  it('passes when cause matches via expect.any(Error) asymmetric matcher', () => {
+    const cause = new Error('root');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', cause });
+    const result = assertDetailedError.call(
+      ctx,
+      err,
+      'ERR',
+      makeExpected({ message: 'msg', functionName: 'fn', cause: expect.any(Error) }),
+      'toBeDetailedError',
+    );
+
+    expect(result.pass).toBe(true);
+  });
+
+  it('passes when cause matches via expect.anything() asymmetric matcher', () => {
+    const cause = new Error('root');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', cause });
+    const result = assertDetailedError.call(
+      ctx,
+      err,
+      'ERR',
+      makeExpected({ message: 'msg', functionName: 'fn', cause: expect.anything() }),
+      'toBeDetailedError',
+    );
+
+    expect(result.pass).toBe(true);
+  });
+
+  it('handles cause message formatting when expected cause is expect.any(Error)', () => {
+    const cause = new Error('actual cause');
+    const err = new DetailedError({ code: 'ERR', message: 'msg', functionName: 'fn', cause });
+    const result = assertDetailedError.call(
+      ctx,
+      err,
+      'ERR',
+      makeExpected({ message: 'msg', functionName: 'fn', cause: expect.stringContaining('expected') }),
+      'toBeDetailedError',
+    );
+
+    expect(result.pass).toBe(false);
+    expect(result.message()).toContain('Cause:');
+  });
+
   // --- all match ---
 
   it('passes when all fields match', () => {

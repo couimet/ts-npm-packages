@@ -129,17 +129,24 @@ try {
 
 ### Asserting on cause
 
-Pass the exact `cause` reference — the matcher uses reference equality:
+The matcher uses `this.equals()` for cause comparison, which supports both exact references and asymmetric matchers:
 
 ```ts
 const root = new Error('Disk full');
 const err = new DetailedError({ code: 'WRITE_FAILED', message: 'Cannot write', functionName: 'save', cause: root });
 
-// Passes — same reference
+// Exact reference (same as before)
 expect(err).toBeDetailedError('WRITE_FAILED', {
   message: 'Cannot write',
   functionName: 'save',
   cause: root,
+});
+
+// Asymmetric matcher — matches any Error without needing the exact reference
+expect(err).toBeDetailedError('WRITE_FAILED', {
+  message: 'Cannot write',
+  functionName: 'save',
+  cause: expect.any(Error),
 });
 ```
 
