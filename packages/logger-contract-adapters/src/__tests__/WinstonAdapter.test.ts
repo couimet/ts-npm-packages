@@ -52,7 +52,7 @@ describe('WinstonAdapter', () => {
     const logMsg = getUniqueString();
     const code = getUniqueString();
     const error = new TypeError(message);
-    (error as any).code = code;
+    Object.assign(error, { code });
     adapter.debug({ fn, error }, logMsg);
     expect(winston.debug).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'TypeError', message, stack: error.stack, code } });
   });
@@ -65,7 +65,7 @@ describe('WinstonAdapter', () => {
     const logMsg = getUniqueString();
     const tags = [getUniqueString(), getUniqueString()];
     const error = new RangeError(message);
-    (error as any).tags = tags;
+    Object.assign(error, { tags });
     adapter.info({ fn, error }, logMsg);
     expect(winston.info).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'RangeError', message, stack: error.stack, tags } });
   });
@@ -78,7 +78,7 @@ describe('WinstonAdapter', () => {
     const logMsg = getUniqueString();
     const meta = { [getUniqueString()]: getUniqueString() };
     const error = new SyntaxError(message);
-    (error as any).meta = meta;
+    Object.assign(error, { meta });
     adapter.warn({ fn, error }, logMsg);
     expect(winston.warn).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'SyntaxError', message, stack: error.stack, meta } });
   });
@@ -92,8 +92,7 @@ describe('WinstonAdapter', () => {
     const code = getUniqueString();
     const statusCode = getUniqueString();
     const error = new URIError(message);
-    (error as any).code = code;
-    (error as any).statusCode = statusCode;
+    Object.assign(error, { code, statusCode });
     adapter.error({ fn, error }, logMsg);
     expect(winston.error).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'URIError', message, stack: error.stack, code, statusCode } });
   });
