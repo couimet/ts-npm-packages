@@ -1,5 +1,6 @@
 import barrelImports, { noDuplicateBarrelImports } from '../src/index.mjs';
 
+import tsParser from '@typescript-eslint/parser';
 import { RuleTester } from 'eslint';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -78,6 +79,7 @@ if (rootDir) {
           languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
+            parser: tsParser,
             parserOptions: { ecmaFeatures: { jsx: true } },
           },
         });
