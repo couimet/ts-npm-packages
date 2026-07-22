@@ -1,3 +1,5 @@
+import { normalizeContext } from './normalizeContext';
+
 import { Logger, LoggingContext } from '@couimet/logger-contract';
 import type { Logger as PinoLogger } from 'pino';
 
@@ -12,18 +14,18 @@ export class PinoAdapter implements Logger {
   }
 
   debug(ctx: LoggingContext, message: string): void {
-    this.logger.debug(ctx, message);
+    this.logger.debug(normalizeContext(ctx), message);
   }
 
   info(ctx: LoggingContext, message: string): void {
-    this.logger.info(ctx, message);
+    this.logger.info(normalizeContext(ctx), message);
   }
 
   warn(ctx: LoggingContext, message: string): void {
-    this.logger.warn(ctx, message);
+    this.logger.warn(normalizeContext(ctx), message);
   }
 
   error(ctx: LoggingContext, message: string): void {
-    this.logger.error(ctx, message);
+    this.logger.error(normalizeContext(ctx), message);
   }
 }

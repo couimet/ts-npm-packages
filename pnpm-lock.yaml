@@ -323,6 +323,9 @@ importers:
         specifier: workspace:*
         version: link:../logger-contract
     devDependencies:
+      '@couimet/dynamic-testing':
+        specifier: workspace:*
+        version: link:../dynamic-testing
       '@couimet/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
