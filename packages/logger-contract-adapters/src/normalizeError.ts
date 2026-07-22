@@ -6,8 +6,13 @@ export const normalizeError = (value: unknown): unknown => {
       stack: value.stack,
     };
     for (const key of Object.keys(value)) {
-      if (!(key in serialized)) {
-        serialized[key] = (value as unknown as Record<string, unknown>)[key];
+      if (!Object.prototype.hasOwnProperty.call(serialized, key)) {
+        Object.defineProperty(serialized, key, {
+          value: (value as unknown as Record<string, unknown>)[key],
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        });
       }
     }
     return serialized;

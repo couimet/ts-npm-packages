@@ -1,4 +1,4 @@
-import { normalizeError } from '../normalizeError';
+import { normalizeError } from '../index';
 
 import { getUniqueInt, getUniqueString } from '@couimet/dynamic-testing';
 
@@ -18,10 +18,7 @@ describe('normalizeError', () => {
     const meta = { [getUniqueString()]: getUniqueString(), [getUniqueString()]: getUniqueInt() };
 
     const error = new Error(message);
-    (error as any).code = code;
-    (error as any).statusCode = statusCode;
-    (error as any).tags = tags;
-    (error as any).meta = meta;
+    Object.assign(error, { code, statusCode, tags, meta });
 
     expect(normalizeError(error)).toStrictEqual({ name: 'Error', message, stack: error.stack, code, statusCode, tags, meta });
   });
@@ -61,7 +58,7 @@ describe('normalizeError', () => {
     // Object.assign creates own enumerable properties on the error.
     // 'name' becomes an own property shadowing Error.prototype.name.
     // 'code' is a genuine custom property.
-    Object.assign(error, { name: customName, code } as any);
+    Object.assign(error, { name: customName, code });
 
     // The built-in keys are read directly, so own property 'name' wins;
     // custom property 'code' is added because it's not one of the built-in keys;

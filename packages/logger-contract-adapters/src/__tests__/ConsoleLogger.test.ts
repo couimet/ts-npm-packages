@@ -39,11 +39,10 @@ describe('ConsoleLogger', () => {
       const logMsg = getUniqueString();
       const code = getUniqueString();
       const error = new TypeError(message);
-      (error as any).code = code;
+      Object.assign(error, { code });
       logger.debug({ fn, error }, logMsg);
       const expectedCtx = { fn, error: { name: 'TypeError', message, stack: error.stack, code } };
       expect(spy).toHaveBeenCalledWith(`[DEBUG] ${JSON.stringify(expectedCtx)} ${logMsg}`);
-      spy.mockRestore();
     });
   });
 
@@ -63,11 +62,10 @@ describe('ConsoleLogger', () => {
       const logMsg = getUniqueString();
       const tags = [getUniqueString(), getUniqueString()];
       const error = new RangeError(message);
-      (error as any).tags = tags;
+      Object.assign(error, { tags });
       logger.info({ fn, error }, logMsg);
       const expectedCtx = { fn, error: { name: 'RangeError', message, stack: error.stack, tags } };
       expect(spy).toHaveBeenCalledWith(`[INFO] ${JSON.stringify(expectedCtx)} ${logMsg}`);
-      spy.mockRestore();
     });
   });
 
@@ -87,11 +85,10 @@ describe('ConsoleLogger', () => {
       const logMsg = getUniqueString();
       const meta = { [getUniqueString()]: getUniqueString() };
       const error = new SyntaxError(message);
-      (error as any).meta = meta;
+      Object.assign(error, { meta });
       logger.warn({ fn, error }, logMsg);
       const expectedCtx = { fn, error: { name: 'SyntaxError', message, stack: error.stack, meta } };
       expect(spy).toHaveBeenCalledWith(`[WARN] ${JSON.stringify(expectedCtx)} ${logMsg}`);
-      spy.mockRestore();
     });
   });
 
@@ -112,12 +109,10 @@ describe('ConsoleLogger', () => {
       const code = getUniqueString();
       const statusCode = getUniqueString();
       const error = new URIError(message);
-      (error as any).code = code;
-      (error as any).statusCode = statusCode;
+      Object.assign(error, { code, statusCode });
       logger.error({ fn, error }, logMsg);
       const expectedCtx = { fn, error: { name: 'URIError', message, stack: error.stack, code, statusCode } };
       expect(spy).toHaveBeenCalledWith(`[ERROR] ${JSON.stringify(expectedCtx)} ${logMsg}`);
-      spy.mockRestore();
     });
   });
 });

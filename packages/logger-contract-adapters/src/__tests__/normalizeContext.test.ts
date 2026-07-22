@@ -1,4 +1,4 @@
-import { normalizeContext } from '../normalizeContext';
+import { normalizeContext } from '../index';
 
 import { getUniqueInt, getUniqueString } from '@couimet/dynamic-testing';
 
@@ -11,8 +11,7 @@ describe('normalizeContext', () => {
     const code = getUniqueString();
     const tags = [getUniqueString()];
     const err = new Error(message);
-    (err as any).code = code;
-    (err as any).tags = tags;
+    Object.assign(err, { code, tags });
 
     const ctx = { fn, err, userId, label };
     const result = normalizeContext(ctx);
@@ -43,9 +42,9 @@ describe('normalizeContext', () => {
     const code = getUniqueString();
     const tags = [getUniqueString(), getUniqueString()];
     const first = new TypeError(firstMsg);
-    (first as any).code = code;
+    Object.assign(first, { code });
     const second = new RangeError(secondMsg);
-    (second as any).tags = tags;
+    Object.assign(second, { tags });
 
     const ctx = { fn, first, second, safe };
     const result = normalizeContext(ctx);
