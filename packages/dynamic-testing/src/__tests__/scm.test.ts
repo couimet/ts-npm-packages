@@ -1,4 +1,3 @@
-import type { Scm } from '../index';
 import {
   configure,
   getUniqueGitHubOwner,
@@ -10,6 +9,7 @@ import {
   getUniqueRepo,
   getUniqueRepoOwner,
   getUniqueRepoRef,
+  type Scm,
 } from '../index';
 import { _setScm } from '../internal/scmState';
 

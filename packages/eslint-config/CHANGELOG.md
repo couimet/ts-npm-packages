@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [1.0.0]
+
+### Changed
+
+- Embed `eslint-plugin-barrel-boundary` and `@couimet/eslint-plugin-barrel-imports` in the base config. Both `barrel-boundary/enforce-barrel-files` and `barrel-imports/no-duplicate-barrel-imports` are `error` by default.
+
 ## [0.6.2]
 
 ### Fixed
@@ -62,6 +68,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[1.0.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.2...%40couimet%2Feslint-config%401.0.0
 [0.6.2]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.1...%40couimet%2Feslint-config%400.6.2
 [0.6.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.0...%40couimet%2Feslint-config%400.6.1
 [0.6.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.5.0...%40couimet%2Feslint-config%400.6.0

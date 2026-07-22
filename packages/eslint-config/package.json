@@ -1,6 +1,6 @@
 {
   "name": "@couimet/eslint-config",
-  "version": "0.6.2",
+  "version": "1.0.0",
   "description": "Shared ESLint (flat config) and Prettier configuration for @couimet/* packages",
   "license": "MIT",
   "author": "Charles Ouimet <charles.ouimet@gmail.com>",
@@ -16,6 +16,8 @@
   ],
   "scripts": {},
   "dependencies": {
+    "@couimet/eslint-plugin-barrel-imports": "workspace:*",
+    "eslint-plugin-barrel-boundary": "^1.1.1",
     "prettier-plugin-packagejson": "^3.0.0"
   },
   "devDependencies": {
@@ -31,10 +33,12 @@
     "prettier": ">=3.0.0"
   },
   "peerDependencies": {
+    "@couimet/eslint-plugin-barrel-imports": ">=0.1.0",
     "@typescript-eslint/eslint-plugin": ">=8.61.0",
     "@typescript-eslint/parser": ">=8.61.0",
     "eslint": ">=10.4.0",
     "eslint-config-prettier": ">=10.1.0",
+    "eslint-plugin-barrel-boundary": ">=1.1.1",
     "eslint-plugin-prettier": ">=5.5.0",
     "eslint-plugin-simple-import-sort": ">=13.0.0",
     "eslint-plugin-unicorn": ">=69.0.0",

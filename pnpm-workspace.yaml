@@ -2,3 +2,5 @@ packages:
   - 'packages/*'
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - eslint-plugin-barrel-boundary@1.1.1

@@ -38,6 +38,14 @@ export default [
 ];
 ```
 
+## Barrel enforcement
+
+The base config includes two barrel-import rules at `error`. Both apply to all files by default.
+
+**`barrel-imports/no-duplicate-barrel-imports`** (from `@couimet/eslint-plugin-barrel-imports`): disallows multiple import statements from the same path. When a file imports from the same barrel more than once, merge the imports into a single statement.
+
+**`barrel-boundary/enforce-barrel-files`** (from `eslint-plugin-barrel-boundary`): enforces that imports go through barrel files rather than directly to source files within a directory. The upstream `flat/recommended` preset is applied with its default settings.
+
 ## Default ignores
 
 The ESLint config includes a set of default ignores for build output, cache directories, and tooling artifacts. See the `ignores` array in `eslint.config.js` for the current list.

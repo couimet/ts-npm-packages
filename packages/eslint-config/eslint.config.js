@@ -1,8 +1,10 @@
 import prettierOptions from './prettier.js';
 
+import barrelImports from '@couimet/eslint-plugin-barrel-imports';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
+import barrelBoundary from 'eslint-plugin-barrel-boundary';
 import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unicorn from 'eslint-plugin-unicorn';
@@ -58,6 +60,7 @@ export default [
   {
     ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/.history/**', '**/.turbo/**', 'pnpm-lock.yaml', '**/*.tsbuildinfo', '**/*.d.ts.map'],
   },
+  barrelBoundary.configs['flat/recommended'],
   {
     files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
     languageOptions: {
@@ -72,6 +75,7 @@ export default [
       'unused-imports': unusedImports,
       unicorn,
       prettier: prettierPlugin,
+      'barrel-imports': barrelImports,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -118,6 +122,8 @@ export default [
           argsIgnorePattern: '^_',
         },
       ],
+
+      'barrel-imports/no-duplicate-barrel-imports': 'error',
 
       'require-await': 'error',
 
