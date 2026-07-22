@@ -1,0 +1,36 @@
+{
+  "name": "@couimet/eslint-plugin-barrel-imports",
+  "version": "0.1.0",
+  "description": "ESLint plugin with rules enforcing barrel import hygiene",
+  "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/eslint-plugin-barrel-imports#readme",
+  "bugs": {
+    "url": "https://github.com/couimet/ts-npm-packages/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:couimet/ts-npm-packages.git",
+    "directory": "packages/eslint-plugin-barrel-imports"
+  },
+  "license": "MIT",
+  "author": "Charles Ouimet <charles.ouimet@gmail.com>",
+  "type": "module",
+  "exports": "./src/index.mjs",
+  "files": [
+    "src/"
+  ],
+  "scripts": {
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
+  },
+  "prettier": "@couimet/eslint-config/prettier",
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.61.0",
+    "eslint": ">=10.4.0",
+    "jest": "^29.7.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=10.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

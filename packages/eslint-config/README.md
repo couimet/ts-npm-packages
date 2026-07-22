@@ -38,6 +38,36 @@ export default [
 ];
 ```
 
+## Barrel enforcement
+
+The base config includes two barrel-import rules at `error`. Both apply to all files by default.
+
+**`barrel-imports/no-duplicate-barrel-imports`** (from `@couimet/eslint-plugin-barrel-imports`): disallows multiple import statements from the same path. When a file imports from the same barrel more than once, merge the imports into a single statement.
+
+**`barrel-boundary/enforce-barrel-files`** (from `eslint-plugin-barrel-boundary`): enforces that imports go through barrel files rather than directly to source files within a directory. The upstream `flat/recommended` preset is applied with its default settings.
+
+### Interaction between the two rules
+
+When a symbol is intentionally excluded from a barrel (a testing-only export is the most common case), the two rules can conflict. `enforce-barrel-files` forces the import through the barrel, but the symbol is not there, so the only working import is a direct source-file import — which `enforce-barrel-files` flags. Enable both rules and you cannot satisfy them simultaneously for that file.
+
+The recommended fix is to disable `barrel-boundary/enforce-barrel-files` for the affected file pattern, typically tests:
+
+```js
+import couimetConfig from '@couimet/eslint-config/eslint';
+
+export default [
+  ...couimetConfig,
+  {
+    files: ['src/**/__tests__/**'],
+    rules: {
+      'barrel-boundary/enforce-barrel-files': 'off',
+    },
+  },
+];
+```
+
+If your project policy allows it, you can instead add the missing symbol to the barrel.
+
 ## Default ignores
 
 The ESLint config includes a set of default ignores for build output, cache directories, and tooling artifacts. See the `ignores` array in `eslint.config.js` for the current list.

@@ -228,6 +228,12 @@ importers:
 
   packages/eslint-config:
     dependencies:
+      '@couimet/eslint-plugin-barrel-imports':
+        specifier: workspace:*
+        version: link:../eslint-plugin-barrel-imports
+      eslint-plugin-barrel-boundary:
+        specifier: ^1.1.1
+        version: 1.1.1(eslint@10.4.1)
       prettier-plugin-packagejson:
         specifier: ^3.0.0
         version: 3.0.2(prettier@3.8.4)
@@ -262,6 +268,18 @@ importers:
       prettier:
         specifier: '>=3.0.0'
         version: 3.8.4
+
+  packages/eslint-plugin-barrel-imports:
+    devDependencies:
+      '@typescript-eslint/parser':
+        specifier: ^8.61.0
+        version: 8.61.0(eslint@10.4.1)(typescript@6.0.3)
+      eslint:
+        specifier: '>=10.4.0'
+        version: 10.4.1
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@24.13.2)
 
   packages/logger-contract:
     devDependencies:
@@ -1932,6 +1950,12 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
+  eslint-plugin-barrel-boundary@1.1.1:
+    resolution: {integrity: sha512-GP4KKwUM7GYOgnBIxJK0Q8YUhSxf2LrvezCe040bRKO6qn7alSA29/j/z2s56dtKEp2E+P3cTEKW4lmFz/+XWQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: '>=8.57.0'
+
   eslint-plugin-prettier@5.5.6:
     resolution: {integrity: sha512-ifetmTcxWfz+4qRW3pH/ujdTq2jQIj59AxJMIN26K5avYgU8dxycUETQonWiW+wPrYXA0j3Try0l1CnwVQtDqQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -2187,6 +2211,9 @@ packages:
   get-stream@6.0.1:
     resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
     engines: {node: '>=10'}
+
+  get-tsconfig@4.14.0:
+    resolution: {integrity: sha512-yTb+8DXzDREzgvYmh6s9vHsSVCHeC0G3PI5bEXNBHtmshPnO+S5O7qgLEOn0I5QvMy6kpZN8K1NKGyilLb93wA==}
 
   git-hooks-list@4.2.1:
     resolution: {integrity: sha512-WNvqJjOxxs/8ZP9+DWdwWJ7cDsd60NHf39XnD82pDVrKO5q7xfPqpkK6hwEAmBa/ZSEE4IOoR75EzbbIuwGlMw==}
@@ -3192,6 +3219,9 @@ packages:
   resolve-from@5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
+
+  resolve-pkg-maps@1.0.0:
+    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
 
   resolve.exports@2.0.3:
     resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
@@ -5394,6 +5424,11 @@ snapshots:
     dependencies:
       eslint: 10.4.1
 
+  eslint-plugin-barrel-boundary@1.1.1(eslint@10.4.1):
+    dependencies:
+      eslint: 10.4.1
+      get-tsconfig: 4.14.0
+
   eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.4.1))(eslint@10.4.1)(prettier@3.8.4):
     dependencies:
       eslint: 10.4.1
@@ -5685,6 +5720,10 @@ snapshots:
       pinkie-promise: 2.0.1
 
   get-stream@6.0.1: {}
+
+  get-tsconfig@4.14.0:
+    dependencies:
+      resolve-pkg-maps: 1.0.0
 
   git-hooks-list@4.2.1: {}
 
@@ -6985,6 +7024,8 @@ snapshots:
       resolve-from: 5.0.0
 
   resolve-from@5.0.0: {}
+
+  resolve-pkg-maps@1.0.0: {}
 
   resolve.exports@2.0.3: {}
 
