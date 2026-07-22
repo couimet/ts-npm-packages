@@ -1,6 +1,6 @@
 {
   "name": "@couimet/eslint-plugin-barrel-imports",
-  "version": "0.1.1-alpha.0",
+  "version": "0.1.0",
   "description": "ESLint plugin with rules enforcing barrel import hygiene",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/eslint-plugin-barrel-imports#readme",
   "bugs": {
