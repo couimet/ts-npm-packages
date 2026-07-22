@@ -1,3 +1,5 @@
+import { normalizeContext } from './normalizeContext';
+
 import { Logger, LoggingContext } from '@couimet/logger-contract';
 import type { Logger as WinstonLogger } from 'winston';
 
@@ -12,18 +14,18 @@ export class WinstonAdapter implements Logger {
   }
 
   debug(ctx: LoggingContext, message: string): void {
-    this.logger.debug(message, ctx);
+    this.logger.debug(message, normalizeContext(ctx));
   }
 
   info(ctx: LoggingContext, message: string): void {
-    this.logger.info(message, ctx);
+    this.logger.info(message, normalizeContext(ctx));
   }
 
   warn(ctx: LoggingContext, message: string): void {
-    this.logger.warn(message, ctx);
+    this.logger.warn(message, normalizeContext(ctx));
   }
 
   error(ctx: LoggingContext, message: string): void {
-    this.logger.error(message, ctx);
+    this.logger.error(message, normalizeContext(ctx));
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@couimet/logger-contract-adapters",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Logger adapters that bridge @couimet/logger-contract with popular logging libraries",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract-adapters#readme",
   "bugs": {
@@ -39,6 +39,7 @@
     "@couimet/logger-contract": "workspace:*"
   },
   "devDependencies": {
+    "@couimet/dynamic-testing": "workspace:*",
     "@couimet/eslint-config": "workspace:*",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.13.2",

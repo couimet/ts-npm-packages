@@ -1,5 +1,7 @@
 import { ConsoleLogger } from '../ConsoleLogger';
 
+import { getUniqueString } from '@couimet/dynamic-testing';
+
 describe('ConsoleLogger', () => {
   let logger: ConsoleLogger;
 
@@ -29,6 +31,19 @@ describe('ConsoleLogger', () => {
       expect(Object.keys(parsed)[0]).toBe('fn');
       spy.mockRestore();
     });
+
+    it('should normalize Error values in context', () => {
+      const spy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+      const fn = getUniqueString();
+      const message = getUniqueString();
+      const logMsg = getUniqueString();
+      const code = getUniqueString();
+      const error = new TypeError(message);
+      Object.assign(error, { code });
+      logger.debug({ fn, error }, logMsg);
+      const expectedCtx = { fn, error: { name: 'TypeError', message, stack: error.stack, code } };
+      expect(spy).toHaveBeenCalledWith(`[DEBUG] ${JSON.stringify(expectedCtx)} ${logMsg}`);
+    });
   });
 
   describe('info', () => {
@@ -38,6 +53,19 @@ describe('ConsoleLogger', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy.mock.calls[0]![0]!).toContain('[INFO]');
       spy.mockRestore();
+    });
+
+    it('should normalize Error values in context', () => {
+      const spy = jest.spyOn(console, 'info').mockImplementation(() => {});
+      const fn = getUniqueString();
+      const message = getUniqueString();
+      const logMsg = getUniqueString();
+      const tags = [getUniqueString(), getUniqueString()];
+      const error = new RangeError(message);
+      Object.assign(error, { tags });
+      logger.info({ fn, error }, logMsg);
+      const expectedCtx = { fn, error: { name: 'RangeError', message, stack: error.stack, tags } };
+      expect(spy).toHaveBeenCalledWith(`[INFO] ${JSON.stringify(expectedCtx)} ${logMsg}`);
     });
   });
 
@@ -49,6 +77,19 @@ describe('ConsoleLogger', () => {
       expect(spy.mock.calls[0]![0]!).toContain('[WARN]');
       spy.mockRestore();
     });
+
+    it('should normalize Error values in context', () => {
+      const spy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const fn = getUniqueString();
+      const message = getUniqueString();
+      const logMsg = getUniqueString();
+      const meta = { [getUniqueString()]: getUniqueString() };
+      const error = new SyntaxError(message);
+      Object.assign(error, { meta });
+      logger.warn({ fn, error }, logMsg);
+      const expectedCtx = { fn, error: { name: 'SyntaxError', message, stack: error.stack, meta } };
+      expect(spy).toHaveBeenCalledWith(`[WARN] ${JSON.stringify(expectedCtx)} ${logMsg}`);
+    });
   });
 
   describe('error', () => {
@@ -58,6 +99,20 @@ describe('ConsoleLogger', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy.mock.calls[0]![0]!).toContain('[ERROR]');
       spy.mockRestore();
+    });
+
+    it('should normalize Error values in context', () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const fn = getUniqueString();
+      const message = getUniqueString();
+      const logMsg = getUniqueString();
+      const code = getUniqueString();
+      const statusCode = getUniqueString();
+      const error = new URIError(message);
+      Object.assign(error, { code, statusCode });
+      logger.error({ fn, error }, logMsg);
+      const expectedCtx = { fn, error: { name: 'URIError', message, stack: error.stack, code, statusCode } };
+      expect(spy).toHaveBeenCalledWith(`[ERROR] ${JSON.stringify(expectedCtx)} ${logMsg}`);
     });
   });
 });

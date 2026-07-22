@@ -1,5 +1,6 @@
-import { PinoAdapter } from '../PinoAdapter';
+import { PinoAdapter } from '../index';
 
+import { getUniqueString } from '@couimet/dynamic-testing';
 import type { Logger as PinoLogger } from 'pino';
 
 const mockPino = (): PinoLogger =>
@@ -41,5 +42,58 @@ describe('PinoAdapter', () => {
     const adapter = new PinoAdapter(pino);
     adapter.error({ fn: 'test' }, 'failure');
     expect(pino.error).toHaveBeenCalledWith({ fn: 'test' }, 'failure');
+  });
+
+  it('should normalize Error values in debug context', () => {
+    const pino = mockPino();
+    const adapter = new PinoAdapter(pino);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const code = getUniqueString();
+    const error = new TypeError(message);
+    Object.assign(error, { code });
+    adapter.debug({ fn, error }, logMsg);
+    expect(pino.debug).toHaveBeenCalledWith({ fn, error: { name: 'TypeError', message, stack: error.stack, code } }, logMsg);
+  });
+
+  it('should normalize Error values in info context', () => {
+    const pino = mockPino();
+    const adapter = new PinoAdapter(pino);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const tags = [getUniqueString(), getUniqueString()];
+    const error = new RangeError(message);
+    Object.assign(error, { tags });
+    adapter.info({ fn, error }, logMsg);
+    expect(pino.info).toHaveBeenCalledWith({ fn, error: { name: 'RangeError', message, stack: error.stack, tags } }, logMsg);
+  });
+
+  it('should normalize Error values in warn context', () => {
+    const pino = mockPino();
+    const adapter = new PinoAdapter(pino);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const meta = { [getUniqueString()]: getUniqueString() };
+    const error = new SyntaxError(message);
+    Object.assign(error, { meta });
+    adapter.warn({ fn, error }, logMsg);
+    expect(pino.warn).toHaveBeenCalledWith({ fn, error: { name: 'SyntaxError', message, stack: error.stack, meta } }, logMsg);
+  });
+
+  it('should normalize Error values in error context', () => {
+    const pino = mockPino();
+    const adapter = new PinoAdapter(pino);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const code = getUniqueString();
+    const statusCode = getUniqueString();
+    const error = new URIError(message);
+    Object.assign(error, { code, statusCode });
+    adapter.error({ fn, error }, logMsg);
+    expect(pino.error).toHaveBeenCalledWith({ fn, error: { name: 'URIError', message, stack: error.stack, code, statusCode } }, logMsg);
   });
 });

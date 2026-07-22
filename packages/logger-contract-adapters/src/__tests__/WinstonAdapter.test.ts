@@ -1,5 +1,6 @@
 import { WinstonAdapter } from '../WinstonAdapter';
 
+import { getUniqueString } from '@couimet/dynamic-testing';
 import type { Logger as WinstonLogger } from 'winston';
 
 const mockWinston = (): WinstonLogger =>
@@ -41,5 +42,58 @@ describe('WinstonAdapter', () => {
     const adapter = new WinstonAdapter(winston);
     adapter.error({ fn: 'test' }, 'failure');
     expect(winston.error).toHaveBeenCalledWith('failure', { fn: 'test' });
+  });
+
+  it('should normalize Error values in debug context', () => {
+    const winston = mockWinston();
+    const adapter = new WinstonAdapter(winston);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const code = getUniqueString();
+    const error = new TypeError(message);
+    Object.assign(error, { code });
+    adapter.debug({ fn, error }, logMsg);
+    expect(winston.debug).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'TypeError', message, stack: error.stack, code } });
+  });
+
+  it('should normalize Error values in info context', () => {
+    const winston = mockWinston();
+    const adapter = new WinstonAdapter(winston);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const tags = [getUniqueString(), getUniqueString()];
+    const error = new RangeError(message);
+    Object.assign(error, { tags });
+    adapter.info({ fn, error }, logMsg);
+    expect(winston.info).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'RangeError', message, stack: error.stack, tags } });
+  });
+
+  it('should normalize Error values in warn context', () => {
+    const winston = mockWinston();
+    const adapter = new WinstonAdapter(winston);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const meta = { [getUniqueString()]: getUniqueString() };
+    const error = new SyntaxError(message);
+    Object.assign(error, { meta });
+    adapter.warn({ fn, error }, logMsg);
+    expect(winston.warn).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'SyntaxError', message, stack: error.stack, meta } });
+  });
+
+  it('should normalize Error values in error context', () => {
+    const winston = mockWinston();
+    const adapter = new WinstonAdapter(winston);
+    const fn = getUniqueString();
+    const message = getUniqueString();
+    const logMsg = getUniqueString();
+    const code = getUniqueString();
+    const statusCode = getUniqueString();
+    const error = new URIError(message);
+    Object.assign(error, { code, statusCode });
+    adapter.error({ fn, error }, logMsg);
+    expect(winston.error).toHaveBeenCalledWith(logMsg, { fn, error: { name: 'URIError', message, stack: error.stack, code, statusCode } });
   });
 });
