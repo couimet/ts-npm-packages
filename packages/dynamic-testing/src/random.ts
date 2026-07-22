@@ -24,7 +24,7 @@ export const getRandomEnumValue = <T extends Record<string | number, string | nu
       functionName: 'getRandomEnumValue',
     });
   }
-  return values[getRandomInt(0, values.length - 1)]!;
+  return values[getRandomInt(0, values.length - 1, { allowTrailingZero: true })]!;
 };
 
 /** Returns a random boolean. `trueProbability` defaults to 0.5. Throws if not a finite number in [0, 1]. */
@@ -40,8 +40,18 @@ export const getRandomBoolean = (trueProbability = 0.5): boolean => {
   return Math.random() < trueProbability;
 };
 
-/** Returns a random integer in [min, max] (inclusive on both boundaries). Throws if either bound is not a finite integer, or if min > max. */
-export const getRandomInt = (min: number, max: number): number => {
+/**
+ * Returns a random integer in [min, max] (inclusive on both boundaries).
+ *
+ * By default, the result never ends with a trailing zero (`allowTrailingZero`
+ * defaults to `false`).  Pass `{ allowTrailingZero: true }` to lift the
+ * restriction.  When the trailing-zero exclusion leaves zero or exactly one
+ * valid value in the range the function throws rather than looping forever or
+ * returning a deterministic result.
+ *
+ * Throws if either bound is not a finite integer, or if min > max.
+ */
+export const getRandomInt = (min: number, max: number, opts?: { allowTrailingZero?: boolean }): number => {
   if (!isFiniteInteger(min)) {
     throw new DetailedError({
       code: DynamicTestingErrorCodes.MIN_NOT_FINITE_INTEGER,
@@ -66,5 +76,46 @@ export const getRandomInt = (min: number, max: number): number => {
       details: { min, max },
     });
   }
+
+  const allowTrailingZero = opts?.allowTrailingZero ?? false;
+
+  if (!allowTrailingZero) {
+    const totalCount = max - min + 1;
+    const zeroEndingCount = Math.floor(max / 10) - Math.floor((min - 1) / 10);
+    const validCount = totalCount - zeroEndingCount;
+
+    if (validCount === 0) {
+      throw new DetailedError({
+        code: DynamicTestingErrorCodes.NO_VALID_VALUES_IN_RANGE,
+        message: 'No valid values in range: every integer ends with zero',
+        functionName: 'getRandomInt',
+        details: { min, max },
+      });
+    }
+
+    if (validCount === 1 && totalCount > 1) {
+      // The range is tiny — find the single non-zero-ending value to include in the error.
+      let onlyValid = 0;
+      for (let i = min; i <= max; i++) {
+        if (i % 10 !== 0) {
+          onlyValid = i;
+          break;
+        }
+      }
+      throw new DetailedError({
+        code: DynamicTestingErrorCodes.SINGLE_VALID_VALUE,
+        message: 'Only one valid value in range: result would be deterministic',
+        functionName: 'getRandomInt',
+        details: { min, max, onlyValid },
+      });
+    }
+
+    let result: number;
+    do {
+      result = Math.floor(Math.random() * (max - min + 1)) + min;
+    } while (result % 10 === 0);
+    return result;
+  }
+
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };

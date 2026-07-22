@@ -30,6 +30,8 @@ export enum DynamicTestingErrorCodes {
   MISSING_OPTIONAL_DEPENDENCY = 'MISSING_OPTIONAL_DEPENDENCY',
   /** All enum values have been excluded, leaving none to pick from. */
   NO_ENUM_VALUES_AVAILABLE = 'NO_ENUM_VALUES_AVAILABLE',
+  /** `allowTrailingZero` is false and every integer in [min, max] ends with zero. */
+  NO_VALID_VALUES_IN_RANGE = 'NO_VALID_VALUES_IN_RANGE',
   /** The `precision` argument exceeds the maximum allowed value. */
   PRECISION_EXCEEDS_MAXIMUM = 'PRECISION_EXCEEDS_MAXIMUM',
   /** The `precision` argument is not a positive integer. */
@@ -40,6 +42,8 @@ export enum DynamicTestingErrorCodes {
   RESET_COUNTER_NOT_POSITIVE_INTEGER = 'RESET_COUNTER_NOT_POSITIVE_INTEGER',
   /** `_setScm` was called with a non-string value. */
   SET_SCM_INVALID_TYPE = 'SET_SCM_INVALID_TYPE',
+  /** `allowTrailingZero` is false and exactly one integer in [min, max] doesn't end with zero, making the result deterministic. */
+  SINGLE_VALID_VALUE = 'SINGLE_VALID_VALUE',
   /** `trueProbability` is not a finite number in [0, 1]. */
   TRUE_PROBABILITY_OUT_OF_RANGE = 'TRUE_PROBABILITY_OUT_OF_RANGE',
   /** The `scm` field on a switch statement received an unexpected value. */

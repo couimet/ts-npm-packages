@@ -188,4 +188,32 @@ describe('getRandomInt', () => {
       details: { received: -Infinity },
     });
   });
+
+  it('never returns a value ending in zero by default', () => {
+    for (let i = 0; i < 5_000; i++) {
+      const value = getRandomInt(1, 999);
+      expect(value % 10).not.toBe(0);
+    }
+  });
+
+  it('can return values ending in zero when allowTrailingZero is true', () => {
+    const results = new Set(Array.from({ length: 500 }, () => getRandomInt(1, 50, { allowTrailingZero: true })));
+    expect([...results].some((v) => v % 10 === 0)).toBe(true);
+  });
+
+  it('throws NO_VALID_VALUES_IN_RANGE when every value ends in zero', () => {
+    expect(() => getRandomInt(10, 10)).toThrowDetailedError('NO_VALID_VALUES_IN_RANGE', {
+      message: 'No valid values in range: every integer ends with zero',
+      functionName: 'getRandomInt',
+      details: { min: 10, max: 10 },
+    });
+  });
+
+  it('throws SINGLE_VALID_VALUE when only one value does not end in zero', () => {
+    expect(() => getRandomInt(10, 11)).toThrowDetailedError('SINGLE_VALID_VALUE', {
+      message: 'Only one valid value in range: result would be deterministic',
+      functionName: 'getRandomInt',
+      details: { min: 10, max: 11, onlyValid: 11 },
+    });
+  });
 });
