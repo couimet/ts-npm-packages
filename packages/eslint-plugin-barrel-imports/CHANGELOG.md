@@ -1,5 +1,11 @@
 # @couimet/eslint-plugin-barrel-imports
 
+## 0.1.1-alpha.0
+
+### Patch Changes
+
+- Pre-release for downstream testing.
+
 <!-- changelog-entries -->
 
 ## [0.1.0]
