@@ -21,6 +21,16 @@ Disallows multiple import statements from the same path. When a file imports fro
 - ❌ `import { foo } from './barrel.js';` / `import { bar } from './barrel.js';`
 - ✅ `import { foo, bar } from './barrel.js';`
 
+### When a symbol is not in the barrel
+
+If one of the duplicate imports includes a symbol intentionally excluded from the barrel (a testing-only export is the most common case), merging the imports will cause TypeScript to report that the symbol is not exported. Import that symbol directly from its source file instead:
+
+```diff
+- import { publicApi } from './barrel.js';
++ import { publicApi } from './barrel.js';
++ import { testingOnlyExport } from './barrel/sourceModule.js';
+```
+
 ## Usage (ESLint flat config)
 
 ```js
