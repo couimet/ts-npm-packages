@@ -1,0 +1,80 @@
+{
+  "name": "@couimet/detailed-result-testing",
+  "version": "0.1.0",
+  "description": "Custom Jest matchers for testing code that returns DetailedResult",
+  "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-result-testing#readme",
+  "bugs": {
+    "url": "https://github.com/couimet/ts-npm-packages/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:couimet/ts-npm-packages.git",
+    "directory": "packages/detailed-result-testing"
+  },
+  "license": "MIT",
+  "author": "Charles Ouimet <charles.ouimet@gmail.com>",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./setup": {
+      "types": "./dist/setup.d.ts",
+      "import": "./dist/setup.mjs",
+      "require": "./dist/setup.js"
+    },
+    "./setup-before-jest-30": {
+      "types": "./dist/setup-before-jest-30.d.ts",
+      "import": "./dist/setup-before-jest-30.mjs",
+      "require": "./dist/setup-before-jest-30.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist coverage *.tsbuildinfo",
+    "clean:all": "pnpm clean && rm -rf node_modules .eslintcache *.log",
+    "clean:deps": "rm -rf node_modules",
+    "test": "jest --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@couimet/eslint-config/prettier",
+  "devDependencies": {
+    "@couimet/detailed-error": "workspace:*",
+    "@couimet/detailed-error-testing": "workspace:*",
+    "@couimet/detailed-result": "workspace:*",
+    "@couimet/eslint-config": "workspace:*",
+    "@jest/expect": ">=30.0.0",
+    "@jest/globals": ">=30.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.13.2",
+    "eslint": "^10.4.1",
+    "jest": "^29.7.0",
+    "prettier": "^3.8.4",
+    "ts-jest": "^29.4.11",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "@couimet/detailed-error": ">=1.0.0",
+    "@couimet/detailed-error-testing": ">=0.1.5",
+    "@couimet/detailed-result": ">=0.1.0",
+    "@jest/expect": ">=30.0.0",
+    "@jest/globals": ">=30.0.0",
+    "jest": ">=29.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@jest/expect": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
