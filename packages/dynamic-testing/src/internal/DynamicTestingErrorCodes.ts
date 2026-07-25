@@ -46,7 +46,7 @@ export enum DynamicTestingErrorCodes {
   RESET_COUNTER_NOT_POSITIVE_INTEGER = 'RESET_COUNTER_NOT_POSITIVE_INTEGER',
   /** `_setScm` was called with a non-string value. */
   SET_SCM_INVALID_TYPE = 'SET_SCM_INVALID_TYPE',
-  /** `allowTrailingZero` is false and exactly one integer in [min, max] doesn't end with zero, making the result deterministic. */
+  /** `allowTrailingZero` is false and exactly one integer in [min, max] doesn't end with zero while at least one other integer ends with zero. */
   SINGLE_VALID_VALUE = 'SINGLE_VALID_VALUE',
   /** `trueProbability` is not a finite number in [0, 1]. */
   TRUE_PROBABILITY_OUT_OF_RANGE = 'TRUE_PROBABILITY_OUT_OF_RANGE',
