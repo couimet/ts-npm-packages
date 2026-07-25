@@ -60,7 +60,7 @@ export const getRandomString = (options: StringOptions = {}): string => {
   const chars = resolveCharset(charset);
   let result = prefix;
   for (let i = 0; i < length; i++) {
-    result += chars[getRandomInt(0, chars.length - 1)];
+    result += chars[getRandomInt(0, chars.length - 1, { allowTrailingZero: true })];
   }
   return result;
 };

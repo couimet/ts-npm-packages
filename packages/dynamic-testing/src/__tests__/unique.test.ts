@@ -145,7 +145,16 @@ describe('getUniqueTimestamp', () => {
   it('increments by 1 minute per call', () => {
     const a = getUniqueTimestamp();
     const b = getUniqueTimestamp();
-    expect(b - a).toBe(60_000);
+    expect(b - a).toBeGreaterThan(59_000);
+    expect(b - a).toBeLessThan(61_000);
+  });
+
+  it('has a non-zero millisecond component whose last digit is never zero', () => {
+    for (let i = 0; i < 5_000; i++) {
+      const ms = getUniqueTimestamp() % 1000;
+      expect(ms).not.toBe(0);
+      expect(ms % 10).not.toBe(0);
+    }
   });
 });
 
@@ -159,7 +168,8 @@ describe('getUniqueDate', () => {
   it('returns dates 1 minute apart', () => {
     const a = getUniqueDate();
     const b = getUniqueDate();
-    expect(b.getTime() - a.getTime()).toBe(60_000);
+    expect(b.getTime() - a.getTime()).toBeGreaterThan(59_000);
+    expect(b.getTime() - a.getTime()).toBeLessThan(61_000);
   });
 });
 
@@ -298,7 +308,8 @@ describe('_reset', () => {
     _reset(1);
     const a = getUniqueTimestamp();
     const b = getUniqueTimestamp();
-    expect(b - a).toBe(60_000);
+    expect(b - a).toBeGreaterThan(59_000);
+    expect(b - a).toBeLessThan(61_000);
   });
 
   it('uses DYNAMIC_TESTING_COUNTER_START when called with no argument', () => {

@@ -188,4 +188,56 @@ describe('getRandomInt', () => {
       details: { received: -Infinity },
     });
   });
+
+  it('never returns a value ending in zero by default', () => {
+    for (let i = 0; i < 5_000; i++) {
+      const value = getRandomInt(1, 999);
+      expect(value % 10).not.toBe(0);
+    }
+  });
+
+  it('can return values ending in zero when allowTrailingZero is true', () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0.18);
+    expect(getRandomInt(1, 50, { allowTrailingZero: true })).toBe(10);
+  });
+
+  it('throws when opts is not an object', () => {
+    expect(() => getRandomInt(1, 10, 'not-an-object' as unknown as { allowTrailingZero?: boolean })).toThrowDetailedError('OPTS_MUST_BE_OBJECT', {
+      message: 'opts must be an object when provided',
+      functionName: 'getRandomInt',
+      details: { received: 'not-an-object' },
+    });
+  });
+
+  it('throws when opts is null', () => {
+    expect(() => getRandomInt(1, 10, null as unknown as { allowTrailingZero?: boolean })).toThrowDetailedError('OPTS_MUST_BE_OBJECT', {
+      message: 'opts must be an object when provided',
+      functionName: 'getRandomInt',
+      details: { received: null },
+    });
+  });
+
+  it('throws when allowTrailingZero is not a boolean', () => {
+    expect(() => getRandomInt(1, 10, { allowTrailingZero: 'false' as unknown as boolean })).toThrowDetailedError('ALLOW_TRAILING_ZERO_MUST_BE_BOOLEAN', {
+      message: 'allowTrailingZero must be a boolean when provided',
+      functionName: 'getRandomInt',
+      details: { received: 'false' },
+    });
+  });
+
+  it('throws NO_VALID_VALUES_IN_RANGE when every value ends in zero', () => {
+    expect(() => getRandomInt(10, 10)).toThrowDetailedError('NO_VALID_VALUES_IN_RANGE', {
+      message: 'No valid values in range: every integer ends with zero',
+      functionName: 'getRandomInt',
+      details: { min: 10, max: 10 },
+    });
+  });
+
+  it('throws SINGLE_VALID_VALUE when only one value does not end in zero', () => {
+    expect(() => getRandomInt(10, 11)).toThrowDetailedError('SINGLE_VALID_VALUE', {
+      message: 'Only one valid value in range: result would be deterministic',
+      functionName: 'getRandomInt',
+      details: { min: 10, max: 11, onlyValid: 11 },
+    });
+  });
 });

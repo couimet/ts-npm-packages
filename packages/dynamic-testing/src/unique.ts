@@ -1,6 +1,7 @@
 import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
 import { incCounter, incTimestampOffset, MODULE_LOAD_TIME } from './internal/state';
 import { isPositiveInteger } from './internal/validation';
+import { getRandomInt } from './';
 
 import { DetailedError } from '@couimet/detailed-error';
 
@@ -54,7 +55,8 @@ export const getUniqueBigDecimal = (precision = 2): string => nextUniqueDecimal(
  * Returns a unique timestamp (epoch ms) anchored to test runtime.
  * Increments by 1 minute (60,000 ms) per call so human-readable diffs are obvious.
  */
-export const getUniqueTimestamp = (): number => MODULE_LOAD_TIME + incTimestampOffset() * 60 * 1000;
+// Strip MODULE_LOAD_TIME's own ms so the random component below is the sole source of millisecond digits.
+export const getUniqueTimestamp = (): number => MODULE_LOAD_TIME - (MODULE_LOAD_TIME % 1000) + incTimestampOffset() * 60 * 1000 + getRandomInt(1, 999);
 
 /** Convenience wrapping `getUniqueTimestamp()` via `new Date(timestamp)`. */
 export const getUniqueDate = (): Date => new Date(getUniqueTimestamp());
