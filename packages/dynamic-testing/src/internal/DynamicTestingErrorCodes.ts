@@ -8,6 +8,8 @@
  * Keep sorted alphabetically.
  */
 export enum DynamicTestingErrorCodes {
+  /** The `allowTrailingZero` option to `getRandomInt` is present but not a boolean. */
+  ALLOW_TRAILING_ZERO_MUST_BE_BOOLEAN = 'ALLOW_TRAILING_ZERO_MUST_BE_BOOLEAN',
   /** The `count` argument to a batch unique function is not a positive integer. */
   COUNT_NOT_POSITIVE_INTEGER = 'COUNT_NOT_POSITIVE_INTEGER',
   /** An environment variable value exceeds the configured cap. */
@@ -32,6 +34,8 @@ export enum DynamicTestingErrorCodes {
   NO_ENUM_VALUES_AVAILABLE = 'NO_ENUM_VALUES_AVAILABLE',
   /** `allowTrailingZero` is false and every integer in [min, max] ends with zero. */
   NO_VALID_VALUES_IN_RANGE = 'NO_VALID_VALUES_IN_RANGE',
+  /** The `opts` argument to `getRandomInt` is not an object. */
+  OPTS_MUST_BE_OBJECT = 'OPTS_MUST_BE_OBJECT',
   /** The `precision` argument exceeds the maximum allowed value. */
   PRECISION_EXCEEDS_MAXIMUM = 'PRECISION_EXCEEDS_MAXIMUM',
   /** The `precision` argument is not a positive integer. */

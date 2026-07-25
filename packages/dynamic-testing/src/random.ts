@@ -77,6 +77,25 @@ export const getRandomInt = (min: number, max: number, opts?: { allowTrailingZer
     });
   }
 
+  if (opts !== undefined) {
+    if (opts === null || typeof opts !== 'object') {
+      throw new DetailedError({
+        code: DynamicTestingErrorCodes.OPTS_MUST_BE_OBJECT,
+        message: 'opts must be an object when provided',
+        functionName: 'getRandomInt',
+        details: { received: opts },
+      });
+    }
+    if ('allowTrailingZero' in opts && typeof opts.allowTrailingZero !== 'boolean') {
+      throw new DetailedError({
+        code: DynamicTestingErrorCodes.ALLOW_TRAILING_ZERO_MUST_BE_BOOLEAN,
+        message: 'allowTrailingZero must be a boolean when provided',
+        functionName: 'getRandomInt',
+        details: { received: opts.allowTrailingZero },
+      });
+    }
+  }
+
   const allowTrailingZero = opts?.allowTrailingZero ?? false;
 
   if (!allowTrailingZero) {

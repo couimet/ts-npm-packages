@@ -146,6 +146,7 @@ describe('getUniqueTimestamp', () => {
     const a = getUniqueTimestamp();
     const b = getUniqueTimestamp();
     expect(b - a).toBeGreaterThan(59_000);
+    expect(b - a).toBeLessThan(61_000);
   });
 
   it('has a non-zero millisecond component whose last digit is never zero', () => {
@@ -168,6 +169,7 @@ describe('getUniqueDate', () => {
     const a = getUniqueDate();
     const b = getUniqueDate();
     expect(b.getTime() - a.getTime()).toBeGreaterThan(59_000);
+    expect(b.getTime() - a.getTime()).toBeLessThan(61_000);
   });
 });
 
@@ -307,6 +309,7 @@ describe('_reset', () => {
     const a = getUniqueTimestamp();
     const b = getUniqueTimestamp();
     expect(b - a).toBeGreaterThan(59_000);
+    expect(b - a).toBeLessThan(61_000);
   });
 
   it('uses DYNAMIC_TESTING_COUNTER_START when called with no argument', () => {

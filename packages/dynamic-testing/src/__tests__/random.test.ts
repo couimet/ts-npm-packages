@@ -197,8 +197,32 @@ describe('getRandomInt', () => {
   });
 
   it('can return values ending in zero when allowTrailingZero is true', () => {
-    const results = new Set(Array.from({ length: 500 }, () => getRandomInt(1, 50, { allowTrailingZero: true })));
-    expect([...results].some((v) => v % 10 === 0)).toBe(true);
+    jest.spyOn(Math, 'random').mockReturnValue(0.18);
+    expect(getRandomInt(1, 50, { allowTrailingZero: true })).toBe(10);
+  });
+
+  it('throws when opts is not an object', () => {
+    expect(() => getRandomInt(1, 10, 'not-an-object' as unknown as { allowTrailingZero?: boolean })).toThrowDetailedError('OPTS_MUST_BE_OBJECT', {
+      message: 'opts must be an object when provided',
+      functionName: 'getRandomInt',
+      details: { received: 'not-an-object' },
+    });
+  });
+
+  it('throws when opts is null', () => {
+    expect(() => getRandomInt(1, 10, null as unknown as { allowTrailingZero?: boolean })).toThrowDetailedError('OPTS_MUST_BE_OBJECT', {
+      message: 'opts must be an object when provided',
+      functionName: 'getRandomInt',
+      details: { received: null },
+    });
+  });
+
+  it('throws when allowTrailingZero is not a boolean', () => {
+    expect(() => getRandomInt(1, 10, { allowTrailingZero: 'false' as unknown as boolean })).toThrowDetailedError('ALLOW_TRAILING_ZERO_MUST_BE_BOOLEAN', {
+      message: 'allowTrailingZero must be a boolean when provided',
+      functionName: 'getRandomInt',
+      details: { received: 'false' },
+    });
   });
 
   it('throws NO_VALID_VALUES_IN_RANGE when every value ends in zero', () => {
