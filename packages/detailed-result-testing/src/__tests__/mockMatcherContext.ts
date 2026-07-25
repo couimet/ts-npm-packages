@@ -12,6 +12,10 @@ const { equals: defaultEquals } = jest.requireActual('@jest/expect-utils');
  * or replace any individual piece.
  */
 export function createMockMatcherContext(overrides?: Partial<MatcherThis>): MatcherThis {
+  if (overrides === null || (overrides !== undefined && typeof overrides !== 'object')) {
+    throw new TypeError('overrides must be an object when provided');
+  }
+
   return {
     isNot: overrides?.isNot ?? false,
     equals: overrides?.equals ?? defaultEquals,

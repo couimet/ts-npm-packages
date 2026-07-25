@@ -56,11 +56,10 @@ export function assertDetailedResult(
       const hint = this.utils.matcherHint(matcherName, undefined, undefined, { isNot: this.isNot });
 
       if (pass) {
-        const discriminatorStr = expectedSuccess ? 'true' : 'false';
         return [
           hint,
           '',
-          `Expected: not success to be ${this.utils.printExpected(discriminatorStr)}`,
+          `Expected: not success to be ${this.utils.printExpected(expectedSuccess)}`,
           `Received: success is ${this.utils.printReceived(result.success)}`,
         ].join('\n');
       }

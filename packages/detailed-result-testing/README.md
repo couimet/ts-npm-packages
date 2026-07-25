@@ -71,20 +71,20 @@ describe('parseConfig', () => {
 
 Both matchers accept an expected value as the single argument and compare it against `result.value` (for `toBeSuccess`) or `result.error` (for `toBeFailure`) using `this.equals()`, which supports asymmetric matchers.
 
-### `toBeSuccess(expected)`
-
-Checks `result.success === true` and asserts `this.equals(expected, result.value)`.
-
-```ts
-expect(result).toBeSuccess({ id: 1, name: 'Alice' });
-```
-
 ### `toBeFailure(expected)`
 
 Checks `result.success === false` and asserts `this.equals(expected, result.error)`.
 
 ```ts
 expect(result).toBeFailure('Invalid input');
+```
+
+### `toBeSuccess(expected)`
+
+Checks `result.success === true` and asserts `this.equals(expected, result.value)`.
+
+```ts
+expect(result).toBeSuccess({ id: 1, name: 'Alice' });
 ```
 
 ## Common patterns
