@@ -1,5 +1,7 @@
 import { toBeFailure } from './toBeFailure';
+import { toBeFailureWith } from './toBeFailureWith';
 import { toBeSuccess } from './toBeSuccess';
+import { toBeSuccessWith } from './toBeSuccessWith';
 
 import { toBeDetailedError } from '@couimet/detailed-error-testing';
 import { DetailedResult } from '@couimet/detailed-result';
@@ -14,6 +16,8 @@ declare global {
     interface Matchers<R> {
       toBeSuccess(expected: unknown): R;
       toBeFailure(expected: unknown): R;
+      toBeSuccessWith(assertValue: (value: unknown) => void): R;
+      toBeFailureWith(assertError: (error: unknown) => void): R;
       toHaveDetailedError(expectedCode: string, expected: unknown): R;
     }
   }
@@ -22,6 +26,8 @@ declare global {
 expect.extend({
   toBeSuccess,
   toBeFailure,
+  toBeSuccessWith,
+  toBeFailureWith,
   toHaveDetailedError: function (this: jest.MatcherContext, received: unknown, expectedCode: string, expected: unknown) {
     if (received instanceof DetailedResult) {
       if (received.success === false) {

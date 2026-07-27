@@ -1,3 +1,4 @@
+import type { DetailedResult } from '@couimet/detailed-result';
 import type {} from '@jest/expect';
 
 /**
@@ -10,13 +11,16 @@ import type {} from '@jest/expect';
  * (`import '@couimet/detailed-result-testing/setup'`).
  */
 declare module '@jest/expect' {
-  // eslint-disable-next-line
   interface Matchers<R extends void | Promise<void>, T = unknown> {
     toBeSuccess(expected: unknown): R;
     toBeFailure(expected: unknown): R;
+    toBeSuccessWith(assertValue: (value: T extends DetailedResult<infer V, unknown> ? V : unknown) => void): R;
+    toBeFailureWith(assertError: (error: T extends DetailedResult<unknown, infer E> ? E : unknown) => void): R;
     toHaveDetailedError(expectedCode: string, expected: unknown): R;
   }
 }
 
 export * from './toBeFailure';
+export * from './toBeFailureWith';
 export * from './toBeSuccess';
+export * from './toBeSuccessWith';
