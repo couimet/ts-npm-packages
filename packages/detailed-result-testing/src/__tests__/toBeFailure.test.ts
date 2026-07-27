@@ -23,7 +23,7 @@ describe('toBeFailure', () => {
 
     expect(matcherResult.pass).toBe(false);
     expect(matcherResult.message()).toBe(
-      'expect(received).toBeFailure(expected)\n' + '\n' + 'Result discriminator:\n' + '  Expected: success to be false\n' + '  Received: success is true',
+      'expect(received).toBeFailure(expected)\n\nResult was expected to be an error, but it is successful.\n\nValue:\n  "ok"',
     );
   });
 
@@ -62,7 +62,7 @@ describe('toBeFailure', () => {
 
     expect(matcherResult.pass).toBe(false);
     expect(matcherResult.message()).toBe(
-      'expect(received).toBeFailure(expected)\n' + '\n' + 'Result discriminator:\n' + '  Expected: success to be false\n' + '  Received: success is true',
+      'expect(received).toBeFailure(expected)\n\nResult was expected to be an error, but it is successful.\n\nValue:\n  "ok"',
     );
   });
 });

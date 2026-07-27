@@ -14,9 +14,13 @@ declare module '@jest/expect' {
   interface Matchers<R extends void | Promise<void>, T = unknown> {
     toBeSuccess(expected: unknown): R;
     toBeFailure(expected: unknown): R;
+    toBeSuccessWith(assertValue: (value: unknown) => void): R;
+    toBeFailureWith(assertError: (error: unknown) => void): R;
     toHaveDetailedError(expectedCode: string, expected: unknown): R;
   }
 }
 
 export * from './toBeFailure';
+export * from './toBeFailureWith';
 export * from './toBeSuccess';
+export * from './toBeSuccessWith';

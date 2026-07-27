@@ -33,10 +33,11 @@ export function assertDetailedResult(
   const failures: string[] = [];
 
   if (result.success !== expectedSuccess) {
+    const label = expectedSuccess ? 'Error' : 'Value';
+    const payload: unknown = expectedSuccess ? result.error : result.value;
     failures.push(
-      `Result discriminator:\n` +
-        `  Expected: success to be ${this.utils.printExpected(expectedSuccess)}\n` +
-        `  Received: success is ${this.utils.printReceived(result.success)}`,
+      `Result was expected to be ${expectedSuccess ? 'successful' : 'an error'}, but it is ${expectedSuccess ? 'an error' : 'successful'}.\n` +
+        `\n${label}:\n  ${this.utils.printReceived(payload)}`,
     );
   } else if (expectedSuccess) {
     if (!this.equals(expected, result.value)) {
