@@ -16,6 +16,7 @@ describe('toBeFailureWith', () => {
     });
 
     expect(matcherResult.pass).toBe(true);
+    expect(matcherResult.message()).toBe('Result is an error and error assertions passed');
   });
 
   it('passes callback the result error', () => {
@@ -93,6 +94,8 @@ describe('toBeFailureWith', () => {
     });
 
     expect(matcherResult.pass).toBe(true);
-    expect(matcherResult.message()).toBe('Result is an error and error assertions passed');
+    expect(matcherResult.message()).toBe(
+      'expect(received).not.toBeFailureWith(expected)\n\nResult is an error and the error callback did not throw, but .not was used so this is treated as a failure.',
+    );
   });
 });

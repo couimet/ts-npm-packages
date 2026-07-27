@@ -2,7 +2,7 @@ import type { MatcherThis } from './internal/MatcherThis';
 
 import { DetailedResult } from '@couimet/detailed-result';
 
-export function toBeSuccessWith(this: MatcherThis, received: unknown, assertValue: (value: unknown) => void): jest.CustomMatcherResult {
+export function toBeSuccessWith<T = unknown>(this: MatcherThis, received: unknown, assertValue: (value: T) => void): jest.CustomMatcherResult {
   if (!(received instanceof DetailedResult)) {
     return {
       pass: false,
@@ -19,6 +19,15 @@ export function toBeSuccessWith(this: MatcherThis, received: unknown, assertValu
 
   try {
     assertValue(received.value);
+
+    if (this.isNot) {
+      const hint = this.utils.matcherHint('toBeSuccessWith', undefined, undefined, { isNot: true });
+      return {
+        pass: true,
+        message: () => `${hint}\n\nResult is successful and the value callback did not throw, but .not was used so this is treated as a failure.`,
+      };
+    }
+
     return { pass: true, message: () => 'Result is successful and value assertions passed' };
   } catch (error) {
     return {

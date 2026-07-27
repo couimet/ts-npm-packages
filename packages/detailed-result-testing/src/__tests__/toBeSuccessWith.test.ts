@@ -15,6 +15,7 @@ describe('toBeSuccessWith', () => {
     });
 
     expect(matcherResult.pass).toBe(true);
+    expect(matcherResult.message()).toBe('Result is successful and value assertions passed');
   });
 
   it('passes callback the result value', () => {
@@ -89,6 +90,8 @@ describe('toBeSuccessWith', () => {
     });
 
     expect(matcherResult.pass).toBe(true);
-    expect(matcherResult.message()).toBe('Result is successful and value assertions passed');
+    expect(matcherResult.message()).toBe(
+      'expect(received).not.toBeSuccessWith(expected)\n\nResult is successful and the value callback did not throw, but .not was used so this is treated as a failure.',
+    );
   });
 });
