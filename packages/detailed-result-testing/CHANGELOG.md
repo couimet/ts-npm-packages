@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [0.2.1]
+
+### Fixed
+
+- `setup-before-jest-30.d.ts` emitted as a script instead of a module, preventing type augmentation from resolving for tsc/ts-jest consumers
+- `@couimet/detailed-error-testing` incorrectly marked as an optional peer dependency despite being unconditionally required by all entry points.
+
 ## [0.2.0]
 
 ### Added
@@ -20,5 +27,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[0.2.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-result-testing%400.2.0...%40couimet%2Fdetailed-result-testing%400.2.1
 [0.2.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Fdetailed-result-testing%400.1.0...%40couimet%2Fdetailed-result-testing%400.2.0
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Fdetailed-result-testing%400.1.0
