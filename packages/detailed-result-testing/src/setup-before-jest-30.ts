@@ -13,11 +13,12 @@ import { DetailedResult } from '@couimet/detailed-result';
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
-    interface Matchers<R> {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- must match @types/jest Matchers<R, T = {}>
+    interface Matchers<R, T = {}> {
       toBeSuccess(expected: unknown): R;
       toBeFailure(expected: unknown): R;
-      toBeSuccessWith(assertValue: (value: unknown) => void): R;
-      toBeFailureWith(assertError: (error: unknown) => void): R;
+      toBeSuccessWith(assertValue: (value: T extends DetailedResult<infer V, unknown> ? V : unknown) => void): R;
+      toBeFailureWith(assertError: (error: T extends DetailedResult<unknown, infer E> ? E : unknown) => void): R;
       toHaveDetailedError(expectedCode: string, expected: unknown): R;
     }
   }
