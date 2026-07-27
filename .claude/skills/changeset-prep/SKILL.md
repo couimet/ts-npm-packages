@@ -66,7 +66,7 @@ The heuristic only checks top-level `export` keyword lines. It does not detect r
 **If on an issues branch** (from Step 3), fetch the issue title:
 
 ```bash
-gh issue view <NUMBER> --json title -q .title
+gh issue view <NUMBER> --json title,body -q '{title: .title, body: .body}'
 ```
 
 Use the issue title and body to understand what changed, then write a Keep a Changelog entry from scratch. Do not copy the issue title verbatim — issue titles are summaries, not changelog entries.
@@ -128,7 +128,7 @@ Run: pnpm changeset
 
 When prompted, enter:
 
-  @couimet/<name>   major   Removed: `legacyParse()` export; use `parse()` instead.
+  @couimet/<name>   major   Removed: `legacyParse()` export; `parse()` replaced it.
   @couimet/<name>   minor   Added: `createMockMatcherContext()` helper for testing custom matchers without Jest internals.
   @couimet/<name>   patch   Fixed: `setup-before-jest-30.d.ts` emitted as a script instead of a module, preventing type augmentation from resolving for tsc/ts-jest consumers.
 
