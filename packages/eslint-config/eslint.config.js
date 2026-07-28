@@ -134,6 +134,8 @@ export default [
           allowWarningComments: false,
         },
       ],
+
+      'unicorn/prefer-node-protocol': 'error',
     },
   },
 ];

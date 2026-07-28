@@ -102,6 +102,24 @@ The config enforces `unicorn/expiring-todo-comments` at `error`. Every TODO comm
 
 See the [eslint-plugin-unicorn docs](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/expiring-todo-comments.md) for the full condition syntax (engine version, dependency presence, peer dependency version, and more).
 
+## Node protocol
+
+The config enforces `unicorn/prefer-node-protocol` at `error`. Every Node.js built-in import must use the `node:` protocol prefix.
+
+```ts
+// ❌ bad
+import fs from 'fs';
+import path from 'path';
+
+// ✅ good
+import fs from 'node:fs';
+import path from 'node:path';
+```
+
+The `node:` prefix makes it unambiguous that an import is a Node.js built-in, preventing confusion with same-named npm packages (the `events` and `assert` packages on npm, for example). The rule is auto-fixable: run `eslint --fix` to migrate an entire codebase.
+
+See the [eslint-plugin-unicorn docs](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-node-protocol.md) for details.
+
 ## Prettier
 
 In your package's `package.json`:
