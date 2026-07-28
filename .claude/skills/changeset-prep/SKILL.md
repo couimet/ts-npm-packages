@@ -66,22 +66,41 @@ The heuristic only checks top-level `export` keyword lines. It does not detect r
 **If on an issues branch** (from Step 3), fetch the issue title:
 
 ```bash
-gh issue view <NUMBER> --json title -q .title
+gh issue view <NUMBER> --json title,body -q '{title: .title, body: .body}'
 ```
 
-Use the issue title as the description for the first (or only) changed package. If multiple packages changed, append a short package-specific suffix (e.g., " — <pkg-name> components").
+Use the issue title and body to understand what changed, then write a Keep a Changelog entry from scratch. Do not copy the issue title verbatim — issue titles are summaries, not changelog entries.
 
-**If not on an issues branch**, use the first commit summary:
+**If not on an issues branch**, use the first commit summary as context:
 
 ```bash
 git log --oneline <base>..HEAD | head -1
 ```
 
-If the output is empty (no commits on the branch, only uncommitted changes), use `"Uncommitted changes"` as the fallback description.
+If the output is empty (no commits on the branch, only uncommitted changes), use the diff itself as context and write the description from scratch.
 
 Strip any leading `[issues/<NUMBER>]` prefix from the commit message.
 
-Prefix each description with a Keep a Changelog category that matches the change: `Added:` for new exports (minor), `Fixed:` for source changes without API surface changes (patch), `Changed:` or `Removed:` for breaking changes (major). The user copies these directly into the interactive `pnpm changeset` description prompt.
+### Keep a Changelog Description Format
+
+Prefix each description with a category that matches the bump level from Step 4: `Added:` (minor), `Fixed:` (patch), `Changed:` or `Removed:` (major). The user copies these directly into the interactive `pnpm changeset` description prompt.
+
+The description after the prefix must follow Keep a Changelog conventions:
+
+- **Past tense**, describing what was fixed/added/changed from the consumer's perspective.
+- **Specific** — name the file, export, or behavior that changed. Prefer backtick-quoted identifiers.
+- **One sentence per logical change.** When a changeset covers multiple changes under the same bump level, join them with a comma or semicolon. Avoid "and" chains beyond two items; use separate sentences for distinct fixes.
+- **No issue numbers, no PR references, no meta-commentary.** The description becomes a CHANGELOG bullet; it must stand on its own without the issue tracker for context.
+
+Good:
+Fixed: `setup-before-jest-30.d.ts` emitted as a script instead of a module, preventing type augmentation from resolving for tsc/ts-jest consumers.
+Fixed: `@couimet/detailed-error-testing` incorrectly marked as an optional peer dependency despite being unconditionally required by all entry points.
+Added: `createMockMatcherContext()` helper for testing custom matchers without Jest internals.
+
+Bad:
+Fixed: two setup bugs — .d.ts emitted as script, optional peer incorrectly marked
+Added: new features and improvements
+Fixed: fix the thing
 
 ## Step 6: Check for Existing Changesets
 
@@ -109,9 +128,9 @@ Run: pnpm changeset
 
 When prompted, enter:
 
-  @couimet/<name>   major   Removed: <description>
-  @couimet/<name>   minor   Added: <description>
-  @couimet/<name>   patch   Fixed: <description>
+  @couimet/<name>   major   Removed: `legacyParse()` export; `parse()` replaced it.
+  @couimet/<name>   minor   Added: `createMockMatcherContext()` helper for testing custom matchers without Jest internals.
+  @couimet/<name>   patch   Fixed: `setup-before-jest-30.d.ts` emitted as a script instead of a module, preventing type augmentation from resolving for tsc/ts-jest consumers.
 
 Reasoning:
 - @couimet/<name>: removed export `foo` → major (Removed)

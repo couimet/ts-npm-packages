@@ -69,10 +69,7 @@ describe('assertDetailedResult', () => {
     const result = assertDetailedResult.call(ctx, success, false, 'toBeFailure', 42);
 
     expect(result.pass).toBe(false);
-    const msg = result.message();
-    expect(msg).toContain('Result discriminator');
-    expect(msg).toContain('false');
-    expect(msg).toContain('true');
+    expect(result.message()).toBe('expect(received).toBeFailure(expected)\n\nResult was expected to be an error, but it is successful.\n\nValue:\n  42');
   });
 
   it('fails when failure result has expectedSuccess=true', () => {
@@ -80,10 +77,9 @@ describe('assertDetailedResult', () => {
     const result = assertDetailedResult.call(ctx, failure, true, 'toBeSuccess', new Error('boom'));
 
     expect(result.pass).toBe(false);
-    const msg = result.message();
-    expect(msg).toContain('Result discriminator');
-    expect(msg).toContain('true');
-    expect(msg).toContain('false');
+    expect(result.message()).toBe(
+      'expect(received).toBeSuccess(expected)\n\nResult was expected to be successful, but it is an error.\n\nError:\n  [Error: boom]',
+    );
   });
 
   // --- value/error mismatch ---

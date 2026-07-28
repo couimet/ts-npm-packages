@@ -79,12 +79,34 @@ Checks `result.success === false` and asserts `this.equals(expected, result.erro
 expect(result).toBeFailure('Invalid input');
 ```
 
+### `toBeFailureWith(assertError)`
+
+Checks `result.success === false` and invokes `assertError(result.error)`. The callback can contain multiple `expect()` calls for field-level assertions. If `result.success === true`, fails with a message showing the actual value.
+
+```ts
+expect(result).toBeFailureWith((error) => {
+  expect(error).toBeInstanceOf(Error);
+  expect(error.message).toContain('Alice not found');
+});
+```
+
 ### `toBeSuccess(expected)`
 
 Checks `result.success === true` and asserts `this.equals(expected, result.value)`.
 
 ```ts
 expect(result).toBeSuccess({ id: 1, name: 'Alice' });
+```
+
+### `toBeSuccessWith(assertValue)`
+
+Checks `result.success === true` and invokes `assertValue(result.value)`. The callback can contain multiple `expect()` calls for field-level assertions. If `result.success === false`, fails with a message showing the actual error.
+
+```ts
+expect(result).toBeSuccessWith((value) => {
+  expect(value.id).toBe(1);
+  expect(value.name).toBe('Alice');
+});
 ```
 
 ## Common patterns
@@ -147,7 +169,7 @@ expect(result).not.toBeSuccess('wrong value');
 Because the matcher uses `this.equals()`, you can pass asymmetric matchers like `expect.objectContaining()` or `expect.any()`:
 
 ```ts
-expect(result).toBeSuccess(expect.objectContaining({ link: '...' }));
+expect(result).toBeSuccess(expect.objectContaining({ name: 'Alice' }));
 expect(result).toBeFailure(expect.any(Error));
 ```
 
