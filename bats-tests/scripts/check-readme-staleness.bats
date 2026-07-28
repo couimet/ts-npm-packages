@@ -75,6 +75,23 @@ EOF
   [[ -z "$output" ]]
 }
 
+@test "exits 1 when package is in README prose but not in table" {
+  cat > "${REPO_DIR}/README.md" << EOF
+# Header
+
+Some mention of @couimet/foo in prose, but not in the table below.
+
+## Available packages
+
+| \`@couimet/bar\` | something |
+EOF
+  mock_git "${REPO_DIR}" "packages/foo/package.json"
+  run bash scripts/check-readme-staleness.sh origin/main
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"ERROR"* ]]
+  [[ "$output" == *"@couimet/foo"* ]]
+}
+
 @test "usage error when no base ref provided" {
   run bash scripts/check-readme-staleness.sh
   [[ "$status" -ne 0 ]]

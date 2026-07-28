@@ -2,7 +2,7 @@
 name: finish-issue-hook
 description: Auto-generate changeset inputs during /finish-issue
 user-invocable: false
-allowed-tools: Bash(*/scripts/check-readme-staleness.sh *), Bash(*/bats-tests/scripts/check-readme-staleness.bats *), Read, Write, Glob, Grep, Skill
+allowed-tools: Bash(*scripts/check-readme-staleness.sh *), Bash(*bats-tests/scripts/check-readme-staleness.bats *), Read, Write, Glob, Grep, Skill
 ---
 
 # Finish-Issue Hook

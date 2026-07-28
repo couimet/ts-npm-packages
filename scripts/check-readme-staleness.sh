@@ -20,7 +20,7 @@ fi
 missing=()
 while IFS= read -r pkg; do
   [[ -z "$pkg" ]] && continue
-  if ! grep -q "@couimet/$pkg" README.md; then
+  if ! grep -q "| \`@couimet/$pkg\` |" README.md; then
     missing+=("$pkg")
   fi
 done <<< "$changed"
