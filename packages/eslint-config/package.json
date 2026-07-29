@@ -1,6 +1,6 @@
 {
   "name": "@couimet/eslint-config",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shared ESLint (flat config) and Prettier configuration for @couimet/* packages",
   "license": "MIT",
   "author": "Charles Ouimet <charles.ouimet@gmail.com>",

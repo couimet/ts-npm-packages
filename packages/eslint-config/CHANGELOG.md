@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [1.1.0]
+
+### Added
+
+- `unicorn/prefer-node-protocol` rule at error, enforcing `node:` protocol for all Node.js built-in imports.
+
 ## [1.0.0]
 
 ### Changed
@@ -68,6 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[1.1.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%401.0.0...%40couimet%2Feslint-config%401.1.0
 [1.0.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.2...%40couimet%2Feslint-config%401.0.0
 [0.6.2]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.1...%40couimet%2Feslint-config%400.6.2
 [0.6.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%400.6.0...%40couimet%2Feslint-config%400.6.1
