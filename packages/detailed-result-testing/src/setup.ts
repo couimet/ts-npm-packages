@@ -1,5 +1,7 @@
 import { toBeFailure } from './toBeFailure';
+import { toBeFailureWith } from './toBeFailureWith';
 import { toBeSuccess } from './toBeSuccess';
+import { toBeSuccessWith } from './toBeSuccessWith';
 
 import { toBeDetailedError } from '@couimet/detailed-error-testing';
 import { DetailedResult } from '@couimet/detailed-result';
@@ -11,10 +13,11 @@ import type {} from '@jest/expect';
  * so augmenting the global `jest` namespace has no effect on the `expect` type.
  */
 declare module '@jest/expect' {
-  // eslint-disable-next-line
   interface Matchers<R extends void | Promise<void>, T = unknown> {
     toBeSuccess(expected: unknown): R;
     toBeFailure(expected: unknown): R;
+    toBeSuccessWith(assertValue: (value: T extends DetailedResult<infer V, unknown> ? V : unknown) => void): R;
+    toBeFailureWith(assertError: (error: T extends DetailedResult<unknown, infer E> ? E : unknown) => void): R;
     toHaveDetailedError(expectedCode: string, expected: unknown): R;
   }
 }
@@ -22,6 +25,8 @@ declare module '@jest/expect' {
 expect.extend({
   toBeSuccess,
   toBeFailure,
+  toBeSuccessWith,
+  toBeFailureWith,
   toHaveDetailedError: function (this: jest.MatcherContext, received: unknown, expectedCode: string, expected: unknown) {
     if (received instanceof DetailedResult) {
       if (received.success === false) {

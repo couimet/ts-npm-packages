@@ -6,14 +6,25 @@ A monorepo for a curated family of small TypeScript packages published under the
 
 ## Available packages
 
-| Package                            | Purpose                                                                                           |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `@couimet/detailed-error`          | Structured error base class with typed error codes and shared error codes.                        |
-| `@couimet/detailed-error-testing`  | Custom Jest matchers for testing code that throws or returns `DetailedError` instances.           |
-| `@couimet/dynamic-testing`         | Dynamic testing utilities with seeded randomness for TypeScript tests.                            |
-| `@couimet/eslint-config`           | Shared ESLint (flat config) and Prettier configuration for `@couimet/*` packages.                 |
-| `@couimet/logger-contract`         | Logger interface contract — libraries depend on this without committing to any logging framework. |
-| `@couimet/logger-contract-testing` | Zero-setup mock-logger factories for tests written against `@couimet/logger-contract`.            |
+### Libraries
+
+| Package                                 | Purpose                                                                                           | Testing companion         |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
+| `@couimet/detailed-error`               | Structured error base class with typed error codes and shared error codes.                        | `detailed-error-testing`  |
+| `@couimet/detailed-result`              | Functional Result type for explicit error handling paired with `@couimet/detailed-error`.         | `detailed-result-testing` |
+| `@couimet/eslint-config`                | Shared ESLint (flat config) and Prettier configuration.                                           | —                         |
+| `@couimet/eslint-plugin-barrel-imports` | ESLint plugin with rules enforcing barrel import hygiene.                                         | —                         |
+| `@couimet/logger-contract`              | Logger interface contract — libraries depend on this without committing to any logging framework. | `logger-contract-testing` |
+| `@couimet/logger-contract-adapters`     | Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries.            | —                         |
+
+### Testing utilities
+
+| Package                            | Purpose                                                                                 |
+| ---------------------------------- | --------------------------------------------------------------------------------------- |
+| `@couimet/detailed-error-testing`  | Custom Jest matchers for testing code that throws or returns `DetailedError` instances. |
+| `@couimet/detailed-result-testing` | Custom Jest matchers for testing code that returns `DetailedResult`.                    |
+| `@couimet/dynamic-testing`         | Dynamic testing utilities with seeded randomness for TypeScript tests.                  |
+| `@couimet/logger-contract-testing` | Zero-setup mock-logger factories for tests written against `@couimet/logger-contract`.  |
 
 ## Contributing
 

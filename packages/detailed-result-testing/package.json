@@ -1,6 +1,6 @@
 {
   "name": "@couimet/detailed-result-testing",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Custom Jest matchers for testing code that returns DetailedResult",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-result-testing#readme",
   "bugs": {
@@ -71,9 +71,6 @@
   },
   "peerDependenciesMeta": {
     "@couimet/detailed-error": {
-      "optional": true
-    },
-    "@couimet/detailed-error-testing": {
       "optional": true
     },
     "@jest/expect": {
