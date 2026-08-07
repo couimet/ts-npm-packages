@@ -104,12 +104,7 @@ Both paths require a valid `NPM_TOKEN` secret with publish rights on the `@couim
 
 ## Branch protection
 
-Merges to `main` are gated by the CI workflow (`.github/workflows/ci.yml`). Every PR must pass:
-
-- `build-and-test`
-- `lint-and-typecheck` (includes `format`, `lint`, and `typecheck` steps)
-
-Additionally, PRs targeting `main` must pass `guard-versions`, which blocks pre-release semver suffixes (`1.0.0-rc.1`, `2.0.0-alpha.0`, etc.), pre-release entries in changeset files, and `.changeset/pre.json`. Use the feature-branch pre-release flow above if you need intermediate publishes; clean everything up before the final merge.
+Merges to `main` are gated by the CI workflow (`.github/workflows/ci.yml`). PRs must also pass a changeset check — run `pnpm changeset` to add one. The `guard-versions` check blocks pre-release semver suffixes on `main`; use the feature-branch pre-release flow above if you need intermediate publishes, and clean everything up before the final merge.
 
 ## Scaffolding a package
 
