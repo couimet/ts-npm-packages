@@ -104,7 +104,7 @@ Both paths require a valid `NPM_TOKEN` secret with publish rights on the `@couim
 
 ## Branch protection
 
-Merges to `main` are gated by the CI workflow (`.github/workflows/ci.yml`). PRs must also pass a changeset check — run `pnpm changeset` to add one. The `guard-versions` check blocks pre-release semver suffixes on `main`; use the feature-branch pre-release flow above if you need intermediate publishes, and clean everything up before the final merge.
+Merges to `main` are gated by the CI workflow (`.github/workflows/ci.yml`). PRs must also pass a changeset check — run `pnpm changeset` to add one. The `guard-versions` check blocks pre-release semver suffixes in `package.json`, pre-release version entries in `.changeset/*.md` files, and `.changeset/pre.json` (including when present as an untracked working-tree file); use the feature-branch pre-release flow above if you need intermediate publishes, and clean everything up before the final merge.
 
 ## Scaffolding a package
 

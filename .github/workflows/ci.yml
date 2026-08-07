@@ -12,6 +12,7 @@ jobs:
   typescript-ci-checks:
     uses: couimet/github-actions/.github/workflows/typescript-ci-checks.yml@main
     with:
+      build-artifact-paths: packages/*/dist/
       codecov-files: packages/*/coverage/lcov.info
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}

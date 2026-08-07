@@ -25,8 +25,8 @@ comment:
   require_changes: false
 
 flag_management:
-  individual_flags:
+  default_rules:
     # Carryforward lets PRs that touch only a subset of packages pass
     # without every flag reporting. Flags can be added per-package later
     # via the codecov-typescript-upload action's `flags` input.
-    - carryforward: true
+    carryforward: true
