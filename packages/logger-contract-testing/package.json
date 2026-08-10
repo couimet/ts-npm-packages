@@ -1,6 +1,6 @@
 {
   "name": "@couimet/logger-contract-testing",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Zero-setup mock-logger factories for tests written against @couimet/logger-contract",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract-testing#readme",
   "bugs": {
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@couimet/eslint-config": "workspace:*",
     "@couimet/logger-contract": "workspace:*",
-    "@jest/globals": ">=30.0.0",
+    "@jest/globals": ">=29.0.0",
     "@types/jest": ">=29.5.14",
     "@types/node": ">=24.13.2",
     "@typescript-eslint/eslint-plugin": ">=8.61.0",
@@ -58,8 +58,13 @@
   },
   "peerDependencies": {
     "@couimet/logger-contract": "workspace:*",
-    "@jest/globals": ">=30.0.0",
+    "@jest/globals": ">=29.0.0",
     "jest": ">=29.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@jest/globals": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"

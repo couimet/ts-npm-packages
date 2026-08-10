@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [1.0.2]
+
+### Fixed
+
+- `@jest/globals` peer dependency relaxed from `>=30.0.0` to `>=29.0.0` and marked optional, unblocking Jest 29 consumers.
+
 ## [1.0.1]
 
 ### Fixed
@@ -28,5 +34,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[1.0.2]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Flogger-contract-testing%401.0.1...%40couimet%2Flogger-contract-testing%401.0.2
 [1.0.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Flogger-contract-testing%401.0.0...%40couimet%2Flogger-contract-testing%401.0.1
 [1.0.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Flogger-contract-testing%401.0.0

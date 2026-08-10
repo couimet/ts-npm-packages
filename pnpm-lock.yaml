@@ -435,7 +435,7 @@ importers:
         specifier: workspace:*
         version: link:../logger-contract
       '@jest/globals':
-        specifier: '>=30.0.0'
+        specifier: '>=29.0.0'
         version: 30.4.1
       '@types/jest':
         specifier: '>=29.5.14'
