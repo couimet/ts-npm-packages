@@ -61,11 +61,6 @@
     "@jest/globals": ">=29.0.0",
     "jest": ">=29.0.0"
   },
-  "peerDependenciesMeta": {
-    "@jest/globals": {
-      "optional": true
-    }
-  },
   "publishConfig": {
     "access": "public"
   }
