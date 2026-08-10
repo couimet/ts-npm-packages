@@ -1,6 +1,6 @@
 # @couimet/detailed-result
 
-[![npm version](https://img.shields.io/npm/v/@couimet/detailed-result.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-result.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result)
+[![npm version](https://img.shields.io/npm/v/@couimet/detailed-result.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=detailed-result)](https://codecov.io/gh/couimet/ts-npm-packages?flag=detailed-result) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-result.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result)
 
 Functional Result type for explicit error handling paired with `@couimet/detailed-error`.
 

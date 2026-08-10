@@ -9,7 +9,7 @@ coverage:
         # recent parent commit is used as the reference. The threshold allows
         # minor fluctuations without blocking the PR.
         target: auto
-        threshold: 1%
+        threshold: 0%
 
     patch:
       default:

@@ -1,6 +1,6 @@
 # @couimet/dynamic-testing
 
-[![npm version](https://img.shields.io/npm/v/@couimet/dynamic-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/dynamic-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/dynamic-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/dynamic-testing)
+[![npm version](https://img.shields.io/npm/v/@couimet/dynamic-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/dynamic-testing) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=dynamic-testing)](https://codecov.io/gh/couimet/ts-npm-packages?flag=dynamic-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/dynamic-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/dynamic-testing)
 
 Dynamic testing utilities for TypeScript tests. See also: [Dynamic Testing](https://www.guru99.com/dynamic-testing.html).
 
