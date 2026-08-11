@@ -1,6 +1,6 @@
 # @couimet/detailed-result-testing
 
-[![npm version](https://img.shields.io/npm/v/@couimet/detailed-result-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-result-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result-testing)
+[![npm version](https://img.shields.io/npm/v/@couimet/detailed-result-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result-testing) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=detailed-result-testing)](https://codecov.io/gh/couimet/ts-npm-packages?flag=detailed-result-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-result-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-result-testing)
 
 Custom Jest matchers for testing code that returns [`DetailedResult`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-result).
 

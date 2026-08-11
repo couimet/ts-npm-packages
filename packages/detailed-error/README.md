@@ -1,6 +1,6 @@
 # @couimet/detailed-error
 
-[![npm version](https://img.shields.io/npm/v/@couimet/detailed-error.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-error.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error)
+[![npm version](https://img.shields.io/npm/v/@couimet/detailed-error.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=detailed-error)](https://codecov.io/gh/couimet/ts-npm-packages?flag=detailed-error) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-error.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error)
 
 Structured error base class with typed error codes and shared error codes.
 

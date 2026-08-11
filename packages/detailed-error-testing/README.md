@@ -1,6 +1,6 @@
 # @couimet/detailed-error-testing
 
-[![npm version](https://img.shields.io/npm/v/@couimet/detailed-error-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-error-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error-testing)
+[![npm version](https://img.shields.io/npm/v/@couimet/detailed-error-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error-testing) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=detailed-error-testing)](https://codecov.io/gh/couimet/ts-npm-packages?flag=detailed-error-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/detailed-error-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/detailed-error-testing)
 
 Custom Jest matchers for testing code that throws or returns [`DetailedError`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error).
 
