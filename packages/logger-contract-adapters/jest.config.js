@@ -3,9 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
-    '^.+\\.(js|mjs)$': 'babel-jest',
   },
-  transformIgnorePatterns: ['node_modules/(?!\\.pnpm/uuid@|uuid/)'],
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,

@@ -392,9 +392,6 @@ importers:
         specifier: workspace:*
         version: link:../logger-contract
     devDependencies:
-      '@babel/preset-env':
-        specifier: ^7.29.7
-        version: 7.29.7(@babel/core@7.29.7)
       '@couimet/dynamic-testing':
         specifier: workspace:*
         version: link:../dynamic-testing
@@ -407,9 +404,6 @@ importers:
       '@types/node':
         specifier: ^24.13.3
         version: 24.13.3
-      babel-jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@babel/core@7.29.7)
       eslint:
         specifier: ^10.8.1
         version: 10.8.1
