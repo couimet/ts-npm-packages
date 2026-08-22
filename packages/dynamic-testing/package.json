@@ -1,6 +1,6 @@
 {
   "name": "@couimet/dynamic-testing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dynamic testing utilities with seeded randomness for TypeScript tests",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/dynamic-testing#readme",
   "bugs": {
