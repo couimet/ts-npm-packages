@@ -6,4 +6,5 @@ export default defineConfig({
   ...baseConfig,
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
+  noExternal: ['uuid'],
 });
