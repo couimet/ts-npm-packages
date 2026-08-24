@@ -34,6 +34,8 @@ generate_body() {
   fi
 
   cat << EOF
+${MARKER}
+
 ## ⚠️ Changeset required
 EOF
 

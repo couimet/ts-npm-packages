@@ -315,3 +315,28 @@ MD
 
   [[ "$status" -eq 0 ]]
 }
+
+# ── package.json version consistency tests ──
+
+@test "passes when package.json version has a changelog entry" {
+  write_clean_changelog
+  cat > "${PKG_DIR}/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when package.json version has no changelog entry" {
+  write_clean_changelog
+  cat > "${PKG_DIR}/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.3.0"}
+JSON
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -ne 0 ]]
+  [[ "$output" == *"no entry for current version 0.3.0"* ]]
+}

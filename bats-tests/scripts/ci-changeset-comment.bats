@@ -98,6 +98,14 @@ SCRIPT
 
 # ── comment body tests ──
 
+@test "comment body includes the upsert marker" {
+  write_gh_mock "" # no existing comment
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 0 ]]
+  grep -q 'changeset-gate' /tmp/gh-payload.json
+}
+
 @test "comment body includes changed packages when file exists" {
   write_gh_mock "" # no existing comment
   echo "eslint-config, logger" > /tmp/changeset-packages.txt
