@@ -340,3 +340,32 @@ JSON
   [[ "$status" -ne 0 ]]
   [[ "$output" == *"no entry for current version 0.3.0"* ]]
 }
+
+@test "fails when package.json version appears only in prose, not as a heading" {
+  write_clean_changelog
+  cat > "${PKG_DIR}/CHANGELOG.md" << 'MD'
+# Changelog
+
+All notable changes are recorded here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+<!-- changelog-entries -->
+
+### Added
+
+- The `## [0.2.0]` release notes moved elsewhere.
+
+<!-- changelog-links -->
+
+[0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/test-pkg%400.1.0
+MD
+  cat > "${PKG_DIR}/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -ne 0 ]]
+  [[ "$output" == *"no entry for current version 0.2.0"* ]]
+}

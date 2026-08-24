@@ -50,7 +50,7 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
   pkg_dir="$(dirname "$changelog")"
   if [ -f "${pkg_dir}/package.json" ]; then
     pkg_version=$(jq -r '.version // empty' "${pkg_dir}/package.json" 2>/dev/null || true)
-    if [ -n "${pkg_version}" ] && ! grep -Fq "## [${pkg_version}]" "$changelog"; then
+    if [ -n "${pkg_version}" ] && ! grep -Eq "^## \[${pkg_version}\]" "$changelog"; then
       echo "ERROR: $changelog has no entry for current version ${pkg_version}." >&2
       violations=$((violations + 1))
     fi

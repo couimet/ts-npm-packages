@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Compare two semantic versions (X.Y.Z or X.Y.Z-prerelease). Returns 0 if $1 is a
+# valid version strictly greater than $2; rejects invalid, equal, and downgraded
+# versions. An empty $2 (newly added package) accepts any valid $1.
+semver_gt() {
+  local cur="$1" base="$2"
+  [[ "$cur" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?$ ]] || return 1
+  [ -z "$base" ] && return 0
+  [[ "$base" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?$ ]] || return 1
+  local -a cur_parts base_parts
+  local i c b
+  IFS='.' read -r -a cur_parts <<< "${cur%%-*}"
+  IFS='.' read -r -a base_parts <<< "${base%%-*}"
+  for i in 0 1 2; do
+    c="${cur_parts[$i]}"
+    b="${base_parts[$i]}"
+    if [ "$c" -gt "$b" ]; then return 0; fi
+    if [ "$c" -lt "$b" ]; then return 1; fi
+  done
+  # Numeric core equal: a release version beats a prerelease; otherwise not greater.
+  if [[ "$cur" == *"-"* ]] && [[ "$base" != *"-"* ]]; then return 1; fi
+  if [[ "$cur" != *"-"* ]] && [[ "$base" == *"-"* ]]; then return 0; fi
+  return 1
+}
+
 BASE_REF="${1:-}"
 
 if [ -z "$BASE_REF" ]; then
@@ -49,7 +73,7 @@ while IFS= read -r pkg; do
   fi
   cur_ver=$(jq -r '.version // empty' "$pkg_dir/package.json")
   base_ver=$(git show "$BASE_REF:$pkg_dir/package.json" 2>/dev/null | jq -r '.version // empty' || true)
-  if [ "$cur_ver" = "$base_ver" ]; then
+  if ! semver_gt "$cur_ver" "$base_ver"; then
     echo "ERROR: ${pkg} changed but version ${cur_ver} is not bumped relative to ${BASE_REF}." >&2
     post_version_ok=0
     continue
