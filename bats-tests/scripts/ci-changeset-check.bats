@@ -328,3 +328,76 @@ MD
   [[ "$status" -eq 1 ]]
   [[ "$output" == *"not bumped"* ]]
 }
+
+@test "passes when prerelease version bumps within the same numeric core" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-beta.2"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-beta.2]
+
+### Added
+
+- Prerelease bump
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-beta.1" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-beta.1"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when prerelease version downgrades within the same numeric core" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-beta.1"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-beta.1]
+
+### Added
+
+- Prerelease
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-beta.2" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-beta.2"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when changelog mentions current version only in prose" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+
+See the ## [0.2.0] notes for what changed.
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"no matching entry"* ]]
+}

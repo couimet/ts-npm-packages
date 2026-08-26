@@ -103,7 +103,7 @@ SCRIPT
 
   run bash scripts/ci-changeset-comment.sh upsert 42
   [[ "$status" -eq 0 ]]
-  grep -q 'changeset-gate' /tmp/gh-payload.json
+  grep -Fq '<!-- changeset-gate -->' /tmp/gh-payload.json
 }
 
 @test "comment body includes changed packages when file exists" {

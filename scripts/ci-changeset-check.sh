@@ -19,10 +19,41 @@ semver_gt() {
     if [ "$c" -gt "$b" ]; then return 0; fi
     if [ "$c" -lt "$b" ]; then return 1; fi
   done
-  # Numeric core equal: a release version beats a prerelease; otherwise not greater.
+  # Numeric core equal: a release version beats a prerelease; otherwise compare
+  # the prerelease identifiers per SemVer precedence.
   if [[ "$cur" == *"-"* ]] && [[ "$base" != *"-"* ]]; then return 1; fi
   if [[ "$cur" != *"-"* ]] && [[ "$base" == *"-"* ]]; then return 0; fi
-  return 1
+
+  local -a cur_ids base_ids
+  local idx max_len a b
+  IFS='.' read -r -a cur_ids <<< "${cur#*-}"
+  IFS='.' read -r -a base_ids <<< "${base#*-}"
+  if [ "${#cur_ids[@]}" -gt "${#base_ids[@]}" ]; then
+    max_len="${#cur_ids[@]}"
+  else
+    max_len="${#base_ids[@]}"
+  fi
+  for ((idx = 0; idx < max_len; idx++)); do
+    a="${cur_ids[$idx]:-}"
+    b="${base_ids[$idx]:-}"
+    # A shorter equal prefix is lower precedence (e.g. alpha < alpha.1)
+    if [ -z "$a" ]; then return 1; fi
+    if [ -z "$b" ]; then return 0; fi
+    if [[ "$a" =~ ^[0-9]+$ ]] && [[ "$b" =~ ^[0-9]+$ ]]; then
+      if [ "$a" -gt "$b" ]; then return 0; fi
+      if [ "$a" -lt "$b" ]; then return 1; fi
+    elif [[ "$a" =~ ^[0-9]+$ ]]; then
+      # Numeric identifiers sort before alphanumeric identifiers
+      return 1
+    elif [[ "$b" =~ ^[0-9]+$ ]]; then
+      return 0
+    elif [[ "$a" < "$b" ]]; then
+      return 1
+    elif [[ "$a" > "$b" ]]; then
+      return 0
+    fi
+  done
+  return 1  # identical prereleases are not greater
 }
 
 BASE_REF="${1:-}"
@@ -78,7 +109,7 @@ while IFS= read -r pkg; do
     post_version_ok=0
     continue
   fi
-  if ! grep -Fq "## [${cur_ver}]" "$pkg_dir/CHANGELOG.md"; then
+  if ! grep -Fqx -- "## [${cur_ver}]" "$pkg_dir/CHANGELOG.md"; then
     echo "ERROR: ${pkg} version ${cur_ver} has no matching entry in ${pkg_dir}/CHANGELOG.md." >&2
     post_version_ok=0
   fi
