@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Compare two semantic versions (X.Y.Z or X.Y.Z-prerelease). Returns 0 if $1 is a
-# valid version strictly greater than $2; rejects invalid, equal, and downgraded
-# versions. An empty $2 (newly added package) accepts any valid $1.
+# Compare two semantic versions (X.Y.Z, X.Y.Z-prerelease, or with +build metadata).
+# Returns 0 if $1 is a valid version strictly greater than $2; rejects invalid,
+# equal, and downgraded versions. Build metadata is ignored when comparing
+# precedence per SemVer. An empty $2 (newly added package) accepts any valid $1.
 semver_gt() {
   local cur="$1" base="$2"
-  [[ "$cur" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?$ ]] || return 1
+  [[ "$cur" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.-]+)?$ ]] || return 1
   [ -z "$base" ] && return 0
-  [[ "$base" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?$ ]] || return 1
+  [[ "$base" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.-]+)?$ ]] || return 1
+  # Strip build metadata (e.g. +build.7) so it is ignored for precedence
+  cur="${cur%%+*}"
+  base="${base%%+*}"
   local -a cur_parts base_parts
   local i c b
   IFS='.' read -r -a cur_parts <<< "${cur%%-*}"
@@ -109,7 +113,7 @@ while IFS= read -r pkg; do
     post_version_ok=0
     continue
   fi
-  if ! grep -Fqx -- "## [${cur_ver}]" "$pkg_dir/CHANGELOG.md"; then
+  if ! grep -Fqx -- "## [${cur_ver%%+*}]" "$pkg_dir/CHANGELOG.md"; then
     echo "ERROR: ${pkg} version ${cur_ver} has no matching entry in ${pkg_dir}/CHANGELOG.md." >&2
     post_version_ok=0
   fi

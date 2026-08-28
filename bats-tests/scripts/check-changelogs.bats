@@ -369,3 +369,14 @@ JSON
   [[ "$status" -ne 0 ]]
   [[ "$output" == *"no entry for current version 0.2.0"* ]]
 }
+
+@test "passes when package.json version carries build metadata and changelog has metadata-free heading" {
+  write_clean_changelog
+  cat > "${PKG_DIR}/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0+build.7"}
+JSON
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -eq 0 ]]
+}
