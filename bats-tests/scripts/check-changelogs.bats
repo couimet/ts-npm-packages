@@ -380,3 +380,66 @@ JSON
 
   [[ "$status" -eq 0 ]]
 }
+
+@test "fails when package.json version heading has trailing text" {
+  write_clean_changelog
+  cat > "${PKG_DIR}/CHANGELOG.md" << 'MD'
+# Changelog
+
+All notable changes are recorded here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+<!-- changelog-entries -->
+
+## [0.2.0] summary
+
+### Added
+
+- New feature
+
+<!-- changelog-links -->
+
+[0.2.0]: https://github.com/couimet/ts-npm-packages/compare/test-pkg%400.1.0...test-pkg%400.2.0
+[0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/test-pkg%400.1.0
+MD
+  cat > "${PKG_DIR}/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -ne 0 ]]
+  [[ "$output" == *"no entry for current version 0.2.0"* ]]
+}
+
+@test "fails when package.json version matches only a regex near-match heading" {
+  write_clean_changelog
+  cat > "${PKG_DIR}/CHANGELOG.md" << 'MD'
+# Changelog
+
+All notable changes are recorded here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+<!-- changelog-entries -->
+
+## [0x2y0]
+
+### Added
+
+- New feature
+
+<!-- changelog-links -->
+
+[0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/test-pkg%400.1.0
+MD
+  cat > "${PKG_DIR}/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+
+  run bash scripts/check-changelogs.sh "${MOCK_DIR}"
+
+  [[ "$status" -ne 0 ]]
+  [[ "$output" == *"no entry for current version 0.2.0"* ]]
+}

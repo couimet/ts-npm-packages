@@ -1,15 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Validate a string as a well-formed SemVer version (semver.org 2.0.0): a
+# zero-free numeric core with optional dot-separated prerelease and build
+# identifiers that are nonempty and may contain hyphens. Numeric prerelease
+# identifiers must not carry leading zeroes (build metadata is exempt).
+valid_semver() {
+  local v="$1"
+  [[ "$v" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]] || return 1
+  # Reject leading zeroes in numeric prerelease identifiers, e.g. 1.0.0-01
+  if [ -n "${BASH_REMATCH[4]:-}" ]; then
+    local pre="${BASH_REMATCH[4]#-}"
+    local id
+    local -a ids
+    IFS='.' read -r -a ids <<< "$pre"
+    for id in "${ids[@]}"; do
+      if [[ "$id" =~ ^0[0-9]+$ ]]; then return 1; fi
+    done
+  fi
+  return 0
+}
+
 # Compare two semantic versions (X.Y.Z, X.Y.Z-prerelease, or with +build metadata).
 # Returns 0 if $1 is a valid version strictly greater than $2; rejects invalid,
 # equal, and downgraded versions. Build metadata is ignored when comparing
 # precedence per SemVer. An empty $2 (newly added package) accepts any valid $1.
 semver_gt() {
   local cur="$1" base="$2"
-  [[ "$cur" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.-]+)?$ ]] || return 1
+  valid_semver "$cur" || return 1
   [ -z "$base" ] && return 0
-  [[ "$base" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.-]+)?$ ]] || return 1
+  valid_semver "$base" || return 1
   # Strip build metadata (e.g. +build.7) so it is ignored for precedence
   cur="${cur%%+*}"
   base="${base%%+*}"
