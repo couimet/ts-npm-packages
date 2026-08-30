@@ -7,7 +7,7 @@ Run `scripts/create-package.sh` from the repo root. It prompts for two values:
 1. Package name (without `@couimet/` prefix)
 2. Short description
 
-When helping the user create a new package, present the two values as a ready-to-copy block:
+When helping the user create a new package, present the two values as a ready-to-copy block AND save the full scaffold instructions to a note via `/note` (slug `scaffold-<name>`): the command, the two input lines, the `pnpm install` step, and a "tell Claude to continue" line. The note keeps the copy-paste block reachable in a file instead of terminal scrollback, which scrolls away:
 
 ```text
 <name>
@@ -34,6 +34,7 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 - **Our own monorepo packages in `devDependencies`** always use `workspace:*`. This is how pnpm knows to link to the local package rather than fetching from the registry.
 - **Our own monorepo packages in `peerDependencies`** use `>=<minimum-supported-version>` ranges. The lower bound is the oldest version the package is compatible with. During publish, pnpm replaces `workspace:*` in peer dependencies with the exact workspace version; a manual `>=` range stays as-is and lets npm consumers satisfy it with any compatible version.
 - **Third-party packages that appear in both `peerDependencies` and `devDependencies`** (optional peer dependencies needed for testing) use matching `>=` ranges in both sections. The lower bound is the minimum supported major version.
+- **Config packages peer-depend on their runner and optional rules.** A config-only package declares the tool that consumes it (`markdownlint-cli2` for `@couimet/markdownlint-config`, `eslint` for `@couimet/eslint-config`) and any optional custom rules (`markdownlint-rule-force-align-table-columns`) in `peerDependencies`, so a consumer's install command names only the config package and pnpm/npm auto-install the rest.
 - **Monorepo consumers of `@couimet/eslint-config` don't re-declare its lint plugins.** The published `eslint.config.js` imports each plugin directly, and those imports resolve from the config package's own `node_modules` (where its `devDependencies` install them), so a package only needs `@couimet/eslint-config` and `eslint` in `devDependencies` to lint. Re-adding `@typescript-eslint/*`, `eslint-plugin-*`, `eslint-config-prettier`, or `globals` is redundant and widens dependabot bump diffs. (The `peerDependencies` on `@couimet/eslint-config` remain the contract for external npm consumers.)
 - **All other devDependencies** use `^` ranges.
 
