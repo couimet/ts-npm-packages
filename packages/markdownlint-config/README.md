@@ -10,7 +10,7 @@ Shared markdownlint configuration for `@couimet/*` packages. Enforces the couime
 pnpm add -D @couimet/markdownlint-config
 ```
 
-`markdownlint-cli2` (the lint runner) and `markdownlint-rule-force-align-table-columns` (custom rule `MD060A`, only needed for aligned-table auto-fix) are peer dependencies of the config, so pnpm and npm install them automatically.
+`markdownlint-cli2` (the lint runner) and `markdownlint-rule-force-align-table-columns` (custom rule `MD060A`, only needed for aligned-table auto-fix) are peer dependencies of the config, which pnpm and npm install automatically when peer auto-install is enabled: pnpm's default `autoInstallPeers=true` (since pnpm 10) or npm 7+ with peer dependencies enabled. `autoInstallPeers=false`, `legacy-peer-deps=true`, or older npm versions leave these dependencies unavailable, so install them manually in that case.
 
 ## Usage
 
@@ -31,7 +31,7 @@ markdownlint-cli2 resolves the `extends` target through `node_modules`. Rules se
 
 ### Opt into aligned-table auto-fix
 
-The built-in `MD060` rule cannot auto-fix the aligned style; the `MD060A` custom rule is what lets `markdownlint-cli2 --fix` re-align the pipes. It is a peer dependency of the config, so pnpm and npm install it automatically; register it in `customRules` to activate:
+The built-in `MD060` rule cannot auto-fix the aligned style; the `MD060A` custom rule is what lets `markdownlint-cli2 --fix` re-align the pipes. It is a peer dependency of the config; register it in `customRules` to activate:
 
 ```jsonc
 {
