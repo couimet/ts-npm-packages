@@ -376,6 +376,76 @@ MD
   [[ "$output" == *"not bumped"* ]]
 }
 
+@test "passes when a version bump uses an arbitrarily long numeric core component" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "99999999999999999999999999999999.1.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [99999999999999999999999999999999.1.0]
+
+### Added
+
+- Arbitrarily long numeric bump
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "passes when a prerelease bump uses an arbitrarily long numeric identifier" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-rc.99999999999999999999999999999999"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-rc.99999999999999999999999999999999]
+
+### Added
+
+- Prerelease bump past 64-bit
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-rc.99999999999999999999999999999998" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-rc.99999999999999999999999999999998"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when an arbitrarily long numeric prerelease downgrades" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-rc.99999999999999999999999999999998"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-rc.99999999999999999999999999999998]
+
+### Added
+
+- Prerelease downgrade past 64-bit
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-rc.99999999999999999999999999999999" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-rc.99999999999999999999999999999999"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
 @test "fails when changelog mentions current version only in prose" {
   TMP_FIXTURE_DIR="$(mktemp -d)"
   mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"

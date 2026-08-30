@@ -21,6 +21,21 @@ valid_semver() {
   return 0
 }
 
+# Compare two numeric strings without Bash's 64-bit integer arithmetic, so
+# arbitrarily long numeric SemVer identifiers (e.g. a 32-digit build counter)
+# compare correctly. Leading zeros are stripped first (an all-zero string
+# becomes empty, which sorts as zero); a longer digit string is the larger
+# number, and equal-length strings compare bytewise. Returns 0 if $1 is
+# greater than $2.
+num_gt() {
+  local a="$1" b="$2"
+  a="${a#"${a%%[!0]*}"}"
+  b="${b#"${b%%[!0]*}"}"
+  [ "${#a}" -gt "${#b}" ] && return 0
+  [ "${#a}" -lt "${#b}" ] && return 1
+  [[ "$a" > "$b" ]]
+}
+
 # Compare two semantic versions (X.Y.Z, X.Y.Z-prerelease, or with +build metadata).
 # Returns 0 if $1 is a valid version strictly greater than $2; rejects invalid,
 # equal, and downgraded versions. Build metadata is ignored when comparing
@@ -40,8 +55,8 @@ semver_gt() {
   for i in 0 1 2; do
     c="${cur_parts[$i]}"
     b="${base_parts[$i]}"
-    if [ "$c" -gt "$b" ]; then return 0; fi
-    if [ "$c" -lt "$b" ]; then return 1; fi
+    if num_gt "$c" "$b"; then return 0; fi
+    if num_gt "$b" "$c"; then return 1; fi
   done
   # Numeric core equal: a release version beats a prerelease; otherwise compare
   # the prerelease identifiers per SemVer precedence.
@@ -64,8 +79,8 @@ semver_gt() {
     if [ -z "$a" ]; then return 1; fi
     if [ -z "$b" ]; then return 0; fi
     if [[ "$a" =~ ^[0-9]+$ ]] && [[ "$b" =~ ^[0-9]+$ ]]; then
-      if [ "$a" -gt "$b" ]; then return 0; fi
-      if [ "$a" -lt "$b" ]; then return 1; fi
+      if num_gt "$a" "$b"; then return 0; fi
+      if num_gt "$b" "$a"; then return 1; fi
     elif [[ "$a" =~ ^[0-9]+$ ]]; then
       # Numeric identifiers sort before alphanumeric identifiers
       return 1
