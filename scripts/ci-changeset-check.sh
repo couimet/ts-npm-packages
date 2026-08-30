@@ -80,6 +80,17 @@ semver_gt() {
   return 1  # identical prereleases are not greater
 }
 
+# A package change is non-version-relevant when every changed file in the package
+# is documentation (markdown): README, CHANGELOG, or docs. Such changes need no
+# release, so the gate must not demand a bump for them. Source, config, and
+# package.json changes still require one.
+docs_only() {
+  local pkg="$1"
+  local non_docs
+  non_docs=$(git diff --name-only "$REF"..HEAD -- "packages/${pkg}/" | grep -Ev '\.md$' || true)
+  [ -z "$non_docs" ]
+}
+
 BASE_REF="${1:-}"
 
 if [ -z "$BASE_REF" ]; then
@@ -113,13 +124,19 @@ if pnpm exec changeset status --since="$BASE_REF"; then
   exit 0
 fi
 
-# Gate B: post-`changeset:version` state — every changed package must be bumped above
-# the base ref and carry a matching changelog entry
+# Gate B: post-`changeset:version` state — every changed package with a
+# version-relevant (non-docs) change must be bumped above the base ref and carry
+# a matching changelog entry. Docs-only packages are skipped: they need no release.
 post_version_ok=1
 changed_count=0
+release_count=0
 while IFS= read -r pkg; do
   [ -z "$pkg" ] && continue
   changed_count=$((changed_count + 1))
+  if docs_only "$pkg"; then
+    continue
+  fi
+  release_count=$((release_count + 1))
   pkg_dir="packages/${pkg}"
   if [ ! -f "$pkg_dir/package.json" ]; then
     echo "ERROR: ${pkg_dir}/package.json missing for changed package ${pkg}." >&2
@@ -142,6 +159,10 @@ done < <(tr ',' '\n' < /tmp/changeset-packages.txt | sed 's/^ //')
 if [ "$changed_count" -eq 0 ]; then
   echo "ERROR: changeset status failed but no changed packages were found." >&2
   exit 1
+fi
+
+if [ "$release_count" -eq 0 ]; then
+  exit 0  # every changed package is docs-only: nothing to release
 fi
 
 if [ "$post_version_ok" -eq 1 ]; then
