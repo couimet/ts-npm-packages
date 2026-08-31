@@ -58,7 +58,7 @@
     "prettier-plugin-packagejson": ">=3.0.2",
     "ts-jest": ">=29.4.12",
     "tsup": ">=8.5.1",
-    "typescript": ">=6.0.3"
+    "typescript": ">=7.0.2"
   },
   "peerDependencies": {
     "@couimet/detailed-error": ">=1.0.0",
