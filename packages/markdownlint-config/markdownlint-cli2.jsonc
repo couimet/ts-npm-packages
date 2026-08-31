@@ -1,0 +1,5 @@
+{
+  "config": {
+    "extends": "./index.json",
+  },
+}

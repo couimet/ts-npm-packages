@@ -16,6 +16,7 @@ A monorepo for a curated family of small TypeScript packages published under the
 | `@couimet/eslint-plugin-barrel-imports` | ESLint plugin with rules enforcing barrel import hygiene.                                         | —                         |
 | `@couimet/logger-contract`              | Logger interface contract — libraries depend on this without committing to any logging framework. | `logger-contract-testing` |
 | `@couimet/logger-contract-adapters`     | Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries.            | —                         |
+| `@couimet/markdownlint-config`          | Shared markdownlint configuration with aligned table-padding enforcement.                         | —                         |
 
 ### Testing utilities
 
