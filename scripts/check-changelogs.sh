@@ -45,6 +45,16 @@ for changelog in "$REPO_ROOT"/packages/*/CHANGELOG.md; do
       violations=$((violations + 1))
     fi
   fi
+
+  # Check 6: The package.json version must have a matching ## [X.Y.Z] changelog entry
+  pkg_dir="$(dirname "$changelog")"
+  if [ -f "${pkg_dir}/package.json" ]; then
+    pkg_version=$(jq -r '.version // empty' "${pkg_dir}/package.json" 2>/dev/null || true)
+    if [ -n "${pkg_version}" ] && ! grep -Fqx -- "## [${pkg_version%%+*}]" "$changelog"; then
+      echo "ERROR: $changelog has no entry for current version ${pkg_version}." >&2
+      violations=$((violations + 1))
+    fi
+  fi
 done
 
 if [ "$violations" -gt 0 ]; then

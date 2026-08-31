@@ -22,8 +22,7 @@ usage() {
 # ── find existing comment id (empty string if none) ──
 find_comment_id() {
   gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
-    --jq '.[] | select(.body | contains("'"${MARKER}"'")) | .id' \
-    2>/dev/null || echo ""
+    --jq 'first(.[] | select(.body | contains("'"${MARKER}"'")) | .id)'
 }
 
 # ── generate the comment body ──
@@ -34,6 +33,8 @@ generate_body() {
   fi
 
   cat << EOF
+${MARKER}
+
 ## ⚠️ Changeset required
 EOF
 

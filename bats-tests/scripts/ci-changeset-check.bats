@@ -8,7 +8,34 @@ setup() {
 
 teardown() {
   rm -rf "${MOCK_DIR}"
+  [ -n "${TMP_FIXTURE_DIR:-}" ] && rm -rf "${TMP_FIXTURE_DIR}"
   rm -f /tmp/changeset-packages.txt /tmp/pnpm-args
+}
+
+write_git_mock_with_show() {
+  # $1: tag, $2: diff output, $3: base package.json content for `git show`
+  local tags="${1:-}"
+  local diff_out="${2:-}"
+  local base_pkg_json="${3:-}"
+  cat > "${MOCK_DIR}/git" << SCRIPT
+#!/usr/bin/env bash
+if [[ "\$*" == *"tag --sort=-creatordate"* ]]; then
+  cat << 'TAGS'
+${tags}
+TAGS
+fi
+if [[ "\$*" == *"diff"* ]]; then
+  cat << 'DIFF'
+${diff_out}
+DIFF
+fi
+if [[ "\$*" == *"show"* ]]; then
+  cat << 'SHOW'
+${base_pkg_json}
+SHOW
+fi
+SCRIPT
+  chmod +x "${MOCK_DIR}/git"
 }
 
 # ── helpers ──
@@ -165,4 +192,552 @@ SCRIPT
 
   [[ "$status" -eq 0 ]]
   [[ "$(cat /tmp/pnpm-args)" == *"--since=origin/main"* ]]
+}
+
+# ── post-version validation tests ──
+
+@test "fails on unconsumed changeset files" {
+  write_git_mock "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts'
+  write_pnpm_mock 0
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/.changeset"
+  touch "${TMP_FIXTURE_DIR}/.changeset/some-change.md"
+  cd "${TMP_FIXTURE_DIR}"
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"changeset:version"* ]]
+}
+
+@test "passes when post-version state bumps versions and updates changelogs" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.2.0]
+
+### Added
+
+- New feature
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when post-version bump has no changelog entry" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"no matching entry"* ]]
+}
+
+@test "fails when changed package version is not bumped" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.1.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when changed package version is a downgrade" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.1.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.2.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.2.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when changed package version is invalid" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "garbage"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "passes when prerelease version bumps within the same numeric core" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-beta.2"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-beta.2]
+
+### Added
+
+- Prerelease bump
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-beta.1" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-beta.1"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when prerelease version downgrades within the same numeric core" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-beta.1"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-beta.1]
+
+### Added
+
+- Prerelease
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-beta.2" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-beta.2"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "passes when a version bump uses an arbitrarily long numeric core component" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "99999999999999999999999999999999.1.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [99999999999999999999999999999999.1.0]
+
+### Added
+
+- Arbitrarily long numeric bump
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "passes when a prerelease bump uses an arbitrarily long numeric identifier" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-rc.99999999999999999999999999999999"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-rc.99999999999999999999999999999999]
+
+### Added
+
+- Prerelease bump past 64-bit
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-rc.99999999999999999999999999999998" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-rc.99999999999999999999999999999998"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when an arbitrarily long numeric prerelease downgrades" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0-rc.99999999999999999999999999999998"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0-rc.99999999999999999999999999999998]
+
+### Added
+
+- Prerelease downgrade past 64-bit
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0-rc.99999999999999999999999999999999" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0-rc.99999999999999999999999999999999"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when changelog mentions current version only in prose" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+
+See the ## [0.2.0] notes for what changed.
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"no matching entry"* ]]
+}
+
+@test "passes when prerelease identifier contains a hyphen" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1-rc-1"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1-rc-1]
+
+### Added
+
+- Release candidate bump
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.1-rc-0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.1-rc-0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when prerelease has an empty trailing identifier" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1-alpha."}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1-alpha.]
+
+### Added
+
+- Invalid prerelease
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when prerelease has an empty middle identifier" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1-alpha..1"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1-alpha..1]
+
+### Added
+
+- Invalid prerelease
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when build metadata has an empty identifier" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1+build."}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1+build.]
+
+### Added
+
+- Invalid build metadata
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "fails when numeric prerelease identifier has a leading zero" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1-01"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1-01]
+
+### Added
+
+- Invalid prerelease
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+@test "passes when base version carries build metadata" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.2.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.2.0]
+
+### Added
+
+- New feature
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0+build.7"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "passes when current version carries build metadata" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1+build.7"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1]
+
+### Added
+
+- New feature
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "passes when both versions carry build metadata" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.1+build.7"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.1]
+
+### Added
+
+- New feature
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0+build.8"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when versions differ only in build metadata" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "1.0.0+build.7"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [1.0.0]
+
+### Added
+
+- New feature
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@1.0.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"1.0.0+build.8"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}
+
+# ── docs-only change handling ──
+
+@test "passes when changed package has only docs changes" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.1.0"}
+JSON
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/README.md' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "passes when changed package has only changelog changes" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.1.0"}
+JSON
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/CHANGELOG.md' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when docs change accompanies an unbumped source change" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.1.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/README.md\npackages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
 }

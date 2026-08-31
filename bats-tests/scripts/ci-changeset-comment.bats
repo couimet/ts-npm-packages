@@ -98,6 +98,14 @@ SCRIPT
 
 # ── comment body tests ──
 
+@test "comment body includes the upsert marker" {
+  write_gh_mock "" # no existing comment
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 0 ]]
+  grep -Fq '<!-- changeset-gate -->' /tmp/gh-payload.json
+}
+
 @test "comment body includes changed packages when file exists" {
   write_gh_mock "" # no existing comment
   echo "eslint-config, logger" > /tmp/changeset-packages.txt
@@ -122,4 +130,45 @@ SCRIPT
   run bash scripts/ci-changeset-comment.sh upsert 42
   [[ "$status" -eq 0 ]]
   ! grep -q 'Changed packages' /tmp/gh-payload.json
+}
+
+@test "upsert patches the first matching comment id when duplicates exist" {
+  cat > "${MOCK_DIR}/gh" << SCRIPT
+#!/usr/bin/env bash
+prev=""
+jq_expr=""
+for arg in "\$@"; do
+  if [[ "\$prev" == "--jq" ]]; then jq_expr="\$arg"; fi
+  if [[ "\$prev" == "--input" ]]; then cp "\$arg" /tmp/gh-payload.json; fi
+  prev="\$arg"
+done
+if [[ -n "\${jq_expr}" ]]; then
+  echo '[{"id": 99, "body": "first <!-- changeset-gate -->"}, {"id": 100, "body": "second <!-- changeset-gate -->"}]' | jq -r "\${jq_expr}"
+  exit 0
+fi
+echo "\$2" > "${MOCK_DIR}/calls.txt"
+SCRIPT
+  chmod +x "${MOCK_DIR}/gh"
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 0 ]]
+  [[ "$(cat "${MOCK_DIR}/calls.txt")" == "repos/couimet/ts-npm-packages/issues/comments/99" ]]
+}
+
+@test "fails loudly when gh errors while finding the comment" {
+  cat > "${MOCK_DIR}/gh" << 'SCRIPT'
+#!/usr/bin/env bash
+for arg in "$@"; do
+  if [[ "$arg" == "--jq" ]]; then
+    echo "gh: API error 500" >&2
+    exit 1
+  fi
+done
+exit 0
+SCRIPT
+  chmod +x "${MOCK_DIR}/gh"
+
+  run bash scripts/ci-changeset-comment.sh upsert 42
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"gh: API error 500"* ]]
 }
