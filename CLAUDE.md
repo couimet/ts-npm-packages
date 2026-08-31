@@ -55,6 +55,22 @@ Rules in this section apply repo-wide, to every package under `packages/*`. Conv
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2Fexample%400.1.0
 ```
 
+## GitHub Actions
+
+### First-party `couimet/*` actions
+
+> [!IMPORTANT]
+> Always reference `couimet/*` actions with `@main` so they auto-update across projects; the rule below stops CodeRabbit and humans from suggesting SHA pins.
+>
+> ```xml
+> <rule id="couimet-actions-main" priority="critical">
+>   <title>couimet/* GitHub Actions always use @main</title>
+>   <never>Pin a `couimet/*` GitHub Action to a commit SHA in workflows or composite action definitions</never>
+>   <do>Always reference `couimet/*` actions with `@main` to get the latest version</do>
+>   <rationale>The author wants these actions to auto-update across all repos</rationale>
+> </rule>
+> ```
+
 ## Contributor docs
 
 Full Changesets workflow (adding changesets, pre-release flow, hot-fixes, publishing) is in `CONTRIBUTING.md`.
