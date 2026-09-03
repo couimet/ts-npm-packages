@@ -68,6 +68,31 @@ const log4jsLogger = log4js.getLogger();
 setLogger(new Log4jsAdapter(log4jsLogger));
 ```
 
+## Custom adapters
+
+The built-in adapters run every context through `normalizeContext` before handing it to the underlying logger. That is what turns an `Error` value into a plain, JSON-serializable object instead of one whose `message` and `stack` a backend silently drops, because those properties are not enumerable and are skipped by typical serialization. A custom adapter for a logger the package does not cover should normalize the same way, and both helpers are exported for exactly that:
+
+```typescript
+normalizeContext(ctx: LoggingContext): LoggingContext
+normalizeError(value: unknown): unknown
+```
+
+`normalizeError(value)` returns `value` unchanged unless it is an `Error`, in which case it returns a plain object carrying the error's `name`, `message`, and `stack`, plus any own enumerable properties the error was extended with, such as a `code`. `normalizeContext(ctx)` returns a new context object whose values have each been passed through `normalizeError`; the input context is left untouched.
+
+A custom adapter implements `Logger` from `@couimet/logger-contract` and, in each level method, passes the normalized context where the wrapped backend expects it. Mirror what the built-in adapters do:
+
+```typescript
+import { normalizeContext } from '@couimet/logger-contract-adapters';
+import type { Logger, LoggingContext } from '@couimet/logger-contract';
+
+class CustomAdapter implements Logger {
+  // constructor stores the wrapped backend; error() shown, debug/info/warn mirror it
+  error(ctx: LoggingContext, message: string): void {
+    this.backend.error(message, normalizeContext(ctx));
+  }
+}
+```
+
 ## The `initLogger()` pattern
 
 Each adapter is a standalone class with no opinion on how you register it. Downstream projects typically create a thin `initLogger()` wrapper that wires the adapter into the global logger contract:

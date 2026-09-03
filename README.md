@@ -14,6 +14,8 @@ A monorepo for a curated family of small TypeScript packages published under the
 | `@couimet/detailed-result`              | Functional Result type for explicit error handling paired with `@couimet/detailed-error`.         | `detailed-result-testing` |
 | `@couimet/eslint-config`                | Shared ESLint (flat config) and Prettier configuration.                                           | —                         |
 | `@couimet/eslint-plugin-barrel-imports` | ESLint plugin with rules enforcing barrel import hygiene.                                         | —                         |
+| `@couimet/execution-context`            | Execution context propagating correlation id, request id, and attributes across async boundaries. | —                         |
+| `@couimet/execution-context-http`       | Framework-free HTTP transport constants (x-correlation-id, x-request-id) for execution contexts.  | —                         |
 | `@couimet/logger-contract`              | Logger interface contract — libraries depend on this without committing to any logging framework. | `logger-contract-testing` |
 | `@couimet/logger-contract-adapters`     | Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries.            | —                         |
 | `@couimet/markdownlint-config`          | Shared markdownlint configuration with aligned table-padding enforcement.                         | —                         |

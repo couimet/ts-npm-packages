@@ -1,3 +1,4 @@
+/** Converts an `Error` into a JSON-serializable plain object carrying its `name`, `message`, `stack`, and own enumerable properties; non-`Error` values pass through unchanged. */
 export const normalizeError = (value: unknown): unknown => {
   if (value instanceof Error) {
     const serialized: Record<string, unknown> = {
