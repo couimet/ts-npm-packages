@@ -1,8 +1,6 @@
 {
   "config": {
-    "MD013": false,
-    "MD024": { "siblings_only": true },
-    "MD033": false,
+    "extends": "@couimet/markdownlint-config",
   },
   "ignores": [".changeset/**", ".history/**", ".claude-work/**", "**/node_modules/**"],
 }

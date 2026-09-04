@@ -14,6 +14,9 @@ importers:
       '@couimet/eslint-config':
         specifier: workspace:*
         version: link:packages/eslint-config
+      '@couimet/markdownlint-config':
+        specifier: workspace:*
+        version: link:packages/markdownlint-config
       bats:
         specifier: ^1.13.0
         version: 1.13.0
