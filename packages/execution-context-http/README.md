@@ -32,11 +32,15 @@ const correlationId = request.headers[HttpHeaders.CorrelationId]; // string | un
 const requestId = request.headers[HttpHeaders.RequestId]; // string | undefined
 
 // Prime a scope for the request handler.
-ExecutionContext.run({ correlationId, requestId }, handler);
+ExecutionContext.run({ correlationId, requestId }, () => {
+  const result = handler();
 
-// Outbound, while the scope is still active: echo the ids on the response.
-response.setHeader(HttpHeaders.CorrelationId, ExecutionContext.correlationId.toString());
-response.setHeader(HttpHeaders.RequestId, ExecutionContext.requestId.toString());
+  // Outbound, while the scope is still active: echo the ids on the response.
+  response.setHeader(HttpHeaders.CorrelationId, ExecutionContext.correlationId.toString());
+  response.setHeader(HttpHeaders.RequestId, ExecutionContext.requestId.toString());
+
+  return result;
+});
 ```
 
 ## API reference
@@ -52,7 +56,7 @@ enum HttpHeaders {
 }
 ```
 
-The member values are the lower-case wire header names, matched against what an HTTP server presents on the request headers object. Look them up as-is and do not re-case them. When an adapter writes a response, it echoes the id that it primed. Leave the header absent rather than send an empty string when no id exists, so a downstream consumer can treat a missing header as not provided.
+The member values are the lower-case wire header names used when writing a response. When an adapter reads the ids off a request, it cannot assume the headers object lower-cases its keys the way Node's `IncomingHttpHeaders` does. A runtime that preserves case can present `X-Correlation-Id` where the enum reads `x-correlation-id`, so the adapter should look the values up case-insensitively or normalize the header keys to lower case first. When an adapter writes a response, it echoes the id that it primed. Leave the header absent rather than send an empty string when no id exists, so a downstream consumer can treat a missing header as not provided.
 
 ## Related packages
 

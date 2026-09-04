@@ -44,6 +44,25 @@ describe('ConsoleLogger', () => {
       const expectedCtx = { fn, error: { name: 'TypeError', message, stack: error.stack, code } };
       expect(spy).toHaveBeenCalledWith(`[DEBUG] ${JSON.stringify(expectedCtx)} ${logMsg}`);
     });
+
+    it('should serialize a bigint context value as its decimal string', () => {
+      const spy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+      logger.debug({ fn: 'myFn', attempts: 9_007_199_254_740_993n }, 'msg');
+      const output = spy.mock.calls[0]![0]!;
+      const jsonStart = output.indexOf('{');
+      const jsonEnd = output.indexOf('}') + 1;
+      const parsed = JSON.parse(output.slice(jsonStart, jsonEnd)) as { attempts: unknown };
+      expect(parsed.attempts).toBe('9007199254740993');
+    });
+
+    it('should serialize a circular error property without throwing', () => {
+      const spy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+      const error = new Error('boom');
+      Object.assign(error, { self: error });
+      logger.debug({ fn: 'myFn', error }, 'msg');
+      const output = spy.mock.calls[0]![0]!;
+      expect(output).toContain('[Circular]');
+    });
   });
 
   describe('info', () => {

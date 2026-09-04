@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@couimet/execution-context.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/execution-context) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=execution-context)](https://codecov.io/gh/couimet/ts-npm-packages?flag=execution-context) [![npm downloads](https://img.shields.io/npm/dm/@couimet/execution-context.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/execution-context)
 
-`ExecutionContext.run()` opens a scope that carries a correlation id, a request id, and an attribute bag. Code inside the scope, including work resumed after `await`, reads the same ids and attributes. The scope follows OpenTelemetry's context propagation, which `AsyncLocalStorage` carries across async boundaries. `run()` accepts the two ids from the caller or generates them when absent. Typical priming sites are an application bootstrap, a middleware that scopes one HTTP request, and a timer that scopes one scheduled run.
+`ExecutionContext.run()` opens a scope that carries a correlation id, a request id, and an attribute bag. Code inside the scope, including work resumed after `await`, reads the same ids and attributes. The scope follows OpenTelemetry's context propagation, which `AsyncLocalStorage` carries across async boundaries. `run()` pins a provided id and generates a fresh one when a field is `undefined` or blank. Typical priming sites are an application bootstrap, a middleware that scopes one HTTP request, and a timer that scopes one scheduled run.
 
 ## Install
 
@@ -26,7 +26,7 @@ ExecutionContext.run({ correlationId: 'my-job', requestId: 'abc-123', attributes
 ExecutionContext.isActive(); // false, once the run has returned
 ```
 
-Pass an id to pin it. Omit an id or pass a blank string, and `run()` generates a fresh one through `fromStringOrCreate()`. An explicit blank passed to `fromString()` throws instead. A nested `run()` starts a fresh scope, so it does not inherit the outer ids unless the caller passes them in.
+Pass an id to pin it. Pass `undefined` or a blank string, and `run()` generates a fresh one through `fromStringOrCreate()`. An explicit blank passed to `fromString()` throws instead. A nested `run()` starts a fresh scope, so it does not inherit the outer ids unless the caller passes them in.
 
 ## How it works
 
@@ -34,7 +34,7 @@ A `run()` executes its callback inside a new OpenTelemetry context. It first bui
 
 The callback may be sync or async. `run` returns whatever the callback returns. An async callback's awaited work still reads the same context, because `AsyncLocalStorage` propagates the context through the async chain. One request id can therefore follow a log line emitted deep inside an awaited service call.
 
-The package installs the OpenTelemetry global context manager exactly once. The first `run()` performs the install lazily. Callers that never `run` can still install the manager up front with `ensureContextManagerInitialized()`. Do not install another global context manager afterwards, because the global manager can be set only once.
+The package installs the OpenTelemetry global context manager exactly once. The first `run()` performs the install lazily. Callers that never `run` can still install the manager up front with `ensureContextManagerInitialized()`. The global manager can be set only once, and another component may already own the slot. When it does, `run()` and `ensureContextManagerInitialized()` throw a `DetailedError` with code `CONTEXT_MANAGER_REGISTRATION_FAILED` rather than propagate ids through a manager this package cannot verify.
 
 ## API reference
 
@@ -54,8 +54,8 @@ class CorrelationId {
 ```
 
 - `create()` returns a fresh id from a UUID v4.
-- `fromString(value)` wraps `value` when it is non-blank. Otherwise it throws a `DetailedError` with code `INVALID_BLANK_CORRELATION_ID`, message `correlationId must be a non-blank string`, and `functionName` `CorrelationId.fromString`. The `details` carry the offending value.
-- `fromStringOrCreate(value)` never throws. A non-blank value is pinned through `fromString`, and a blank or missing value falls back to `create()`.
+- `fromString(value)` wraps `value` when it is non-blank. Otherwise it throws a `DetailedError` with code `INVALID_BLANK_CORRELATION_ID`, message `correlationId must be a non-blank string`, and `functionName` `CorrelationId.fromString`. The `details` carry the offending value. A non-primitive value is rejected by the shared string guard with code `INVALID_STRING_TYPE`.
+- `fromStringOrCreate(value)` never throws for a primitive string or `undefined`. A non-blank value is pinned through `fromString`, a blank or missing value falls back to `create()`, and a non-primitive value is rejected by the shared string guard with code `INVALID_STRING_TYPE`.
 - `toString()` returns the wrapped string.
 
 ### ExecutionContext
@@ -83,12 +83,12 @@ class ExecutionContext {
 }
 ```
 
-- `ensureContextManagerInitialized()` installs the OpenTelemetry `AsyncLocalStorage` context manager as the global manager. It is idempotent, so a second call is a no-op. `run()` calls it automatically on first use.
-- `run<T>(data, fn)` primes a fresh store and runs `fn` inside that context. Both ids go through `fromStringOrCreate`, and attributes default to `{}`. It returns whatever `fn` returns. Anything previously active is replaced for the duration of `fn`, then restored when `fn` returns or throws.
+- `ensureContextManagerInitialized()` installs the OpenTelemetry `AsyncLocalStorage` context manager as the global manager. It is idempotent, so a second call is a no-op. `run()` calls it automatically on first use. It throws a `DetailedError` with code `CONTEXT_MANAGER_REGISTRATION_FAILED` when another component already owns the global manager slot.
+- `run<T>(data, fn)` primes a fresh store and runs `fn` inside that context. Both ids go through `fromStringOrCreate`, and attributes default to `{}`. Attributes that are null, an array, or not an object throw a `DetailedError` with code `INVALID_CONTEXT_ATTRIBUTES`. It returns whatever `fn` returns. Anything previously active is replaced for the duration of `fn`, then restored when `fn` returns or throws.
 - `isActive()` returns true when the current code is executing inside a `run` block.
 - The `correlationId` and `requestId` getters return the primed id. Called outside a run, they throw a `DetailedError` with code `NO_ACTIVE_CONTEXT`.
 - `getAttribute(key)` returns the stored attribute for `key`, or `undefined` when the key is absent or no scope is active.
-- `addAttributes(attrs)` merges `attrs` into the active attribute bag, with later keys winning. It replaces the bag object, so a reference captured earlier does not see the merge. It is a no-op when no scope is active.
+- `addAttributes(attrs)` merges `attrs` into the active attribute bag, with later keys winning. Attributes that are null, an array, or not an object throw a `DetailedError` with code `INVALID_CONTEXT_ATTRIBUTES` before the merge. It replaces the bag object, so a reference captured earlier does not see the merge. It is a no-op when no scope is active.
 - `getAttributes()` returns the active attribute bag, which is the live bag rather than a copy. It returns `{}` when no scope is active.
 
 ### ExecutionContextErrorCodes
@@ -100,10 +100,13 @@ enum ExecutionContextErrorCodes {
   INVALID_BLANK_CORRELATION_ID = 'INVALID_BLANK_CORRELATION_ID',
   INVALID_BLANK_REQUEST_ID = 'INVALID_BLANK_REQUEST_ID',
   NO_ACTIVE_CONTEXT = 'NO_ACTIVE_CONTEXT',
+  CONTEXT_MANAGER_REGISTRATION_FAILED = 'CONTEXT_MANAGER_REGISTRATION_FAILED',
+  INVALID_CONTEXT_ATTRIBUTES = 'INVALID_CONTEXT_ATTRIBUTES',
+  INVALID_STRING_TYPE = 'INVALID_STRING_TYPE',
 }
 ```
 
-`fromString` on either id throws `INVALID_BLANK_CORRELATION_ID` or `INVALID_BLANK_REQUEST_ID`. The two getters throw `NO_ACTIVE_CONTEXT`. Every error is a `DetailedError` from [`@couimet/detailed-error`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error).
+`fromString` on either id throws `INVALID_BLANK_CORRELATION_ID` or `INVALID_BLANK_REQUEST_ID`. The two getters throw `NO_ACTIVE_CONTEXT`. `ensureContextManagerInitialized()` throws `CONTEXT_MANAGER_REGISTRATION_FAILED` when another component already owns the global context manager slot. `run()` and `addAttributes()` throw `INVALID_CONTEXT_ATTRIBUTES` when attributes are null, an array, or not an object. `fromString` and `fromStringOrCreate` on either id throw `INVALID_STRING_TYPE` when the value is not a primitive string, such as a boxed `String`. Every error is a `DetailedError` from [`@couimet/detailed-error`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error).
 
 ### RequestId
 
@@ -118,7 +121,7 @@ class RequestId {
 }
 ```
 
-The behavior matches `CorrelationId`, with `INVALID_BLANK_REQUEST_ID` thrown by `fromString` on a blank value.
+The behavior matches `CorrelationId`, with `INVALID_BLANK_REQUEST_ID` thrown by `fromString` on a blank value and `INVALID_STRING_TYPE` thrown when the value is not a primitive string.
 
 ## Package family
 

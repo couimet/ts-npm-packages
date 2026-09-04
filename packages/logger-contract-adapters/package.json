@@ -36,7 +36,8 @@
   },
   "prettier": "@couimet/eslint-config/prettier",
   "dependencies": {
-    "@couimet/logger-contract": "workspace:*"
+    "@couimet/logger-contract": "workspace:*",
+    "safe-stable-stringify": "^2.5.0"
   },
   "devDependencies": {
     "@couimet/dynamic-testing": "workspace:*",

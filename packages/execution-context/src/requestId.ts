@@ -24,7 +24,7 @@ export class RequestId {
     });
   }
 
-  /** Never throws: blank or missing values fall back to a generated id. */
+  /** Never throws for a primitive string or undefined: blank or missing values fall back to a generated id. */
   static fromStringOrCreate(value: string | undefined): RequestId {
     if (isNonBlank(value)) {
       return RequestId.fromString(value);

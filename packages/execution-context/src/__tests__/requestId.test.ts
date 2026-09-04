@@ -46,4 +46,20 @@ describe('RequestId', () => {
   it('generates an id from fromStringOrCreate when the value is whitespace', () => {
     expect(RequestId.fromStringOrCreate(WHITESPACE_VALUE).toString()).toMatch(UUID_V4_PATTERN);
   });
+
+  it('rejects a boxed string from fromString with a DetailedError', () => {
+    expect(() => RequestId.fromString(new String(SOURCE_VALUE) as unknown as string)).toThrowDetailedError('INVALID_STRING_TYPE', {
+      message: 'expected a primitive string or undefined',
+      functionName: 'isNonBlank',
+      details: {},
+    });
+  });
+
+  it('rejects a boxed string from fromStringOrCreate with a DetailedError', () => {
+    expect(() => RequestId.fromStringOrCreate(new String(SOURCE_VALUE) as unknown as string)).toThrowDetailedError('INVALID_STRING_TYPE', {
+      message: 'expected a primitive string or undefined',
+      functionName: 'isNonBlank',
+      details: {},
+    });
+  });
 });

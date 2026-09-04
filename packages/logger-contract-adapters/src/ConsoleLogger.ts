@@ -1,13 +1,18 @@
 import { normalizeContext } from './normalizeContext';
 
 import { Logger, LoggingContext } from '@couimet/logger-contract';
+import { configure } from 'safe-stable-stringify';
+
+const stringify = configure({ deterministic: false });
+
+const bigintToJsonString = (_key: string, value: unknown): unknown => (typeof value === 'bigint' ? value.toString() : value);
 
 const orderedCtx = (ctx: LoggingContext): Record<string, unknown> => {
   const { fn, ...rest } = ctx;
   return { fn, ...rest };
 };
 
-const format = (level: string, ctx: LoggingContext, message: string): string => `[${level}] ${JSON.stringify(orderedCtx(ctx))} ${message}`;
+const format = (level: string, ctx: LoggingContext, message: string): string => `[${level}] ${stringify(orderedCtx(ctx), bigintToJsonString)} ${message}`;
 
 export class ConsoleLogger implements Logger {
   debug(ctx: LoggingContext, message: string): void {

@@ -22,6 +22,22 @@ export interface RunParams {
 
 const EXECUTION_CONTEXT_KEY = createContextKey('ExecutionContext');
 
+function assertContextAttributes(attributes: unknown, functionName: string): void {
+  if (attributes === undefined) {
+    return;
+  }
+
+  const isRecord = attributes !== null && typeof attributes === 'object' && !Array.isArray(attributes);
+  if (!isRecord) {
+    throw new DetailedError({
+      code: ExecutionContextErrorCodes.INVALID_CONTEXT_ATTRIBUTES,
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName,
+      details: {},
+    });
+  }
+}
+
 export class ExecutionContext {
   private static contextInitialized = false;
 
@@ -29,15 +45,29 @@ export class ExecutionContext {
   private constructor() {}
 
   /**
-   * Idempotent: the global context manager must be installed exactly once,
-   * before any context is primed.
+   * Installs the global context manager exactly once. Idempotent: later calls
+   * are a no-op once installed. Throws when another component already owns the
+   * global manager slot, because the package then cannot guarantee that async
+   * work inherits the primed ids and failing loud beats silent loss of ids.
    */
   static ensureContextManagerInitialized(): void {
-    if (!ExecutionContext.contextInitialized) {
-      const manager = new AsyncLocalStorageContextManager().enable();
-      context.setGlobalContextManager(manager);
-      ExecutionContext.contextInitialized = true;
+    if (ExecutionContext.contextInitialized) {
+      return;
     }
+
+    const manager = new AsyncLocalStorageContextManager().enable();
+    const registered = context.setGlobalContextManager(manager);
+    if (!registered) {
+      manager.disable();
+      throw new DetailedError({
+        code: ExecutionContextErrorCodes.CONTEXT_MANAGER_REGISTRATION_FAILED,
+        message: 'a global context manager is already registered',
+        functionName: 'ExecutionContext.ensureContextManagerInitialized',
+        details: {},
+      });
+    }
+
+    ExecutionContext.contextInitialized = true;
   }
 
   private static getStore(): ContextData | undefined {
@@ -51,6 +81,7 @@ export class ExecutionContext {
    */
   static run<T>(data: RunParams, fn: () => T): T {
     this.ensureContextManagerInitialized();
+    assertContextAttributes(data.attributes, 'ExecutionContext.run');
 
     const newContext: ContextData = {
       correlationId: CorrelationId.fromStringOrCreate(data.correlationId),
@@ -93,6 +124,8 @@ export class ExecutionContext {
   }
 
   static addAttributes(attrs: ContextAttributes): void {
+    assertContextAttributes(attrs, 'ExecutionContext.addAttributes');
+
     const store = this.getStore();
     if (!store) return;
 

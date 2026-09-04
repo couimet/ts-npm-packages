@@ -3,6 +3,8 @@ import { ExecutionContext } from '../index';
 import { BLANK_VALUE, WHITESPACE_VALUE } from './idTestValues';
 
 import { getUniqueString } from '@couimet/dynamic-testing';
+import { context } from '@opentelemetry/api';
+import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 
 describe('ExecutionContext', () => {
   let storedAttributes: Record<string, string>;
@@ -21,6 +23,26 @@ describe('ExecutionContext', () => {
     otherRequestId = getUniqueString({ prefix: 'request-2' });
     requestId = getUniqueString({ prefix: 'request-1' });
     updatedVersion = getUniqueString({ prefix: '2.0.0' });
+  });
+
+  it('fails fast when a global context manager is already registered', () => {
+    const otherManager = new AsyncLocalStorageContextManager().enable();
+    context.setGlobalContextManager(otherManager);
+
+    expect(() => ExecutionContext.ensureContextManagerInitialized()).toThrowDetailedError('CONTEXT_MANAGER_REGISTRATION_FAILED', {
+      message: 'a global context manager is already registered',
+      functionName: 'ExecutionContext.ensureContextManagerInitialized',
+      details: {},
+    });
+    expect(() => ExecutionContext.run({ correlationId, requestId }, () => {})).toThrowDetailedError('CONTEXT_MANAGER_REGISTRATION_FAILED', {
+      message: 'a global context manager is already registered',
+      functionName: 'ExecutionContext.ensureContextManagerInitialized',
+      details: {},
+    });
+
+    context.disable();
+
+    expect(() => ExecutionContext.ensureContextManagerInitialized()).not.toThrow();
   });
 
   it('throws when reading the ids outside any run', () => {
@@ -148,6 +170,61 @@ describe('ExecutionContext', () => {
       ExecutionContext.addAttributes({ version: updatedVersion });
 
       expect(ExecutionContext.getAttributes()).toStrictEqual({ ...storedAttributes, version: updatedVersion });
+    });
+  });
+
+  it('rejects null attributes from run', () => {
+    expect(() => ExecutionContext.run({ correlationId, requestId, attributes: null as unknown as Record<string, unknown> }, () => {})).toThrowDetailedError(
+      'INVALID_CONTEXT_ATTRIBUTES',
+      {
+        message: 'attributes must be a record of string keys to unknown values',
+        functionName: 'ExecutionContext.run',
+        details: {},
+      },
+    );
+  });
+
+  it('rejects array attributes from run', () => {
+    expect(() =>
+      ExecutionContext.run({ correlationId, requestId, attributes: ['value'] as unknown as Record<string, unknown> }, () => {}),
+    ).toThrowDetailedError('INVALID_CONTEXT_ATTRIBUTES', {
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName: 'ExecutionContext.run',
+      details: {},
+    });
+  });
+
+  it('rejects non-object attributes from run', () => {
+    expect(() =>
+      ExecutionContext.run({ correlationId, requestId, attributes: 'invalid' as unknown as Record<string, unknown> }, () => {}),
+    ).toThrowDetailedError('INVALID_CONTEXT_ATTRIBUTES', {
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName: 'ExecutionContext.run',
+      details: {},
+    });
+  });
+
+  it('rejects null attributes from addAttributes outside any run', () => {
+    expect(() => ExecutionContext.addAttributes(null as unknown as Record<string, unknown>)).toThrowDetailedError('INVALID_CONTEXT_ATTRIBUTES', {
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName: 'ExecutionContext.addAttributes',
+      details: {},
+    });
+  });
+
+  it('rejects array attributes from addAttributes outside any run', () => {
+    expect(() => ExecutionContext.addAttributes(['value'] as unknown as Record<string, unknown>)).toThrowDetailedError('INVALID_CONTEXT_ATTRIBUTES', {
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName: 'ExecutionContext.addAttributes',
+      details: {},
+    });
+  });
+
+  it('rejects non-object attributes from addAttributes outside any run', () => {
+    expect(() => ExecutionContext.addAttributes('invalid' as unknown as Record<string, unknown>)).toThrowDetailedError('INVALID_CONTEXT_ATTRIBUTES', {
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName: 'ExecutionContext.addAttributes',
+      details: {},
     });
   });
 
