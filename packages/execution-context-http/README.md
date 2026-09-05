@@ -36,6 +36,7 @@ ExecutionContext.run({ correlationId, requestId }, () => {
   const result = handler();
 
   // Outbound, while the scope is still active: echo the ids on the response.
+  // run() generates a fresh id when the request carries none.
   response.setHeader(HttpHeaders.CorrelationId, ExecutionContext.correlationId.toString());
   response.setHeader(HttpHeaders.RequestId, ExecutionContext.requestId.toString());
 
@@ -56,7 +57,7 @@ enum HttpHeaders {
 }
 ```
 
-The member values are the lower-case wire header names used when writing a response. When an adapter reads the ids off a request, it cannot assume the headers object lower-cases its keys the way Node's `IncomingHttpHeaders` does. A runtime that preserves case can present `X-Correlation-Id` where the enum reads `x-correlation-id`, so the adapter should look the values up case-insensitively or normalize the header keys to lower case first. When an adapter writes a response, it echoes the id that it primed. Leave the header absent rather than send an empty string when no id exists, so a downstream consumer can treat a missing header as not provided.
+The member values are the lower-case wire header names used when writing a response. When an adapter reads the ids off a request, it cannot assume the headers object lower-cases its keys the way Node's `IncomingHttpHeaders` does. A runtime that preserves case can present `X-Correlation-Id` where the enum reads `x-correlation-id`, so the adapter should look the values up case-insensitively or normalize the header keys to lower case first. When an adapter writes a response, it echoes the id held in the active scope. Because `run()` generates a fresh id when the request carried none, the response carries both headers on every request. A downstream consumer cannot tell an id the caller provided from one this adapter generated.
 
 ## Related packages
 
