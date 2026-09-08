@@ -7,7 +7,7 @@
 ## Install
 
 ```bash
-pnpm add @couimet/execution-context-http
+pnpm add @couimet/execution-context @couimet/execution-context-http
 ```
 
 ## Usage
@@ -57,9 +57,9 @@ Reduces a raw request-header value to the single string that `ExecutionContext.r
 function firstHeaderValue(value: string | string[] | undefined): string | undefined;
 ```
 
-- Returns the value unchanged when it is a primitive string.
-- Returns the first value when a header repeats and the value is a `string[]`.
-- Returns undefined when the header is absent, so `run()` generates a fresh id.
+- Returns the value when it is a non-empty primitive string.
+- Returns the first value when a header repeats and the first value is a non-empty string.
+- Returns undefined when the header is absent or its value is empty, so `run()` generates a fresh id.
 
 ### HttpHeaders
 

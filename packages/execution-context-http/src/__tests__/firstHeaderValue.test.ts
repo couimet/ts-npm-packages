@@ -16,4 +16,12 @@ describe('firstHeaderValue', () => {
   it('returns undefined when the array is empty', () => {
     expect(firstHeaderValue([])).toBeUndefined();
   });
+
+  it('returns undefined when the value is an empty string', () => {
+    expect(firstHeaderValue('')).toBeUndefined();
+  });
+
+  it('returns undefined when the first value of a repeated header is an empty string', () => {
+    expect(firstHeaderValue([''])).toBeUndefined();
+  });
 });
