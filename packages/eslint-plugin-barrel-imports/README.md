@@ -1,5 +1,7 @@
 # @couimet/eslint-plugin-barrel-imports
 
+[![npm version](https://img.shields.io/npm/v/@couimet/eslint-plugin-barrel-imports.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/eslint-plugin-barrel-imports) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=eslint-plugin-barrel-imports)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=eslint-plugin-barrel-imports) [![npm downloads](https://img.shields.io/npm/dm/@couimet/eslint-plugin-barrel-imports.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/eslint-plugin-barrel-imports)
+
 ESLint plugin with rules enforcing barrel import hygiene.
 
 ## Install
