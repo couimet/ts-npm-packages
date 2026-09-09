@@ -75,6 +75,14 @@ EOF
   [[ -z "$output" ]]
 }
 
+@test "exits 0 when a new package row has a hyperlinked name cell" {
+  echo "| [\`@couimet/foo\`](packages/foo/README.md) [npm](https://www.npmjs.com/package/@couimet/foo) | description |" > "${REPO_DIR}/README.md"
+  mock_git "${REPO_DIR}" "packages/foo/package.json"
+  run bash scripts/check-readme-staleness.sh origin/main
+  [[ "$status" -eq 0 ]]
+  [[ -z "$output" ]]
+}
+
 @test "exits 0 when a renamed package is in README" {
   echo "| \`@couimet/newname\` | description |" > "${REPO_DIR}/README.md"
   mock_git "${REPO_DIR}" "packages/newname/package.json" "origin/main"

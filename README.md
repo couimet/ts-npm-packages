@@ -1,6 +1,8 @@
 # ts-npm-packages
 
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE) ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/couimet/ts-npm-packages?label=CodeRabbit+Reviews)
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/couimet/ts-npm-packages?label=CodeRabbit+Reviews)](https://coderabbit.ai) [![CI](https://github.com/couimet/ts-npm-packages/actions/workflows/ci.yml/badge.svg)](https://github.com/couimet/ts-npm-packages/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg)](https://codecov.io/gh/couimet/ts-npm-packages) [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white) ![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-5FA04E?logo=nodedotjs&logoColor=white) ![pnpm](https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white) ![Turborepo](https://img.shields.io/badge/Turborepo-FF1E56?logo=turborepo&logoColor=white)
 
 A monorepo for a curated family of small TypeScript packages published under the [`@couimet`](https://www.npmjs.com/~couimet) scope on npm.
 
@@ -8,26 +10,26 @@ A monorepo for a curated family of small TypeScript packages published under the
 
 ### Libraries
 
-| Package                                 | Purpose                                                                                           | Testing companion         |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
-| `@couimet/detailed-error`               | Structured error base class with typed error codes and shared error codes.                        | `detailed-error-testing`  |
-| `@couimet/detailed-result`              | Functional Result type for explicit error handling paired with `@couimet/detailed-error`.         | `detailed-result-testing` |
-| `@couimet/eslint-config`                | Shared ESLint (flat config) and Prettier configuration.                                           | —                         |
-| `@couimet/eslint-plugin-barrel-imports` | ESLint plugin with rules enforcing barrel import hygiene.                                         | —                         |
-| `@couimet/execution-context`            | Execution context propagating correlation id, request id, and attributes across async boundaries. | —                         |
-| `@couimet/execution-context-http`       | Framework-free HTTP transport constants (x-correlation-id, x-request-id) for execution contexts.  | —                         |
-| `@couimet/logger-contract`              | Logger interface contract — libraries depend on this without committing to any logging framework. | `logger-contract-testing` |
-| `@couimet/logger-contract-adapters`     | Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries.            | —                         |
-| `@couimet/markdownlint-config`          | Shared markdownlint configuration with aligned table-padding enforcement.                         | —                         |
+| Package                                                                                                                                                               | Purpose                                                                                           | Testing companion                                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@couimet/detailed-error`](packages/detailed-error/README.md) [npm](https://www.npmjs.com/package/@couimet/detailed-error)                                           | Structured error base class with typed error codes and shared error codes.                        | [`detailed-error-testing`](packages/detailed-error-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/detailed-error-testing)    |
+| [`@couimet/detailed-result`](packages/detailed-result/README.md) [npm](https://www.npmjs.com/package/@couimet/detailed-result)                                        | Functional Result type for explicit error handling paired with `@couimet/detailed-error`.         | [`detailed-result-testing`](packages/detailed-result-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/detailed-result-testing) |
+| [`@couimet/eslint-config`](packages/eslint-config/README.md) [npm](https://www.npmjs.com/package/@couimet/eslint-config)                                              | Shared ESLint (flat config) and Prettier configuration.                                           | —                                                                                                                                             |
+| [`@couimet/eslint-plugin-barrel-imports`](packages/eslint-plugin-barrel-imports/README.md) [npm](https://www.npmjs.com/package/@couimet/eslint-plugin-barrel-imports) | ESLint plugin with rules enforcing barrel import hygiene.                                         | —                                                                                                                                             |
+| [`@couimet/execution-context`](packages/execution-context/README.md) [npm](https://www.npmjs.com/package/@couimet/execution-context)                                  | Execution context propagating correlation id, request id, and attributes across async boundaries. | —                                                                                                                                             |
+| [`@couimet/execution-context-http`](packages/execution-context-http/README.md) [npm](https://www.npmjs.com/package/@couimet/execution-context-http)                   | Framework-free HTTP transport constants (x-correlation-id, x-request-id) for execution contexts.  | —                                                                                                                                             |
+| [`@couimet/logger-contract`](packages/logger-contract/README.md) [npm](https://www.npmjs.com/package/@couimet/logger-contract)                                        | Logger interface contract — libraries depend on this without committing to any logging framework. | [`logger-contract-testing`](packages/logger-contract-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/logger-contract-testing) |
+| [`@couimet/logger-contract-adapters`](packages/logger-contract-adapters/README.md) [npm](https://www.npmjs.com/package/@couimet/logger-contract-adapters)             | Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries.            | —                                                                                                                                             |
+| [`@couimet/markdownlint-config`](packages/markdownlint-config/README.md) [npm](https://www.npmjs.com/package/@couimet/markdownlint-config)                            | Shared markdownlint configuration with aligned table-padding enforcement.                         | —                                                                                                                                             |
 
 ### Testing utilities
 
-| Package                            | Purpose                                                                                 |
-| ---------------------------------- | --------------------------------------------------------------------------------------- |
-| `@couimet/detailed-error-testing`  | Custom Jest matchers for testing code that throws or returns `DetailedError` instances. |
-| `@couimet/detailed-result-testing` | Custom Jest matchers for testing code that returns `DetailedResult`.                    |
-| `@couimet/dynamic-testing`         | Dynamic testing utilities with seeded randomness for TypeScript tests.                  |
-| `@couimet/logger-contract-testing` | Zero-setup mock-logger factories for tests written against `@couimet/logger-contract`.  |
+| Package                                                                                                                                                | Purpose                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`@couimet/detailed-error-testing`](packages/detailed-error-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/detailed-error-testing)    | Custom Jest matchers for testing code that throws or returns `DetailedError` instances. |
+| [`@couimet/detailed-result-testing`](packages/detailed-result-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/detailed-result-testing) | Custom Jest matchers for testing code that returns `DetailedResult`.                    |
+| [`@couimet/dynamic-testing`](packages/dynamic-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/dynamic-testing)                         | Dynamic testing utilities with seeded randomness for TypeScript tests.                  |
+| [`@couimet/logger-contract-testing`](packages/logger-contract-testing/README.md) [npm](https://www.npmjs.com/package/@couimet/logger-contract-testing) | Zero-setup mock-logger factories for tests written against `@couimet/logger-contract`.  |
 
 ## Contributing
 

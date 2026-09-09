@@ -1,6 +1,6 @@
 # @couimet/execution-context
 
-[![npm version](https://img.shields.io/npm/v/@couimet/execution-context.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/execution-context) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=execution-context)](https://codecov.io/gh/couimet/ts-npm-packages?flag=execution-context) [![npm downloads](https://img.shields.io/npm/dm/@couimet/execution-context.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/execution-context)
+[![npm version](https://img.shields.io/npm/v/@couimet/execution-context.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/execution-context) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=execution-context)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=execution-context) [![npm downloads](https://img.shields.io/npm/dm/@couimet/execution-context.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/execution-context)
 
 `ExecutionContext.run()` opens a scope that carries a correlation id, a request id, and an attribute bag. Code inside the scope, including work resumed after `await`, reads the same ids and attributes. The scope follows OpenTelemetry's context propagation, which `AsyncLocalStorage` carries across async boundaries. `run()` pins a provided id and generates a fresh one when a field is `undefined` or blank. Typical priming sites are an application bootstrap, a middleware that scopes one HTTP request, and a timer that scopes one scheduled run.
 
