@@ -33,6 +33,14 @@
       "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
       "outputs": []
     },
+    "@couimet/execution-context#test": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build", "@couimet/dynamic-testing#build"],
+      "outputs": []
+    },
+    "@couimet/execution-context#typecheck": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": ["build"],
       "outputs": []
