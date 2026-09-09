@@ -150,6 +150,14 @@ describe('ExecutionContext', () => {
     });
   });
 
+  it('returns undefined for attribute keys inherited from the prototype', () => {
+    ExecutionContext.run({ correlationId, requestId, attributes: storedAttributes }, () => {
+      expect(ExecutionContext.getAttribute('toString')).toBeUndefined();
+      expect(ExecutionContext.getAttribute('__proto__')).toBeUndefined();
+      expect(ExecutionContext.getAttribute('version')).toBe(storedAttributes.version);
+    });
+  });
+
   it('starts with empty attributes when none are given', () => {
     ExecutionContext.run({ correlationId, requestId }, () => {
       expect(ExecutionContext.getAttributes()).toStrictEqual({});

@@ -85,8 +85,32 @@ A custom adapter implements `Logger` from `@couimet/logger-contract` and, in eac
 import { normalizeContext } from '@couimet/logger-contract-adapters';
 import type { Logger, LoggingContext } from '@couimet/logger-contract';
 
+type Backend = {
+  debug(message: string, ctx: LoggingContext): void;
+  info(message: string, ctx: LoggingContext): void;
+  warn(message: string, ctx: LoggingContext): void;
+  error(message: string, ctx: LoggingContext): void;
+};
+
 class CustomAdapter implements Logger {
-  // constructor stores the wrapped backend; error() shown, debug/info/warn mirror it
+  private readonly backend: Backend;
+
+  constructor(backend: Backend) {
+    this.backend = backend;
+  }
+
+  debug(ctx: LoggingContext, message: string): void {
+    this.backend.debug(message, normalizeContext(ctx));
+  }
+
+  info(ctx: LoggingContext, message: string): void {
+    this.backend.info(message, normalizeContext(ctx));
+  }
+
+  warn(ctx: LoggingContext, message: string): void {
+    this.backend.warn(message, normalizeContext(ctx));
+  }
+
   error(ctx: LoggingContext, message: string): void {
     this.backend.error(message, normalizeContext(ctx));
   }

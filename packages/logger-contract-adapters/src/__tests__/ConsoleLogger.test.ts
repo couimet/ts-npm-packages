@@ -1,4 +1,4 @@
-import { ConsoleLogger } from '../ConsoleLogger';
+import { ConsoleLogger } from '../index';
 
 import { getUniqueString } from '@couimet/dynamic-testing';
 

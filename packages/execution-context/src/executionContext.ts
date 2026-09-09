@@ -120,7 +120,8 @@ export class ExecutionContext {
   }
 
   static getAttribute(key: string): unknown {
-    return this.getStore()?.attributes?.[key];
+    const attributes = this.getStore()?.attributes;
+    return attributes !== undefined && Object.prototype.hasOwnProperty.call(attributes, key) ? attributes[key] : undefined;
   }
 
   static addAttributes(attrs: ContextAttributes): void {
