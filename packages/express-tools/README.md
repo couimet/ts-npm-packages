@@ -1,6 +1,6 @@
 # @couimet/express-tools
 
-[![npm version](https://img.shields.io/npm/v/@couimet/express-tools.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/express-tools) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=express-tools)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=express-tools) [![npm downloads](https://img.shields.io/npm/dm/@couimet/express-tools.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/express-tools)
+[![npm version](https://img.shields.io/npm/v/@couimet/express-tools)](https://www.npmjs.com/package/@couimet/express-tools) [![npm downloads](https://img.shields.io/npm/dm/@couimet/express-tools)](https://www.npmjs.com/package/@couimet/express-tools) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=express-tools)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=express-tools)
 
 `@couimet/express-tools` builds a pre-configured Express application. The `createExpressApp` factory turns on helmet security headers, logs the start of each request, and logs completion through morgan. Two ordered arrays keep middleware registration explicit, and an entry can carry a label that names it in the registration log. Every log line goes through [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract), so the package never commits a consumer to a logging framework. The package targets Express 5.
 
