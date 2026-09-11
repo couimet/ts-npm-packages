@@ -1,5 +1,5 @@
 import { DynamicTestingErrorCodes } from './internal/DynamicTestingErrorCodes';
-import { isNonNegativeInteger } from './internal/validation';
+import { isNonNegativeInteger, isPositiveInteger } from './internal/validation';
 import { getRandomInt } from './random';
 import { getUniqueInt } from './unique';
 
@@ -110,4 +110,32 @@ export const getUniqueString = (options: UniqueStringOptions = {}): string => {
 
   const prefixLen = budget - suffix.length;
   return `${prefix}${getRandomString({ length: prefixLen, charset })}${suffix}`;
+};
+
+/**
+ * Returns an array of `count` unique strings. Each value comes from a separate
+ * call to `getUniqueString()`, so the shared counter keeps them distinct.
+ */
+export const getUniqueStrings = (count: number): string[] => {
+  if (!isPositiveInteger(count)) {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.COUNT_NOT_POSITIVE_INTEGER,
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueStrings',
+      details: { received: count },
+    });
+  }
+  return Array.from({ length: count }, () => getUniqueString());
+};
+
+/** Returns an object mapping each key to a unique string from the shared counter. */
+export const getUniqueStringsNamed = <K extends string>(keys: readonly K[]): Record<K, string> => {
+  if (keys.length === 0) {
+    throw new DetailedError({
+      code: DynamicTestingErrorCodes.KEYS_ARRAY_EMPTY,
+      message: 'keys must not be empty',
+      functionName: 'getUniqueStringsNamed',
+    });
+  }
+  return Object.fromEntries(keys.map((k) => [k, getUniqueString()])) as Record<K, string>;
 };

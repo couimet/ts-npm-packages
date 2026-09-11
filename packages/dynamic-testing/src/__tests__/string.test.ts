@@ -1,4 +1,12 @@
-import { getRandomAlphaString, getRandomHexString, getRandomNumericString, getRandomString, getUniqueString } from '../index';
+import {
+  getRandomAlphaString,
+  getRandomHexString,
+  getRandomNumericString,
+  getRandomString,
+  getUniqueString,
+  getUniqueStrings,
+  getUniqueStringsNamed,
+} from '../index';
 import { _reset } from '../internal/uniqueTestUtils';
 
 describe('getRandomString', () => {
@@ -172,6 +180,73 @@ describe('getUniqueString', () => {
       message: 'maxLength must be a non-negative integer',
       functionName: 'getUniqueString',
       details: { received: NaN },
+    });
+  });
+});
+
+describe('getUniqueStrings', () => {
+  beforeEach(() => _reset(1));
+
+  it('returns an array of the requested length', () => {
+    const count = 3;
+    expect(getUniqueStrings(count)).toHaveLength(count);
+  });
+
+  it('returns values carrying sequential counter suffixes from the reset value', () => {
+    const result = getUniqueStrings(3);
+    expect(result[0]).toMatch(/-1$/);
+    expect(result[1]).toMatch(/-2$/);
+    expect(result[2]).toMatch(/-3$/);
+  });
+
+  it('returns unique values', () => {
+    const count = 10;
+    const result = getUniqueStrings(count);
+    expect(new Set(result).size).toBe(count);
+  });
+
+  it('throws on non-positive-integer count', () => {
+    expect(() => getUniqueStrings(0)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueStrings',
+      details: { received: 0 },
+    });
+    expect(() => getUniqueStrings(-2)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueStrings',
+      details: { received: -2 },
+    });
+    expect(() => getUniqueStrings(1.5)).toThrowDetailedError('COUNT_NOT_POSITIVE_INTEGER', {
+      message: 'count must be a positive integer',
+      functionName: 'getUniqueStrings',
+      details: { received: 1.5 },
+    });
+  });
+});
+
+describe('getUniqueStringsNamed', () => {
+  beforeEach(() => _reset(1));
+
+  it('returns an object with the given keys mapped to strings', () => {
+    const keys = ['alpha', 'beta', 'gamma'] as const;
+    const result = getUniqueStringsNamed(keys);
+    expect(Object.keys(result)).toStrictEqual(keys);
+    for (const key of keys) {
+      expect(typeof result[key]).toBe('string');
+    }
+  });
+
+  it('maps each key to a unique string', () => {
+    const keys = ['alpha', 'beta', 'gamma'] as const;
+    const result = getUniqueStringsNamed(keys);
+    const values = Object.values(result);
+    expect(new Set(values).size).toBe(keys.length);
+  });
+
+  it('throws on an empty keys array', () => {
+    expect(() => getUniqueStringsNamed([])).toThrowDetailedError('KEYS_ARRAY_EMPTY', {
+      message: 'keys must not be empty',
+      functionName: 'getUniqueStringsNamed',
     });
   });
 });
