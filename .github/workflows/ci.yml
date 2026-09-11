@@ -66,6 +66,24 @@ jobs:
       - name: Check changelogs
         run: bash scripts/check-changelogs.sh
 
+  check-generated-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: couimet/github-actions/setup-node-pnpm@main
+      - name: Check generated drift
+        uses: couimet/github-actions/check-generated-drift@main
+        with:
+          command: bash scripts/generate-package-graph.sh
+          header: Package dependency graph
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   changeset:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest

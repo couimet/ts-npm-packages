@@ -8,6 +8,37 @@ A monorepo for a curated family of small TypeScript packages published under the
 
 ## Available packages
 
+### Dependency graph
+
+<!-- BEGIN dependency-graph -->
+
+```mermaid
+graph LR
+    detailed-error-testing -.-> detailed-error
+    detailed-result -.-> detailed-error
+    detailed-result-testing -.-> detailed-error
+    detailed-result-testing -.-> detailed-error-testing
+    detailed-result-testing -.-> detailed-result
+    dynamic-testing -.-> detailed-error
+    eslint-config --> eslint-plugin-barrel-imports
+    execution-context -.-> detailed-error
+    execution-context-http-express -.-> execution-context
+    execution-context-http-express -.-> execution-context-http
+    execution-context-http-express -.-> express-tools
+    express-tools -.-> detailed-error
+    express-tools -.-> logger-contract
+    express-tools-testing -.-> express-tools
+    express-tools-testing -.-> logger-contract
+    logger-contract-adapters --> logger-contract
+    logger-contract-testing -.-> logger-contract
+```
+
+- Solid arrows (`-->`) mark a `dependencies` edge and dotted arrows (`-.->`) mark a `peerDependencies` edge.
+- `devDependencies` are omitted.
+- `markdownlint-config` is not shown because it declares no internal `dependencies` or `peerDependencies` entry.
+
+<!-- END dependency-graph -->
+
 ### Libraries
 
 | Package                                                                                                                                                                     | Purpose                                                                                                        | Testing companion                                                                                                                             |
