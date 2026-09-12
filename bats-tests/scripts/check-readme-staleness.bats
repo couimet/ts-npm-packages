@@ -108,6 +108,30 @@ EOF
   [[ "$output" == *"@couimet/foo"* ]]
 }
 
+@test "exits 0 when a new private package is absent from README" {
+  echo "| \`@couimet/other\` | description |" > "${REPO_DIR}/README.md"
+  mkdir -p "${REPO_DIR}/packages/leaf"
+  echo '{"name":"@couimet/leaf","private":true}' > "${REPO_DIR}/packages/leaf/package.json"
+  mock_git "${REPO_DIR}" "packages/leaf/package.json"
+
+  run bash scripts/check-readme-staleness.sh origin/main
+  [[ "$status" -eq 0 ]]
+  [[ -z "$output" ]]
+}
+
+@test "exits 1 when an unpublished package is missing beside a private one" {
+  echo "| \`@couimet/other\` | description |" > "${REPO_DIR}/README.md"
+  mkdir -p "${REPO_DIR}/packages/leaf" "${REPO_DIR}/packages/public-pkg"
+  echo '{"name":"@couimet/leaf","private":true}' > "${REPO_DIR}/packages/leaf/package.json"
+  echo '{"name":"@couimet/public-pkg"}' > "${REPO_DIR}/packages/public-pkg/package.json"
+  mock_git "${REPO_DIR}" $'packages/leaf/package.json\npackages/public-pkg/package.json'
+
+  run bash scripts/check-readme-staleness.sh origin/main
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"@couimet/public-pkg"* ]]
+  [[ "$output" != *"@couimet/leaf"* ]]
+}
+
 @test "usage error when no base ref provided" {
   run bash scripts/check-readme-staleness.sh
   [[ "$status" -ne 0 ]]

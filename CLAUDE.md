@@ -29,6 +29,7 @@ After scaffolding, the user runs `pnpm install` to update the lockfile.
 - Pretty print width is 160 (`.prettierrc` or equivalent in `@couimet/eslint-config`).
 - **`src/index.ts` is the package's public API boundary.** Barrels re-export public modules with `export * from './<module>';` rather than named re-exports, to keep git diffs minimal when a module's exports change. A symbol is public if and only if it is reachable through the barrel.
 - **A barreled module must export only public symbols.** `export *` re-exports everything a listed module exports, so an internal helper must never be co-located in a module the barrel re-exports. Internal helpers (test-only utilities, module-private helpers, shared package state, validation) live in modules the barrel does not list: under `src/internal/` or as an un-barreled sibling root module (`counterStart.ts`, `isNonBlank.ts`, `setupTests.ts`). Their exports are internal by construction. Adding or removing a module from the barrel is a deliberate change to the public API.
+- **A published package declares its own type surface.** A package that re-exports a type from a private workspace package ships a declaration that names a package no consumer can install. Declare the type in the published package instead. Where the two types must line up, make them structurally compatible rather than shared. A published package may depend on a private one in `devDependencies` only. `scripts/publish-verify.sh` fails the publish when a built `.d.ts` names a private workspace package.
 
 ## Dependency version ranges
 

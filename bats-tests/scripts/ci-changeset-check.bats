@@ -741,3 +741,48 @@ MD
   [[ "$status" -eq 1 ]]
   [[ "$output" == *"not bumped"* ]]
 }
+
+# ── private package handling ──
+
+@test "passes when changed package is private and carries no changelog" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/test-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/test-pkg/package.json" << 'JSON'
+{"name": "@couimet/test-pkg", "version": "0.1.0", "private": true}
+JSON
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/test-pkg@0.1.0" $'packages/test-pkg/src/index.ts' $'{"name":"@couimet/test-pkg","version":"0.1.0","private":true}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 0 ]]
+}
+
+@test "fails when an unbumped published package changes beside a private one" {
+  TMP_FIXTURE_DIR="$(mktemp -d)"
+  mkdir -p "${TMP_FIXTURE_DIR}/packages/private-pkg" "${TMP_FIXTURE_DIR}/packages/public-pkg"
+  cat > "${TMP_FIXTURE_DIR}/packages/private-pkg/package.json" << 'JSON'
+{"name": "@couimet/private-pkg", "version": "0.1.0", "private": true}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/public-pkg/package.json" << 'JSON'
+{"name": "@couimet/public-pkg", "version": "0.1.0"}
+JSON
+  cat > "${TMP_FIXTURE_DIR}/packages/public-pkg/CHANGELOG.md" << 'MD'
+## [0.1.0]
+
+### Added
+
+- Initial release
+MD
+  cd "${TMP_FIXTURE_DIR}"
+
+  write_git_mock_with_show "@couimet/public-pkg@0.1.0" $'packages/private-pkg/src/index.ts\npackages/public-pkg/src/index.ts' $'{"name":"@couimet/public-pkg","version":"0.1.0"}'
+  write_pnpm_mock 1
+
+  run bash "${BATS_TEST_DIRNAME}/../../scripts/ci-changeset-check.sh" "origin/main"
+
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"not bumped"* ]]
+}

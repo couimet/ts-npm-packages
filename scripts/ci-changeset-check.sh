@@ -142,6 +142,8 @@ fi
 # Gate B: post-`changeset:version` state — every changed package with a
 # version-relevant (non-docs) change must be bumped above the base ref and carry
 # a matching changelog entry. Docs-only packages are skipped: they need no release.
+# Private packages are skipped too: they are never published, so they carry no
+# version bump and no changelog.
 post_version_ok=1
 changed_count=0
 release_count=0
@@ -151,13 +153,16 @@ while IFS= read -r pkg; do
   if docs_only "$pkg"; then
     continue
   fi
-  release_count=$((release_count + 1))
   pkg_dir="packages/${pkg}"
   if [ ! -f "$pkg_dir/package.json" ]; then
     echo "ERROR: ${pkg_dir}/package.json missing for changed package ${pkg}." >&2
     post_version_ok=0
     continue
   fi
+  if [ "$(jq -r '.private // false' "$pkg_dir/package.json")" = "true" ]; then
+    continue
+  fi
+  release_count=$((release_count + 1))
   cur_ver=$(jq -r '.version // empty' "$pkg_dir/package.json")
   base_ver=$(git show "$BASE_REF:$pkg_dir/package.json" 2>/dev/null | jq -r '.version // empty' || true)
   if ! semver_gt "$cur_ver" "$base_ver"; then
@@ -176,8 +181,8 @@ if [ "$changed_count" -eq 0 ]; then
   exit 1
 fi
 
-if [ "$release_count" -eq 0 ]; then
-  exit 0  # every changed package is docs-only: nothing to release
+if [ "$release_count" -eq 0 ] && [ "$post_version_ok" -eq 1 ]; then
+  exit 0  # every changed package is docs-only or private: nothing to release
 fi
 
 if [ "$post_version_ok" -eq 1 ]; then
