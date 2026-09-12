@@ -24,9 +24,12 @@ graph LR
     execution-context -.-> detailed-error
     execution-context-http-express -.-> execution-context
     execution-context-http-express -.-> execution-context-http
+    execution-context-http-express ==> express-test-support
     execution-context-http-express -.-> express-tools
     express-tools -.-> detailed-error
+    express-tools ==> express-test-support
     express-tools -.-> logger-contract
+    express-tools-testing ==> express-test-support
     express-tools-testing -.-> express-tools
     express-tools-testing -.-> logger-contract
     logger-contract-adapters --> logger-contract
@@ -34,8 +37,9 @@ graph LR
 ```
 
 - Solid arrows (`-->`) mark a `dependencies` edge and dotted arrows (`-.->`) mark a `peerDependencies` edge.
-- `devDependencies` are omitted.
-- `markdownlint-config` is not shown because it declares no internal `dependencies` or `peerDependencies` entry.
+- Thick arrows (`==>`) mark a `devDependencies` edge onto a private workspace package, which is never published.
+- Other `devDependencies` are omitted.
+- `markdownlint-config` is not shown because it declares no internal edge that the graph draws.
 
 <!-- END dependency-graph -->
 

@@ -5,8 +5,10 @@ set -euo pipefail
 #
 # The block is delimited by the BEGIN/END dependency-graph markers in README.md.
 # Edges come from `dependencies` and `peerDependencies` between workspace packages.
-# `devDependencies` are deliberately excluded, so the graph shows runtime structure
-# rather than every package's linting setup.
+# A `devDependencies` entry is drawn only when its target is a private workspace
+# package, since a private package is never published and reaches a consumer only
+# as a dev dependency. Other `devDependencies` stay excluded, so the graph shows
+# runtime structure rather than every package's linting setup.
 #
 # Usage:
 #   generate-package-graph.sh [repo-root]           rewrite the README block
@@ -71,14 +73,17 @@ for (const entry of fs.readdirSync(path.join(repoRoot, "packages")).sort()) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   manifests.push({
     name: manifest.name,
+    private: manifest.private === true,
     dependencies: Object.keys(manifest.dependencies ?? {}),
     peerDependencies: Object.keys(manifest.peerDependencies ?? {}),
+    devDependencies: Object.keys(manifest.devDependencies ?? {}),
   });
 }
 
-const workspacePackages = new Set(manifests.map((manifest) => manifest.name));
+const workspacePackages = new Map(manifests.map((manifest) => [manifest.name, manifest]));
+const isPrivateWorkspacePackage = (name) => workspacePackages.get(name)?.private === true;
 
-// A target listed in both sections is drawn once, as a `dependencies` edge.
+// A pair listed in more than one section is drawn once, under the stronger kind.
 const edges = new Map();
 for (const manifest of manifests) {
   for (const [kind, targets] of [
@@ -97,6 +102,18 @@ for (const manifest of manifests) {
   }
 }
 
+for (const manifest of manifests) {
+  for (const target of manifest.devDependencies) {
+    if (!isPrivateWorkspacePackage(target)) {
+      continue;
+    }
+    const key = `${manifest.name}>${target}`;
+    if (!edges.has(key)) {
+      edges.set(key, { from: manifest.name, to: target, kind: "devDependencies" });
+    }
+  }
+}
+
 const sortedEdges = [...edges.values()].sort((a, b) => a.from.localeCompare(b.from) || a.to.localeCompare(b.to));
 
 const connected = new Set();
@@ -109,7 +126,12 @@ const omitted = manifests
   .filter((name) => !connected.has(name))
   .sort();
 
-const arrow = (kind) => (kind === "dependencies" ? "-->" : "-.->");
+const arrow = (kind) => {
+  if (kind === "dependencies") {
+    return "-->";
+  }
+  return kind === "peerDependencies" ? "-.->" : "==>";
+};
 
 const diagram = ["graph LR"];
 for (const edge of sortedEdges) {
@@ -118,15 +140,16 @@ for (const edge of sortedEdges) {
 
 const legend = [
   "- Solid arrows (`-->`) mark a `dependencies` edge and dotted arrows (`-.->`) mark a `peerDependencies` edge.",
-  "- `devDependencies` are omitted.",
+  "- Thick arrows (`==>`) mark a `devDependencies` edge onto a private workspace package, which is never published.",
+  "- Other `devDependencies` are omitted.",
 ];
 
 if (omitted.length === 0) {
-  legend.push("- Every package declares at least one internal `dependencies` or `peerDependencies` entry.");
+  legend.push("- Every package declares at least one internal edge that the graph draws.");
 } else {
   const listed = omitted.map((name) => `\`${shortName(name)}\``);
   const subject = listed.length === 1 ? `${listed[0]} is` : `${listed.slice(0, -1).join(", ")} and ${listed[listed.length - 1]} are`;
-  legend.push(`- ${subject} not shown because it declares no internal \`dependencies\` or \`peerDependencies\` entry.`);
+  legend.push(`- ${subject} not shown because it declares no internal edge that the graph draws.`);
 }
 
 const block = [BEGIN_MARKER, "", "```mermaid", ...diagram, "```", "", ...legend, "", END_MARKER].join("\n");

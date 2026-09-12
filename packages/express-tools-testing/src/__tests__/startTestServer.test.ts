@@ -1,24 +1,34 @@
-import { startTestServer } from '../index';
+import { startTestServer, type TestServer } from '../index';
 
+import { closeServer, fetchFrom } from '@couimet/express-test-support';
 import { createMockLogger } from '@couimet/logger-contract-testing';
-import type { Server } from 'node:http';
+import type { Application } from 'express';
 
 describe('startTestServer', () => {
-  const servers: Server[] = [];
+  let testServer: TestServer | undefined;
 
   afterEach(async () => {
-    await Promise.all(servers.splice(0).map((s) => new Promise<void>((resolve) => s.close(() => resolve()))));
+    if (testServer) await closeServer(testServer.server);
+    testServer = undefined;
   });
 
-  it('creates an Express app, calls register, and returns the server and port', () => {
+  it('builds the app, calls register, and serves the registered route', async () => {
     const logger = createMockLogger();
-    const register = jest.fn();
+    const register = jest.fn((app: Application) => {
+      app.get('/health', (_req, res) => {
+        res.send('ok');
+      });
+    });
 
-    const { server, port } = startTestServer(logger, register);
-    servers.push(server);
+    testServer = await startTestServer(logger, register);
 
     expect(register).toHaveBeenCalledWith(expect.any(Function));
-    expect(port).toEqual(expect.any(Number));
-    expect(port).toBeGreaterThan(0);
+    expect(testServer.host).toBe('127.0.0.1');
+    expect(testServer.port).toBeGreaterThan(0);
+
+    const response = await fetchFrom(testServer, '/health');
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe('ok');
   });
 });

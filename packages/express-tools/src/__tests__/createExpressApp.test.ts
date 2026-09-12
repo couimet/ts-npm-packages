@@ -1,45 +1,22 @@
-import { buildDefaultMiddlewares, createExpressApp, MORGAN_DEFAULT_FORMAT } from '../index';
+import { buildDefaultMiddlewares, createExpressApp, MORGAN_DEFAULT_FORMAT, startServer, type StartServerResult } from '../index';
 
+import { closeServer, fetchFrom } from '@couimet/express-test-support';
 import { createMockLogger } from '@couimet/logger-contract-testing';
-import type { RequestHandler } from 'express';
-import type { Server } from 'node:http';
+import type { Application, RequestHandler } from 'express';
 
 const mockLogger = createMockLogger();
 
-const getBody = (server: Server, path: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const addr = server.address();
-    if (!addr || typeof addr === 'string') {
-      reject(new Error('Server not listening'));
-      return;
-    }
-    fetch(`http://[::1]:${addr.port}${path}`)
-      .then((res) => res.text())
-      .then(resolve)
-      .catch(reject);
-  });
-
-const getHeaders = (server: Server, path: string): Promise<Headers> =>
-  new Promise((resolve, reject) => {
-    const addr = server.address();
-    if (!addr || typeof addr === 'string') {
-      reject(new Error('Server not listening'));
-      return;
-    }
-    fetch(`http://[::1]:${addr.port}${path}`)
-      .then((res) => resolve(res.headers))
-      .catch(reject);
-  });
-
-const closeServer = (s: Server): Promise<void> => new Promise<void>((resolve) => s.close(() => resolve()));
-
 describe('createExpressApp', () => {
-  let server: Server;
+  const started: StartServerResult[] = [];
+
+  const start = async (app: Application): Promise<StartServerResult> => {
+    const result = await startServer(app);
+    started.push(result);
+    return result;
+  };
 
   afterEach(async () => {
-    if (server) {
-      await closeServer(server);
-    }
+    await Promise.all(started.splice(0).map((s) => closeServer(s.server)));
   });
 
   it('returns a working Express app that routes requests and sends responses', async () => {
@@ -48,13 +25,11 @@ describe('createExpressApp', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const body = await getBody(server, '/smoke');
-    expect(body).toBe('ok');
+    const testServer = await start(app);
+    const response = await fetchFrom(testServer, '/smoke');
+    expect(await response.text()).toBe('ok');
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp' }, 'Express app created');
-
-    const headers = await getHeaders(server, '/smoke');
-    expect(headers.get('x-content-type-options')).toBe('nosniff');
   });
 
   it('still routes requests when helmet is disabled', async () => {
@@ -63,13 +38,11 @@ describe('createExpressApp', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const body = await getBody(server, '/smoke');
-    expect(body).toBe('ok');
+    const testServer = await start(app);
+    const response = await fetchFrom(testServer, '/smoke');
+    expect(await response.text()).toBe('ok');
+    expect(response.headers.get('x-content-type-options')).toBeNull();
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp' }, 'Express app created');
-
-    const headers = await getHeaders(server, '/smoke');
-    expect(headers.get('x-content-type-options')).toBeNull();
   });
 
   it('works with no options and with explicit undefined values', async () => {
@@ -78,29 +51,20 @@ describe('createExpressApp', () => {
     app1.get('/smoke', (_req, res) => res.send('a'));
     app2.get('/smoke', (_req, res) => res.send('b'));
 
-    const s1 = app1.listen(0);
-    const s2 = app2.listen(0);
-    try {
-      expect(await getBody(s1, '/smoke')).toBe('a');
-      expect(await getBody(s2, '/smoke')).toBe('b');
-      expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp' }, 'Express app created');
-    } finally {
-      await closeServer(s1);
-      await closeServer(s2);
-    }
+    const s1 = await start(app1);
+    const s2 = await start(app2);
+    expect(await (await fetchFrom(s1, '/smoke')).text()).toBe('a');
+    expect(await (await fetchFrom(s2, '/smoke')).text()).toBe('b');
+    expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp' }, 'Express app created');
   });
 
   it('applies default middlewares when no middlewares option is provided', async () => {
     const app = createExpressApp({ logger: mockLogger, helmet: false, morganFormat: ':method :url :status' });
     app.get('/smoke', (_req, res) => res.send('ok'));
 
-    server = app.listen(0);
-    const body = await getBody(server, '/smoke');
-    expect(body).toBe('ok');
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      { fn: 'inboundRequestLogger', method: 'GET', originalUrl: '/smoke', url: '/smoke' },
-      'Request started: GET /smoke',
-    );
+    const testServer = await start(app);
+    expect(await (await fetchFrom(testServer, '/smoke')).text()).toBe('ok');
+    expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'inboundRequestLogger', method: 'GET', path: '/smoke' }, 'Request started: GET /smoke');
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'http.request' }, 'GET /smoke 200');
   });
 
@@ -117,9 +81,9 @@ describe('createExpressApp', () => {
     });
     app.get('/smoke', (_req, res) => res.send('ok'));
 
-    server = app.listen(0);
-    const headers = await getHeaders(server, '/smoke');
-    expect(headers.get('x-custom')).toBe('present');
+    const testServer = await start(app);
+    const response = await fetchFrom(testServer, '/smoke');
+    expect(response.headers.get('x-custom')).toBe('present');
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp', middleware: 'custom', middlewareIndex: 0 }, 'Applying middleware');
     expect(mockLogger.info).not.toHaveBeenCalledWith({ fn: 'createExpressApp', middleware: 'morgan', middlewareIndex: 1 }, 'Applying middleware');
   });
@@ -133,13 +97,9 @@ describe('createExpressApp', () => {
     });
     app.get('/smoke', (_req, res) => res.send('ok'));
 
-    server = app.listen(0);
-    const body = await getBody(server, '/smoke');
-    expect(body).toBe('ok');
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      { fn: 'inboundRequestLogger', method: 'GET', originalUrl: '/smoke', url: '/smoke' },
-      'Request started: GET /smoke',
-    );
+    const testServer = await start(app);
+    expect(await (await fetchFrom(testServer, '/smoke')).text()).toBe('ok');
+    expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'inboundRequestLogger', method: 'GET', path: '/smoke' }, 'Request started: GET /smoke');
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'http.request' }, 'GET /smoke 200');
   });
 
@@ -160,8 +120,8 @@ describe('createExpressApp', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    await getBody(server, '/smoke');
+    const testServer = await start(app);
+    await fetchFrom(testServer, '/smoke');
     expect(order).toStrictEqual(['middleware', 'route']);
   });
 
@@ -187,8 +147,8 @@ describe('createExpressApp', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    await getBody(server, '/smoke');
+    const testServer = await start(app);
+    await fetchFrom(testServer, '/smoke');
     expect(order).toStrictEqual(['before', 'map', 'route']);
   });
 
@@ -216,8 +176,8 @@ describe('createExpressApp', () => {
     });
     app.get('/smoke', (_req, res) => res.send('ok'));
 
-    server = app.listen(0);
-    await getBody(server, '/smoke');
+    const testServer = await start(app);
+    await fetchFrom(testServer, '/smoke');
     expect(order).toStrictEqual(['first', 'second']);
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp', middlewareIndex: 0 }, 'Applying middleware without a name (index 0)');
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp', middlewareIndex: 1 }, 'Applying middleware without a name (index 1)');
@@ -233,8 +193,8 @@ describe('createExpressApp', () => {
     });
     app.get('/smoke', (_req, res) => res.send('ok'));
 
-    server = app.listen(0);
-    await getBody(server, '/smoke');
+    const testServer = await start(app);
+    await fetchFrom(testServer, '/smoke');
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp', middleware: 'prime', middlewareIndex: 0 }, 'Applying middleware');
   });
 });

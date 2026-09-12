@@ -1,4 +1,4 @@
-import { createExpressApp } from '@couimet/express-tools';
+import { createExpressApp, startServer } from '@couimet/express-tools';
 import type { Logger } from '@couimet/logger-contract';
 import type { Application } from 'express';
 import type { Server } from 'node:http';
@@ -6,14 +6,12 @@ import type { Server } from 'node:http';
 export interface TestServer {
   server: Server;
   port: number;
+  host: string;
 }
 
-export const startTestServer = (logger: Logger, register: (app: Application) => void): TestServer => {
+export const startTestServer = (logger: Logger, register: (app: Application) => void): Promise<TestServer> => {
   const app = createExpressApp({ logger });
   register(app);
-  const server = app.listen(0);
-  const addr = server.address();
-  /* istanbul ignore next — unreachable: listen(0) on TCP socket always returns AddressInfo */
-  if (!addr || typeof addr === 'string') throw new Error('Server not listening');
-  return { server, port: addr.port };
+
+  return startServer(app);
 };

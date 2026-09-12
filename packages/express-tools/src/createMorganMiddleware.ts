@@ -1,8 +1,22 @@
+import { stripQuery } from './stripQuery';
+
 import { getLogger, type Logger } from '@couimet/logger-contract';
-import type { RequestHandler } from 'express';
+import type { Request, RequestHandler } from 'express';
 import morgan from 'morgan';
 
-export const MORGAN_DEFAULT_FORMAT = ':method :url :status :response-time ms';
+export const MORGAN_DEFAULT_FORMAT = ':method :path :status :response-time ms';
+
+/**
+ * The query-free counterpart of morgan's built-in `:url` token, which resolves
+ * to `req.originalUrl || req.url` and so writes the query string into every
+ * completion line, a credential such as `/callback?token=...` included.
+ *
+ * Registered at module load, so a consumer who hands
+ * {@link MORGAN_DEFAULT_FORMAT} to a morgan call of their own gets the same
+ * redaction. morgan keeps tokens in a module-level registry, so a repeat
+ * registration replaces the earlier one rather than accumulating.
+ */
+morgan.token('path', (req: Request): string => stripQuery(req.originalUrl));
 
 export interface CreateMorganOptions {
   format: string;

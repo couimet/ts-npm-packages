@@ -164,29 +164,45 @@ These values name the two entries `buildDefaultMiddlewares` returns.
 The morgan format string `createMorganMiddleware` and `createExpressApp` use by default:
 
 ```typescript
-const MORGAN_DEFAULT_FORMAT = ':method :url :status :response-time ms';
+const MORGAN_DEFAULT_FORMAT = ':method :path :status :response-time ms';
 ```
+
+The format uses the `:path` token, which this package registers with `morgan.token` at module load. The token holds `req.originalUrl` with the query string removed, so a completion line never carries a credential such as a token in a callback URL. Pass the constant to a morgan call of your own and the token is still registered. A format string you write yourself is yours, so an explicit `:url` keeps the query string.
 
 ### startServer
 
-Starts an HTTP server for the given app on the given port. The promise resolves once the server is bound and rejects on any listen failure.
+Starts an HTTP server for the given app. The promise resolves once the server is bound and rejects on any listen failure.
 
 ```typescript
-function startServer(app: Application, port: number): Promise<StartServerResult>;
+function startServer(app: Application, options?: Partial<StartServerParams>): Promise<StartServerResult>;
 ```
 
-Pass port `0` to let the operating system pick a free port. Read the assigned port off the result. Every rejection is a `DetailedError` whose code is `SERVER_LISTEN_FAILED`. Both an asynchronous `error` event and a synchronous throw from `server.listen()` map to that code.
+The `options` object accepts a `host` and a `port`, and both are optional. `host` defaults to `127.0.0.1`, so the server accepts loopback connections only. `port` defaults to `0`, so the operating system picks a free port. Read the bound address off the result, since it differs from the requested one when you pass `0`. A member you set to `undefined` keeps its default.
+
+Every rejection is a `DetailedError` whose code is `SERVER_LISTEN_FAILED`. Both an asynchronous `error` event and a synchronous throw from `server.listen()` map to that code.
+
+### StartServerParams
+
+```typescript
+interface StartServerParams {
+  host: string;
+  port: number;
+}
+```
+
+Both members are required in the interface. `startServer` accepts a `Partial<StartServerParams>` and fills the missing members from `BASE_DEFAULTS`.
 
 ### StartServerResult
 
 ```typescript
 interface StartServerResult {
+  host: string;
   port: number;
   server: Server;
 }
 ```
 
-The `port` field is the bound port, which differs from the requested one when you pass `0`. Close the `server` field when the test or process finishes.
+The `host` field is the bound address, and the `port` field is the bound port. Close the `server` field when the test or process finishes.
 
 ### useInboundRequestLogger
 
@@ -197,6 +213,8 @@ function useInboundRequestLogger(app: Application, logger: Logger): void;
 ```
 
 Register it after the execution-context middleware. Both halves of the request trace then carry the same correlation id and request id.
+
+The middleware writes one `info` record when a request starts. The record carries `fn: 'inboundRequestLogger'`, the request `method`, and the `path`. The `path` field holds `req.originalUrl` with the query string removed, so the record never carries a credential. The message repeats the method and the path, as in `Request started: GET /api/summary`.
 
 ## Related packages
 

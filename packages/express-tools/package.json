@@ -44,6 +44,7 @@
     "@couimet/detailed-error": "workspace:*",
     "@couimet/detailed-error-testing": "workspace:*",
     "@couimet/eslint-config": "workspace:*",
+    "@couimet/express-test-support": "workspace:*",
     "@couimet/logger-contract": "workspace:*",
     "@couimet/logger-contract-testing": "workspace:*",
     "@types/express": "^5.0.6",

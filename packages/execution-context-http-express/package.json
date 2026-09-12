@@ -41,6 +41,7 @@
     "@couimet/eslint-config": "workspace:*",
     "@couimet/execution-context": "workspace:*",
     "@couimet/execution-context-http": "workspace:*",
+    "@couimet/express-test-support": "workspace:*",
     "@couimet/express-tools": "workspace:*",
     "@couimet/logger-contract-testing": "workspace:*",
     "@types/express": "^5.0.6",

@@ -2,76 +2,29 @@ import { createExpressAppWithExecutionContext } from '../index';
 
 import { getUniqueString, getUuid } from '@couimet/dynamic-testing';
 import { ExecutionContext } from '@couimet/execution-context';
+import { closeServer, fetchFrom } from '@couimet/express-test-support';
+import { startServer, type StartServerResult } from '@couimet/express-tools';
 import { createMockLogger } from '@couimet/logger-contract-testing';
-import type { RequestHandler } from 'express';
-import type { Server } from 'node:http';
+import type { Application, RequestHandler } from 'express';
 
 const mockLogger = createMockLogger();
 
-const getBody = (server: Server, path: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const addr = server.address();
-    if (!addr || typeof addr === 'string') {
-      reject(new Error('Server not listening'));
-      return;
-    }
-    fetch(`http://[::1]:${addr.port}${path}`)
-      .then((res) => res.text())
-      .then(resolve)
-      .catch(reject);
-  });
-
-const getHeaders = (server: Server, path: string): Promise<Headers> =>
-  new Promise((resolve, reject) => {
-    const addr = server.address();
-    if (!addr || typeof addr === 'string') {
-      reject(new Error('Server not listening'));
-      return;
-    }
-    fetch(`http://[::1]:${addr.port}${path}`)
-      .then((res) => resolve(res.headers))
-      .catch(reject);
-  });
-
-const getHeadersWith = (server: Server, path: string, requestHeaders: Record<string, string>): Promise<Headers> =>
-  new Promise((resolve, reject) => {
-    const addr = server.address();
-    if (!addr || typeof addr === 'string') {
-      reject(new Error('Server not listening'));
-      return;
-    }
-    fetch(`http://[::1]:${addr.port}${path}`, { headers: requestHeaders })
-      .then((res) => resolve(res.headers))
-      .catch(reject);
-  });
-
-const getBodyWith = (server: Server, path: string, requestHeaders: Record<string, string>): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const addr = server.address();
-    if (!addr || typeof addr === 'string') {
-      reject(new Error('Server not listening'));
-      return;
-    }
-    fetch(`http://[::1]:${addr.port}${path}`, { headers: requestHeaders })
-      .then((res) => res.text())
-      .then(resolve)
-      .catch(reject);
-  });
-
-const closeServer = (s: Server): Promise<void> => new Promise<void>((resolve) => s.close(() => resolve()));
-
 describe('createExpressAppWithExecutionContext', () => {
+  const started: StartServerResult[] = [];
   let incomingCorrelationId: string;
-  let server: Server;
+
+  const start = async (app: Application): Promise<StartServerResult> => {
+    const result = await startServer(app);
+    started.push(result);
+    return result;
+  };
 
   beforeEach(() => {
     incomingCorrelationId = getUniqueString({ prefix: 'incoming-correlation' });
   });
 
   afterEach(async () => {
-    if (server) {
-      await closeServer(server);
-    }
+    await Promise.all(started.splice(0).map((s) => closeServer(s.server)));
   });
 
   it('carries correlation and request ids on every response', async () => {
@@ -80,8 +33,8 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const headers = await getHeaders(server, '/smoke');
+    const testServer = await start(app);
+    const headers = (await fetchFrom(testServer, '/smoke')).headers;
     expect(headers.get('x-correlation-id')).not.toBeNull();
     expect(headers.get('x-request-id')).not.toBeNull();
   });
@@ -92,8 +45,8 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const headers = await getHeadersWith(server, '/smoke', { 'x-correlation-id': incomingCorrelationId });
+    const testServer = await start(app);
+    const headers = (await fetchFrom(testServer, '/smoke', { headers: { 'x-correlation-id': incomingCorrelationId } })).headers;
     expect(headers.get('x-correlation-id')).toBe(incomingCorrelationId);
     expect(headers.get('x-request-id')).not.toBeNull();
   });
@@ -104,9 +57,9 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const first = await getHeaders(server, '/smoke');
-    const second = await getHeaders(server, '/smoke');
+    const testServer = await start(app);
+    const first = (await fetchFrom(testServer, '/smoke')).headers;
+    const second = (await fetchFrom(testServer, '/smoke')).headers;
     expect(first.get('x-request-id')).not.toBeNull();
     expect(second.get('x-request-id')).not.toBeNull();
     expect(first.get('x-request-id')).not.toBe(second.get('x-request-id'));
@@ -118,8 +71,8 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const headers = await getHeaders(server, '/smoke');
+    const testServer = await start(app);
+    const headers = (await fetchFrom(testServer, '/smoke')).headers;
     expect(headers.get('x-correlation-id')).not.toBeNull();
     expect(headers.get('x-request-id')).not.toBeNull();
   });
@@ -149,8 +102,8 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    await getBodyWith(server, '/smoke', { 'x-correlation-id': incomingId });
+    const testServer = await start(app);
+    await fetchFrom(testServer, '/smoke', { headers: { 'x-correlation-id': incomingId } });
     expect(order).toStrictEqual(['before', 'array', 'route']);
     expect(capturedCorrelationId).toBe(incomingId);
     expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'createExpressApp', middleware: 'execution-context', middlewareIndex: 0 }, 'Applying middleware');
@@ -173,8 +126,8 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    const headers = await getHeaders(server, '/smoke');
+    const testServer = await start(app);
+    const headers = (await fetchFrom(testServer, '/smoke')).headers;
     expect(headers.get('x-custom')).toBe('present');
     expect(headers.get('x-correlation-id')).not.toBeNull();
     expect(headers.get('x-request-id')).not.toBeNull();
@@ -187,11 +140,8 @@ describe('createExpressAppWithExecutionContext', () => {
       res.send('ok');
     });
 
-    server = app.listen(0);
-    await getBody(server, '/smoke');
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      { fn: 'inboundRequestLogger', method: 'GET', originalUrl: '/smoke', url: '/smoke' },
-      'Request started: GET /smoke',
-    );
+    const testServer = await start(app);
+    await fetchFrom(testServer, '/smoke');
+    expect(mockLogger.info).toHaveBeenCalledWith({ fn: 'inboundRequestLogger', method: 'GET', path: '/smoke' }, 'Request started: GET /smoke');
   });
 });

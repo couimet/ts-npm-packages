@@ -53,6 +53,27 @@ add_package() {
   [[ "$output" = "0" ]]
 }
 
+@test "draws a thick edge for a devDependency onto a private workspace package" {
+  add_package alpha "@couimet/alpha" '"devDependencies":{"@couimet/beta":"workspace:*"}'
+  add_package beta "@couimet/beta" '"private":true'
+
+  run bash scripts/generate-package-graph.sh "${REPO_DIR}"
+  [[ "$status" -eq 0 ]]
+  grep -q '^    alpha ==> beta$' "${REPO_DIR}/README.md"
+  grep -q 'Thick arrows' "${REPO_DIR}/README.md"
+}
+
+@test "prefers a dependency edge over a devDependency edge on the same private target" {
+  add_package alpha "@couimet/alpha" '"dependencies":{"@couimet/beta":"^1.0.0"},"devDependencies":{"@couimet/beta":"workspace:*"}'
+  add_package beta "@couimet/beta" '"private":true'
+
+  run bash scripts/generate-package-graph.sh "${REPO_DIR}"
+  [[ "$status" -eq 0 ]]
+  grep -q '^    alpha --> beta$' "${REPO_DIR}/README.md"
+  run grep -c 'alpha ' "${REPO_DIR}/README.md"
+  [[ "$output" = "1" ]]
+}
+
 @test "ignores dependencies on packages outside the workspace" {
   add_package alpha "@couimet/alpha" '"dependencies":{"express":"^5.0.0"}'
 
