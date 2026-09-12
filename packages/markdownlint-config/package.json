@@ -30,7 +30,7 @@
     "markdownlint-cli2": ">=0.23.0",
     "markdownlint-rule-force-align-table-columns": ">=0.1.0",
     "ts-jest": "^29.4.12",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "peerDependencies": {
     "markdownlint-cli2": ">=0.23.0",
