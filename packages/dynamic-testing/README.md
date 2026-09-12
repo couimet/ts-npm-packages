@@ -88,9 +88,13 @@ getRandomAlphaString(length?: number): string
 getRandomNumericString(length?: number): string
 getRandomHexString(length?: number): string
 getUniqueString(options?: UniqueStringOptions): string
+getUniqueStrings(count: number): string[]
+getUniqueStringsNamed<K extends string>(keys: readonly K[]): Record<K, string>
 ```
 
 `getUniqueString` guarantees uniqueness by appending the counter to a random prefix. The prefix is 8 characters unless `maxLength` constrains it. When `maxLength` is set the prefix is truncated to make room. If `maxLength` is too short even for the counter alone, the result is purely random and uniqueness is not guaranteed.
+
+`getUniqueStrings` returns an array of `count` unique strings. `getUniqueStringsNamed` returns a `Record` keyed by the given names. Both draw each value from a separate call to `getUniqueString`. The `count` argument must be a positive integer, and an empty `keys` array throws.
 
 `StringOptions` (for `getRandomString`):
 
