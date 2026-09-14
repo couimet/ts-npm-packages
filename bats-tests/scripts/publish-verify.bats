@@ -119,7 +119,7 @@ setup_private_leak_fixture() {
 
 @test "ignores the private package's own declarations" {
   setup_private_leak_fixture
-  printf "export declare const internal: () => string;\n" > "${FIXTURE_DIR}/packages/leaf/dist/index.d.ts"
+  printf "declare module '@couimet/leaf' {\n  export const internal: string;\n}\n" > "${FIXTURE_DIR}/packages/leaf/dist/index.d.ts"
   printf "export declare const helper: () => string;\n" > "${FIXTURE_DIR}/packages/public/dist/index.d.ts"
   cd "${FIXTURE_DIR}"
 
