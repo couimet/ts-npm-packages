@@ -38,7 +38,7 @@
   "prettier": "@couimet/eslint-config/prettier",
   "dependencies": {
     "helmet": "^8.3.0",
-    "morgan": "^1.12.0"
+    "morgan": "^1.12.1"
   },
   "devDependencies": {
     "@couimet/detailed-error": "workspace:*",
@@ -51,7 +51,7 @@
     "@types/jest": "^29.5.14",
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.2.0",
-    "eslint": "^10.8.1",
+    "eslint": "^10.10.0",
     "express": ">=5.2.1",
     "jest": "^29.7.0",
     "prettier": "^3.9.6",
