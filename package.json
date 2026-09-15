@@ -24,6 +24,8 @@
     "fix": "pnpm format:fix && pnpm lint:fix && pnpm lint:md:fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
+    "graph:check": "scripts/generate-package-graph.sh --check",
+    "graph:update": "scripts/generate-package-graph.sh",
     "guard:not-main": "scripts/guard-not-main.sh",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",

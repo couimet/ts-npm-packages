@@ -41,6 +41,36 @@
       "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
       "outputs": []
     },
+    "@couimet/execution-context-http-express#test": {
+      "dependsOn": [
+        "build",
+        "@couimet/express-tools#build",
+        "@couimet/express-test-support#build",
+        "@couimet/dynamic-testing#build",
+        "@couimet/logger-contract-testing#build"
+      ],
+      "outputs": []
+    },
+    "@couimet/execution-context-http-express#typecheck": {
+      "dependsOn": ["build", "@couimet/express-tools#build"],
+      "outputs": []
+    },
+    "@couimet/express-tools#test": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build", "@couimet/express-test-support#build", "@couimet/logger-contract-testing#build"],
+      "outputs": []
+    },
+    "@couimet/express-tools#typecheck": {
+      "dependsOn": ["build", "@couimet/detailed-error-testing#build"],
+      "outputs": []
+    },
+    "@couimet/express-tools-testing#test": {
+      "dependsOn": ["build", "@couimet/express-tools#build", "@couimet/express-test-support#build", "@couimet/logger-contract-testing#build"],
+      "outputs": []
+    },
+    "@couimet/express-tools-testing#typecheck": {
+      "dependsOn": ["build", "@couimet/express-tools#build"],
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": ["build"],
       "outputs": []

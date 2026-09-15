@@ -2,6 +2,8 @@
 set -euo pipefail
 
 # Check that new or renamed packages in this branch appear in the root README table.
+# Private packages are skipped: they are never published, so the table of installable
+# packages must not list them.
 # Usage: check-readme-staleness.sh <base-ref>
 #   e.g. check-readme-staleness.sh origin/main
 
@@ -20,6 +22,10 @@ fi
 missing=()
 while IFS= read -r pkg; do
   [[ -z "$pkg" ]] && continue
+  manifest="packages/${pkg}/package.json"
+  if [[ -f "$manifest" ]] && [[ "$(jq -r '.private // false' "$manifest")" == "true" ]]; then
+    continue
+  fi
   if ! grep -Eq "\| \[?\`@couimet/$pkg\`" README.md; then
     missing+=("$pkg")
   fi
