@@ -1,6 +1,6 @@
 # @couimet/express-tools-testing
 
-[![npm version](https://img.shields.io/npm/v/@couimet/express-tools-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/express-tools-testing) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=express-tools-testing)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=express-tools-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/express-tools-testing.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/express-tools-testing)
+[![npm version](https://img.shields.io/npm/v/@couimet/express-tools-testing)](https://www.npmjs.com/package/@couimet/express-tools-testing) [![npm downloads](https://img.shields.io/npm/dm/@couimet/express-tools-testing)](https://www.npmjs.com/package/@couimet/express-tools-testing) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=express-tools-testing)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=express-tools-testing)
 
 `@couimet/express-tools-testing` starts a real HTTP server for a route-level test. One call builds an app from [`@couimet/express-tools`](https://github.com/couimet/ts-npm-packages/tree/main/packages/express-tools), hands it to your callback to register routes, and listens on an ephemeral port on the loopback interface. The test then sends real requests to that address and closes the server when it finishes. The package saves each test from repeating the app construction, the registration step, and the address lookup.
 

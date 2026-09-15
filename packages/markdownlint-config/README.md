@@ -1,6 +1,6 @@
 # @couimet/markdownlint-config
 
-[![npm version](https://img.shields.io/npm/v/@couimet/markdownlint-config.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/markdownlint-config) [![npm downloads](https://img.shields.io/npm/dm/@couimet/markdownlint-config.svg?style=flat-square)](https://www.npmjs.com/package/@couimet/markdownlint-config)
+[![npm version](https://img.shields.io/npm/v/@couimet/markdownlint-config)](https://www.npmjs.com/package/@couimet/markdownlint-config) [![npm downloads](https://img.shields.io/npm/dm/@couimet/markdownlint-config)](https://www.npmjs.com/package/@couimet/markdownlint-config)
 
 Shared markdownlint configuration for `@couimet/*` packages. Enforces the couimet defaults plus aligned table padding (`MD060`), with optional `--fix` support via the `MD060A` custom rule.
 
