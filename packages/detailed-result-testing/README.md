@@ -12,7 +12,7 @@ pnpm add -D @couimet/detailed-result-testing
 
 ## Overview
 
-`@couimet/detailed-result-testing` provides two Jest matchers — `toBeSuccess` and `toBeFailure` — that assert on `DetailedResult` instances by their discriminator (`success`) and compare the value or error field using strict equality. Each matcher accepts an expected value and supports asymmetric matchers like `expect.objectContaining()` via `this.equals()`. A one-line setup file registers the matchers and augments TypeScript types so `expect(result).toBeSuccess(val)` typechecks out of the box. The setup also registers a Result-aware `toHaveDetailedError` that auto-unwraps `DetailedResult.error` before delegating to the matcher from `@couimet/detailed-error-testing`, so you can write `expect(result).toHaveDetailedError('VALIDATION', {...})` directly on a failed result. All Jest versions are supported, including Jest 30+ which moved its matcher types to `@jest/expect`.
+`@couimet/detailed-result-testing` provides two Jest matchers that assert on `DetailedResult` instances by their discriminator (`success`) and compare the value or error field using strict equality: `toBeSuccess` and `toBeFailure`. Each matcher accepts an expected value and supports asymmetric matchers like `expect.objectContaining()` via `this.equals()`. A one-line setup file registers the matchers and augments TypeScript types, so `expect(result).toBeSuccess(val)` typechecks out of the box. The setup also registers a Result-aware `toHaveDetailedError` that auto-unwraps `DetailedResult.error` before delegating to the matcher from `@couimet/detailed-error-testing`, so you can write `expect(result).toHaveDetailedError('VALIDATION', {...})` directly on a failed result. All Jest versions are supported, including Jest 30+ which moved its matcher types to `@jest/expect`.
 
 ## Quick start
 
@@ -47,7 +47,7 @@ That is all the setup needed. If your tsconfig doesn't already include your test
 "include": ["src", "tests"]
 ```
 
-The import handles both matcher registration at runtime and TypeScript type augmentation — no separate `.d.ts` file required.
+The import handles both matcher registration at runtime and TypeScript type augmentation, so no separate `.d.ts` file is required.
 
 Use the matchers in any test:
 
@@ -113,14 +113,14 @@ expect(result).toBeSuccessWith((value) => {
 
 ### Advanced validation via manual unwrap
 
-For partial matching, use Jest's asymmetric matchers — no manual unwrapping needed:
+For partial matching, use Jest's asymmetric matchers, which need no manual unwrapping:
 
 ```ts
 expect(result).toBeSuccess(expect.objectContaining({ name: 'Alice' }));
 expect(result).toBeFailure(expect.any(Error));
 ```
 
-For assertions that have no asymmetric equivalent — for example, checking a number is greater than a threshold — check the discriminator manually and then unwrap:
+Some assertions have no asymmetric equivalent, such as checking that a number is greater than a threshold. For those, check the discriminator manually and then unwrap:
 
 ```ts
 expect(result.success).toBe(true);
@@ -141,7 +141,7 @@ const result = validateInput('bad');
 expect(result).toBeFailure(new Error('Invalid input'));
 ```
 
-When the error is a `DetailedError`, use the Result-aware `toHaveDetailedError` instead — it accepts `code` as a positional argument and supports field-level assertions on `message`, `functionName`, `details`, and `cause` (see [Using with DetailedError](#using-with-detailederror)).
+When the error is a `DetailedError`, use the Result-aware `toHaveDetailedError` instead. It accepts `code` as a positional argument and supports field-level assertions on `message`, `functionName`, `details`, and `cause` (see [Using with DetailedError](#using-with-detailederror)).
 
 ### Asserting on the value
 
@@ -196,8 +196,8 @@ expect(result.error).toBeDetailedError('VALIDATION', {
 
 ## Related
 
-- [`@couimet/detailed-result`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-result) — the result type these matchers test
-- [`@couimet/detailed-error-testing`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error-testing) — matchers for `DetailedError` used alongside this package
+- [`@couimet/detailed-result`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-result) provides the result type these matchers assert on.
+- [`@couimet/detailed-error-testing`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error-testing) provides the matchers for `DetailedError` that this package delegates to.
 
 ## License
 

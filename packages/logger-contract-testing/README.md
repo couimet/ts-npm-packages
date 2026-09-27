@@ -12,7 +12,7 @@ pnpm add -D @couimet/logger-contract-testing
 
 ## Overview
 
-`@couimet/logger-contract-testing` provides `createMockLogger()`, a factory that returns a `Logger` whose four methods (`debug`, `info`, `warn`, `error`) are all `jest.fn()` stubs. Drop it into a `beforeEach` and assert on log calls with standard Jest matchers — no manual mock wiring.
+`@couimet/logger-contract-testing` provides `createMockLogger()`, a factory that returns a `Logger` whose four methods (`debug`, `info`, `warn`, `error`) are all `jest.fn()` stubs. Drop it into a `beforeEach` and assert on log calls with standard Jest matchers, so no manual mock wiring is needed.
 
 ## Quick start
 
@@ -47,10 +47,10 @@ Returns a `Logger` where `debug`, `info`, `warn`, and `error` are each `jest.fn(
 ### Asserting log context
 
 ```typescript
-// Strict — exact match on the full context object
+// Strict: exact match on the full context object
 expect(logger.warn).toHaveBeenCalledWith({ fn: 'processData', userId: 123 }, 'Disk space below 10%');
 
-// Loose — partial match when only some keys matter
+// Loose: partial match when only some keys matter
 expect(logger.warn).toHaveBeenCalledWith(expect.objectContaining({ userId: 123 }), expect.any(String));
 ```
 
@@ -77,7 +77,7 @@ expect(calls[0][1]).toBe('First message');
 
 ## Related
 
-- [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract) — the logging interface contract this package mocks
+- [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract) defines the logging interface contract this package mocks.
 
 ## License
 

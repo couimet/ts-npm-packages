@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@couimet/logger-contract-adapters)](https://www.npmjs.com/package/@couimet/logger-contract-adapters) [![npm downloads](https://img.shields.io/npm/dm/@couimet/logger-contract-adapters)](https://www.npmjs.com/package/@couimet/logger-contract-adapters) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=logger-contract-adapters)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=logger-contract-adapters)
 
-Logger adapters that bridge `@couimet/logger-contract` with popular logging libraries. Provides a `ConsoleLogger` plus adapters for the most widely used Node.js loggers.
+Adapters that connect [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract) to the widely used Node.js loggers. The package ships `ConsoleLogger`, which needs no external dependency, plus adapters for winston, pino, and log4js. Application code calls `getLogger()` from the contract package, so an application can swap the backend without a change at any call site.
 
 ## Install
 
@@ -18,68 +18,158 @@ pnpm add pino      # if using PinoAdapter
 pnpm add log4js    # if using Log4jsAdapter
 ```
 
-## Adapters
+## Usage
 
-### ConsoleLogger
-
-Uses `console.debug/info/warn/error` as sinks. Context is serialized as JSON with `fn` ordered first. The serializer tolerates bigint and circular values, which plain `JSON.stringify` would reject.
+Register one adapter at application startup with `setLogger` from the contract package:
 
 ```typescript
 import { setLogger } from '@couimet/logger-contract';
 import { ConsoleLogger } from '@couimet/logger-contract-adapters';
 
-// At application startup:
 setLogger(new ConsoleLogger());
 ```
 
-### WinstonAdapter
-
-Wraps a winston `Logger` instance. Passes context as log metadata.
+`WinstonAdapter` wraps a winston `Logger` instance and passes the context as log metadata:
 
 ```typescript
 import { createLogger, transports } from 'winston';
+import { setLogger } from '@couimet/logger-contract';
 import { WinstonAdapter } from '@couimet/logger-contract-adapters';
 
 const winstonLogger = createLogger({ transports: [new transports.Console()] });
 setLogger(new WinstonAdapter(winstonLogger));
 ```
 
-### PinoAdapter
-
-Wraps a pino `Logger` instance. Passes context as structured log fields.
+`PinoAdapter` wraps a pino `Logger` instance and passes the context as structured log fields:
 
 ```typescript
 import pino from 'pino';
+import { setLogger } from '@couimet/logger-contract';
 import { PinoAdapter } from '@couimet/logger-contract-adapters';
 
 const pinoLogger = pino();
 setLogger(new PinoAdapter(pinoLogger));
 ```
 
-### Log4jsAdapter
-
-Wraps a log4js `Logger` instance.
+`Log4jsAdapter` wraps a log4js `Logger` instance:
 
 ```typescript
 import log4js from 'log4js';
+import { setLogger } from '@couimet/logger-contract';
 import { Log4jsAdapter } from '@couimet/logger-contract-adapters';
 
 const log4jsLogger = log4js.getLogger();
 setLogger(new Log4jsAdapter(log4jsLogger));
 ```
 
-## Custom adapters
-
-The built-in adapters run every context through `normalizeContext` before handing it to the underlying logger. That is what turns an `Error` value into a plain object whose `message` and `stack` a backend keeps, because those properties are not enumerable and typical serialization skips them. The helpers copy values as-is, so a bigint or circular member keeps its runtime type. `ConsoleLogger` serializes the normalized context itself with a serializer that turns those members into JSON. The winston, pino, and log4js adapters hand the object to the wrapped backend's own serializer instead, so a bigint or circular member must stay away from the contexts those three log. A custom adapter for a logger the package does not cover should normalize the same way, and both helpers are exported for exactly that:
+Each adapter is a standalone class with no opinion on how you register it. Downstream projects typically create a thin `initLogger()` wrapper that wires the adapter into the global logger contract:
 
 ```typescript
-normalizeContext(ctx: LoggingContext): LoggingContext
-normalizeError(value: unknown): unknown
+// src/logger.ts (in your application)
+import { setLogger } from '@couimet/logger-contract';
+import { ConsoleLogger } from '@couimet/logger-contract-adapters';
+
+export const initLogger = (): void => {
+  setLogger(new ConsoleLogger());
+};
 ```
 
-`normalizeError(value)` returns `value` unchanged unless it is an `Error`, in which case it returns a plain object carrying the error's `name`, `message`, and `stack`, plus any own enumerable properties the error was extended with, such as a `code`. `normalizeContext(ctx)` returns a new context object whose values have each been passed through `normalizeError`; the input context is left untouched.
+```typescript
+// src/index.ts (your entry point)
+import { initLogger } from './logger';
 
-A custom adapter implements `Logger` from `@couimet/logger-contract` and, in each level method, passes the normalized context where the wrapped backend expects it. Mirror what the built-in adapters do:
+initLogger();
+// All code that calls getLogger() now uses ConsoleLogger
+```
+
+That wrapper keeps this package focused on implementations and lets each application decide how to bootstrap its logger.
+
+## How it works
+
+Every adapter runs the context through `normalizeContext` before it hands the context to the underlying logger. The normalization is what turns an `Error` value into a plain object. The `message` and `stack` of an error are not enumerable, so typical serialization skips them, while a plain object keeps them.
+
+The adapters differ in who serializes the normalized context. `ConsoleLogger` serializes it itself, with a serializer built on `safe-stable-stringify`. That serializer places `fn` first, tolerates bigint and circular values, and writes them as JSON. The winston, pino, and log4js adapters instead hand the object to the wrapped backend serializer. A bigint or circular member must therefore stay away from the contexts those three log.
+
+The adapters also differ in argument order. `PinoAdapter` passes the context first and the message second, because pino reads the first argument as the structured fields. `WinstonAdapter` and `Log4jsAdapter` pass the message first and the context second.
+
+## API reference
+
+The barrel re-exports six modules: `ConsoleLogger`, `Log4jsAdapter`, `PinoAdapter`, `WinstonAdapter`, `normalizeContext`, and `normalizeError`. Every adapter implements the `Logger` interface from `@couimet/logger-contract`, so each one carries the four level methods `debug`, `info`, `warn`, and `error`, in that order, each taking a `LoggingContext` and a `string`.
+
+### ConsoleLogger
+
+```typescript
+class ConsoleLogger implements Logger {
+  debug(ctx: LoggingContext, message: string): void;
+  info(ctx: LoggingContext, message: string): void;
+  warn(ctx: LoggingContext, message: string): void;
+  error(ctx: LoggingContext, message: string): void;
+}
+```
+
+Takes no constructor argument. Each level method writes one pre-formatted string to the matching console method (`console.debug`, `console.info`, `console.warn`, `console.error`). The string reads `[LEVEL] <context as JSON> <message>`, and the context JSON places `fn` first.
+
+### Log4jsAdapter
+
+```typescript
+class Log4jsAdapter implements Logger {
+  constructor(logger: Log4jsLogger);
+  debug(ctx: LoggingContext, message: string): void;
+  info(ctx: LoggingContext, message: string): void;
+  warn(ctx: LoggingContext, message: string): void;
+  error(ctx: LoggingContext, message: string): void;
+}
+```
+
+Wraps a log4js `Logger`. Each level method calls the matching method on the wrapped logger with the message first and the normalized context second. The constructor throws a plain `Error` when the argument is falsy.
+
+### normalizeContext
+
+```typescript
+const normalizeContext: (ctx: LoggingContext) => LoggingContext;
+```
+
+Returns a new context whose values have each passed through `normalizeError`. The input context is left untouched. The values are copied by reference, so a bigint or circular member keeps its runtime type.
+
+### normalizeError
+
+```typescript
+const normalizeError: (value: unknown) => unknown;
+```
+
+Returns `value` unchanged unless it is an `Error`. For an `Error` it returns a plain object carrying the error's `name`, `message`, and `stack`, plus every own enumerable property the error was extended with, such as a `code`. A property already present on the returned object is not overwritten. The properties are copied by reference, so a bigint or circular member keeps its runtime type.
+
+### PinoAdapter
+
+```typescript
+class PinoAdapter implements Logger {
+  constructor(logger: PinoLogger);
+  debug(ctx: LoggingContext, message: string): void;
+  info(ctx: LoggingContext, message: string): void;
+  warn(ctx: LoggingContext, message: string): void;
+  error(ctx: LoggingContext, message: string): void;
+}
+```
+
+Wraps a pino `Logger`. Each level method calls the matching method on the wrapped logger with the normalized context first and the message second. The constructor throws a plain `Error` when the argument is falsy.
+
+### WinstonAdapter
+
+```typescript
+class WinstonAdapter implements Logger {
+  constructor(logger: WinstonLogger);
+  debug(ctx: LoggingContext, message: string): void;
+  info(ctx: LoggingContext, message: string): void;
+  warn(ctx: LoggingContext, message: string): void;
+  error(ctx: LoggingContext, message: string): void;
+}
+```
+
+Wraps a winston `Logger`. Each level method calls the matching method on the wrapped logger with the message first and the normalized context second. The constructor throws a plain `Error` when the argument is falsy.
+
+## Writing a custom adapter
+
+A custom adapter for a logger this package does not cover implements `Logger` from `@couimet/logger-contract` and normalizes the context the same way the built-in adapters do. Both helpers are exported for that purpose. In each level method, pass the normalized context where the wrapped backend expects it:
 
 ```typescript
 import { normalizeContext } from '@couimet/logger-contract-adapters';
@@ -117,33 +207,10 @@ class CustomAdapter implements Logger {
 }
 ```
 
-## The `initLogger()` pattern
+## Related packages
 
-Each adapter is a standalone class with no opinion on how you register it. Downstream projects typically create a thin `initLogger()` wrapper that wires the adapter into the global logger contract:
-
-```typescript
-// src/logger.ts (in your application)
-import { setLogger } from '@couimet/logger-contract';
-import { ConsoleLogger } from '@couimet/logger-contract-adapters';
-
-export const initLogger = (): void => {
-  setLogger(new ConsoleLogger());
-};
-```
-
-```typescript
-// src/index.ts (your entry point)
-import { initLogger } from './logger';
-
-initLogger();
-// All code that calls getLogger() now uses ConsoleLogger
-```
-
-This pattern keeps the adapter package focused on implementations and lets each application decide how to bootstrap its logger.
-
-## Testing
-
-For testing code that depends on the logger contract, use [`@couimet/logger-contract-testing`](https://github.com/couimet/ts-npm-packages) which provides zero-setup mock factories for Jest.
+- [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract) defines the `Logger` interface and the `LoggingContext` type every adapter here implements, and holds the global registry these adapters register into.
+- [`@couimet/logger-contract-testing`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract-testing) provides `createMockLogger()`, a zero-setup Jest factory that returns the same `Logger` shape with `jest.fn()` stubs.
 
 ## License
 
