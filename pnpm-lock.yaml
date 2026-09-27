@@ -93,10 +93,10 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config
       '@jest/expect':
-        specifier: '>=30.5.1'
+        specifier: '>=30.0.0'
         version: 30.5.1
       '@jest/globals':
-        specifier: '>=30.5.1'
+        specifier: '>=30.0.0'
         version: 30.5.1
       '@types/jest':
         specifier: '>=29.5.14'
@@ -177,10 +177,10 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config
       '@jest/expect':
-        specifier: '>=30.5.1'
+        specifier: '>=30.0.0'
         version: 30.5.1
       '@jest/globals':
-        specifier: '>=30.5.1'
+        specifier: '>=30.0.0'
         version: 30.5.1
       '@types/jest':
         specifier: ^29.5.14
@@ -272,13 +272,13 @@ importers:
         version: 3.0.2(prettier@3.9.8)
     devDependencies:
       '@typescript-eslint/eslint-plugin':
-        specifier: '>=8.70.0'
+        specifier: '>=8.67.0'
         version: 8.70.0(@typescript-eslint/parser@8.70.0(eslint@10.10.0)(typescript@6.0.3))(eslint@10.10.0)(typescript@6.0.3)
       '@typescript-eslint/parser':
-        specifier: '>=8.70.0'
+        specifier: '>=8.67.0'
         version: 8.70.0(eslint@10.10.0)(typescript@6.0.3)
       eslint:
-        specifier: '>=10.10.0'
+        specifier: '>=10.8.1'
         version: 10.10.0
       eslint-config-prettier:
         specifier: '>=10.1.0'
@@ -299,7 +299,7 @@ importers:
         specifier: '>=16.0.0'
         version: 16.5.0
       prettier:
-        specifier: '>=3.9.8'
+        specifier: '>=3.9.6'
         version: 3.9.8
 
   packages/eslint-plugin-barrel-imports:
@@ -308,7 +308,7 @@ importers:
         specifier: ^8.70.0
         version: 8.70.0(eslint@10.10.0)(typescript@6.0.3)
       eslint:
-        specifier: '>=10.10.0'
+        specifier: '>=10.8.1'
         version: 10.10.0
       jest:
         specifier: ^29.7.0
@@ -683,7 +683,7 @@ importers:
         specifier: workspace:*
         version: link:../logger-contract
       '@jest/globals':
-        specifier: '>=30.5.1'
+        specifier: '>=29.0.0'
         version: 30.5.1
       '@types/jest':
         specifier: '>=29.5.14'
