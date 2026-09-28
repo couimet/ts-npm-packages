@@ -59,7 +59,7 @@ const result = MyResult.ok(42);
 
 ## How it works
 
-`DetailedResult` enforces one invariant: a success result carries a value and no error, and an error result carries an error and no value. The protected constructor rejects every other combination with a `DetailedError` whose code is `RESULT_INVALID_STATE`. Three combinations fail. A success with an error defined fails, an error result with a value defined fails, and an error result with no error defined fails. The `success` and `failure` factories build the first two correctly, so only a subclass constructor reaches those guards.
+`DetailedResult` enforces one invariant: a success result carries a value and no error, and an error result carries an error and no value. The protected constructor rejects every other combination with a `DetailedError` whose code is `RESULT_INVALID_STATE`. Three combinations fail. A success with an error defined fails, an error result with a value defined fails, and an error result with no error defined fails. The `success` and `failure` factories keep the first two guards satisfied for a defined input, so only a subclass constructor reaches those two. The third guard is reachable through the public API, as the next paragraph explains.
 
 `DetailedResult.success(undefined)` is valid, because a success result may hold any value. `DetailedResult.failure(undefined)` throws `RESULT_INVALID_STATE`, because an error result must carry a defined error. A caller that needs a success result with no value returns `success(undefined)`.
 
@@ -86,7 +86,7 @@ class DetailedResult<T, E> {
 
 - `T` is the success value type, and `E` is the error type. `E` is unconstrained, so a caller can use plain `Error`, a `DetailedError`, or a project-specific subclass.
 - `constructor(success, value, error)` is protected, so only a subclass reaches it through `super`. It throws a `DetailedError` with code `RESULT_INVALID_STATE` for a success with an error defined, for an error result with a value defined, and for an error result with no error defined.
-- `success<T>(value)` returns a success result holding `value`. The error type is `never`, so a caller cannot read `.error` from it without a type error. The value may be `undefined`.
+- `success<T>(value)` returns a success result holding `value`. The error type is `never`, because a success result holds no error. Reading `.error` still type-checks, but the read throws a `DetailedError` with code `RESULT_ERROR_ACCESS_ON_SUCCESS`. The value may be `undefined`.
 - `failure<E>(error)` returns an error result holding `error`. The success type is `never`. The `error` argument must be defined, and `failure(undefined)` throws `RESULT_INVALID_STATE`.
 - `success` reports whether the result holds a success value. Check it before reading `.value` or `.error`.
 - `value` returns the success value, typed `T`. It throws a `DetailedError` with code `RESULT_VALUE_ACCESS_ON_ERROR` when the result holds an error.

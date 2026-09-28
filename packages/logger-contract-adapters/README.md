@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@couimet/logger-contract-adapters)](https://www.npmjs.com/package/@couimet/logger-contract-adapters) [![npm downloads](https://img.shields.io/npm/dm/@couimet/logger-contract-adapters)](https://www.npmjs.com/package/@couimet/logger-contract-adapters) [![Coverage](https://codecov.io/gh/couimet/ts-npm-packages/branch/main/graph/badge.svg?flag=logger-contract-adapters)](https://codecov.io/gh/couimet/ts-npm-packages?flags%5B0%5D=logger-contract-adapters)
 
-Adapters that connect [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract) to the widely used Node.js loggers. The package ships `ConsoleLogger`, which needs no external dependency, plus adapters for winston, pino, and log4js. Application code calls `getLogger()` from the contract package, so an application can swap the backend without a change at any call site.
+Adapters that connect [`@couimet/logger-contract`](https://github.com/couimet/ts-npm-packages/tree/main/packages/logger-contract) to the widely used Node.js loggers. The package ships `ConsoleLogger`, which needs no external logging backend, plus adapters for winston, pino, and log4js. Application code calls `getLogger()` from the contract package, so an application can swap the backend without a change at any call site.
 
 ## Install
 
@@ -88,7 +88,7 @@ That wrapper keeps this package focused on implementations and lets each applica
 
 Every adapter runs the context through `normalizeContext` before it hands the context to the underlying logger. The normalization is what turns an `Error` value into a plain object. The `message` and `stack` of an error are not enumerable, so typical serialization skips them, while a plain object keeps them.
 
-The adapters differ in who serializes the normalized context. `ConsoleLogger` serializes it itself, with a serializer built on `safe-stable-stringify`. That serializer places `fn` first, tolerates bigint and circular values, and writes them as JSON. The winston, pino, and log4js adapters instead hand the object to the wrapped backend serializer. A bigint or circular member must therefore stay away from the contexts those three log.
+The adapters differ in who serializes the normalized context. `ConsoleLogger` serializes it itself, with a serializer built on `safe-stable-stringify`. That serializer places `fn` first, tolerates bigint and circular values, and writes them as JSON. The winston, pino, and log4js adapters instead hand the object to the wrapped backend serializer. Whether a bigint or circular member survives that handoff therefore depends on the backend and its configuration.
 
 The adapters also differ in argument order. `PinoAdapter` passes the context first and the message second, because pino reads the first argument as the structured fields. `WinstonAdapter` and `Log4jsAdapter` pass the message first and the context second.
 
