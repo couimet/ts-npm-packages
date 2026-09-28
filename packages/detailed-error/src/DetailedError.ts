@@ -66,8 +66,8 @@ const cloneWithWeakMap = (obj: ErrorDetails): ErrorDetails => {
  * - **Enum (strong typing):** subclass {@link DetailedError} with an enum type like `DetailedError<MyErrorCodes>`
  * - **String (simple):** use `DetailedError<string>` directly without subclassing
  *
- * {@link cause} is passed to the native {@link Error} constructor so it appears in stack traces
- * and error-cause chains without a redundant field declaration.
+ * {@link cause} is passed to the native {@link Error} constructor so a caller can read it from
+ * `error.cause` and walk the error-cause chain, without a redundant field declaration.
  */
 export class DetailedError<T extends string> extends Error {
   /** Unique error code identifying the type of error */

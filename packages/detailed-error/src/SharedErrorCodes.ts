@@ -3,12 +3,12 @@
  *
  * ## Merging with project-specific codes
  *
- * Define a project enum, then create a merged object and a union type. Spread order matters:
- * put the project-specific enum first so a duplicate key in {@link SharedErrorCodes} does not
- * silently override the project value.
+ * Define a project enum, then create a merged object and a union type. Spread order matters,
+ * because the later spread wins. Spread {@link SharedErrorCodes} first, so a duplicate key in it
+ * does not silently override the project value.
  *
  * ```ts
- * const Codes = { ...MyServiceCodes, ...SharedErrorCodes };
+ * const Codes = { ...SharedErrorCodes, ...MyServiceCodes };
  * type Codes = MyServiceCodes | SharedErrorCodes;
  * ```
  *

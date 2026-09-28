@@ -64,7 +64,7 @@ switch (status) {
 
 The constructor copies the `details` bag rather than holding the caller's object. The copy is deep, so a later mutation of the caller's object does not reach the error. The copy walks the object graph with a `WeakMap`, so a circular reference terminates and a shared reference stays shared rather than duplicated. An `Error` value inside `details` becomes a plain object. That object carries `name`, `message`, and `stack`, plus `cause` when the error sets one, plus the error's own enumerable properties. Copying an error this way keeps its message and stack through a `JSON.stringify` call, which the non-enumerable native properties would otherwise lose.
 
-The `cause` option goes to the native `Error` constructor, so the error-cause chain and the stack trace carry it. The class declares no separate `cause` field.
+The `cause` option goes to the native `Error` constructor, so a caller reads it from `error.cause` and walks the error-cause chain. The class declares no separate `cause` field.
 
 When the runtime provides `Error.captureStackTrace`, the constructor calls it with `new.target`. The stack trace then starts at the caller's frame and omits the `DetailedError` and subclass constructor frames.
 
@@ -127,11 +127,11 @@ enum SharedErrorCodes {
 
 `UNEXPECTED_CODE_PATH` marks a code path that should be unreachable when the case is too narrow for its own code. `UNEXPECTED_SWITCH_VALUE` marks a `switch` that received an unexpected value, and `forUnexpectedSwitchDefault` uses it by default. `UNKNOWN` is the catch-all. `VALIDATION` marks input from an external source that failed validation.
 
-Merge the shared codes with a project enum to type both in one parameter. The spread order matters: put the project enum first, so a duplicate key in `SharedErrorCodes` does not override the project value.
+Merge the shared codes with a project enum to type both in one parameter. The spread order matters, because the later spread wins. Spread `SharedErrorCodes` first, so a duplicate key in it does not override the project value.
 
 ```typescript
-const Codes = { ...MyServiceCodes, ...SharedErrorCodes };
-type Codes = MyServiceCodes | SharedErrorCodes;
+const Codes = { ...SharedErrorCodes, ...MyCodes };
+type Codes = MyCodes | SharedErrorCodes;
 ```
 
 ## Related packages
