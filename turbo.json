@@ -55,6 +55,14 @@
       "dependsOn": ["build", "@couimet/express-tools#build"],
       "outputs": []
     },
+    "@couimet/execution-context-testing#test": {
+      "dependsOn": ["build", "@couimet/execution-context#build", "@couimet/dynamic-testing#build"],
+      "outputs": []
+    },
+    "@couimet/execution-context-testing#typecheck": {
+      "dependsOn": ["build", "@couimet/execution-context#build"],
+      "outputs": []
+    },
     "@couimet/express-tools#test": {
       "dependsOn": ["build", "@couimet/detailed-error-testing#build", "@couimet/express-test-support#build", "@couimet/logger-contract-testing#build"],
       "outputs": []

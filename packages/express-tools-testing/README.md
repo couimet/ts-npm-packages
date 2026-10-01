@@ -33,8 +33,6 @@ The app comes from `createExpressApp({ logger })`, so the defaults apply. Helmet
 
 ## API reference
 
-The barrel re-exports one module: `startTestServer`.
-
 ### startTestServer
 
 Builds an app, registers the routes, and starts listening. Returns once the server is bound.

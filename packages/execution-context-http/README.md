@@ -47,8 +47,6 @@ ExecutionContext.run({ correlationId, requestId }, () => {
 
 ## API reference
 
-The barrel re-exports two modules: `firstHeaderValue` and `HttpHeaders`.
-
 ### firstHeaderValue
 
 Reduces a raw request-header value to the single string that `ExecutionContext.run()` accepts. Node's `IncomingHttpHeaders` can present a repeated header as a `string[]`, and `run()` accepts only `string | undefined`.

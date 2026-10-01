@@ -84,7 +84,7 @@ describe('parseConfig', () => {
 
 ## API
 
-All three matchers accept `code` as the first positional argument and an expected object as the second. `message` is required on the expected object; `functionName`, `details`, and `cause` are optional and only checked when provided.
+All three matchers accept `code` as the first positional argument and an expected object as the second. That object is an `ExpectedDetailedError`, which is `ErrorOptions<string>` without `code`. `message` is required on it, and `functionName`, `details`, and `cause` are optional and only checked when provided.
 
 ### `toThrowDetailedError(code, expected)`
 

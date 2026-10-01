@@ -66,6 +66,30 @@ jobs:
       - name: Check changelogs
         run: bash scripts/check-changelogs.sh
 
+  check-readme-api-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check README API reference
+        run: bash scripts/check-readme-api-reference.sh
+
+  check-scaffold-floors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check scaffold floors
+        run: bash scripts/check-scaffold-floors.sh
+
   check-generated-drift:
     runs-on: ubuntu-latest
     timeout-minutes: 3

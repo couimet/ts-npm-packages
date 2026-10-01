@@ -67,8 +67,6 @@ Reading the wrong accessor is a programming error rather than a recoverable stat
 
 ## API reference
 
-The barrel re-exports two modules: `DetailedResult` and `DetailedResultErrorCodes`.
-
 ### DetailedResult
 
 ```typescript
