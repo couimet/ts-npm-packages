@@ -59,8 +59,8 @@ describe('ExecutionContext', () => {
   });
 
   it('exposes empty attributes outside any run', () => {
-    expect(ExecutionContext.getAttribute('version')).toBeUndefined();
     expect(ExecutionContext.getAttributes()).toStrictEqual({});
+    expect(ExecutionContext.findAttribute('version')).toBeUndefined();
   });
 
   it('reports inactive outside any run', () => {
@@ -150,10 +150,15 @@ describe('ExecutionContext', () => {
     });
   });
 
-  it('returns undefined for attribute keys inherited from the prototype', () => {
+  it('never reads an attribute key inherited from the prototype', () => {
     ExecutionContext.run({ correlationId, requestId, attributes: storedAttributes }, () => {
-      expect(ExecutionContext.getAttribute('toString')).toBeUndefined();
-      expect(ExecutionContext.getAttribute('__proto__')).toBeUndefined();
+      expect(ExecutionContext.findAttribute('toString')).toBeUndefined();
+      expect(ExecutionContext.findAttribute('__proto__')).toBeUndefined();
+      expect(() => ExecutionContext.getAttribute('toString')).toThrowDetailedError('MISSING_CONTEXT_ATTRIBUTE', {
+        message: 'Active execution context is missing the attribute',
+        functionName: 'ExecutionContext.getAttribute',
+        details: { key: 'toString' },
+      });
       expect(ExecutionContext.getAttribute('version')).toBe(storedAttributes.version);
     });
   });
@@ -161,7 +166,7 @@ describe('ExecutionContext', () => {
   it('starts with empty attributes when none are given', () => {
     ExecutionContext.run({ correlationId, requestId }, () => {
       expect(ExecutionContext.getAttributes()).toStrictEqual({});
-      expect(ExecutionContext.getAttribute('version')).toBeUndefined();
+      expect(ExecutionContext.findAttribute('version')).toBeUndefined();
     });
   });
 
