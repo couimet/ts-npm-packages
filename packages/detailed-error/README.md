@@ -72,8 +72,6 @@ The constructor rejects bad arguments with a `TypeError`. It rejects a non-objec
 
 ## API reference
 
-The barrel re-exports two modules: `DetailedError` and `SharedErrorCodes`. The `DetailedError` module declares the class plus the `ErrorDetails` and `ErrorOptions` types the class consumes.
-
 ### DetailedError
 
 ```typescript
