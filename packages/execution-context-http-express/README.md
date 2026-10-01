@@ -41,8 +41,6 @@ Register it before any other middleware. Everything registered after it runs ins
 
 ## API reference
 
-The barrel re-exports the app factory, the two middleware factories, and the helper that registers the middleware on a hand-built app.
-
 ### createExpressAppWithExecutionContext
 
 Creates an Express `Application` through [`@couimet/express-tools`](https://github.com/couimet/ts-npm-packages/tree/main/packages/express-tools) with the execution-context middleware registered before everything else. Accepts the same options as `createExpressApp`.

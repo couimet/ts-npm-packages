@@ -94,7 +94,7 @@ The adapters also differ in argument order. `PinoAdapter` passes the context fir
 
 ## API reference
 
-The barrel re-exports six modules: `ConsoleLogger`, `Log4jsAdapter`, `PinoAdapter`, `WinstonAdapter`, `normalizeContext`, and `normalizeError`. Every adapter implements the `Logger` interface from `@couimet/logger-contract`, so each one carries the four level methods `debug`, `info`, `warn`, and `error`, in that order, each taking a `LoggingContext` and a `string`.
+Every adapter implements the `Logger` interface from `@couimet/logger-contract`, so each one carries the four level methods `debug`, `info`, `warn`, and `error`, in that order, each taking a `LoggingContext` and a `string`.
 
 ### ConsoleLogger
 
