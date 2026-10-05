@@ -104,7 +104,7 @@ enum DetailedResultErrorCodes {
 }
 ```
 
-`RESULT_ERROR_ACCESS_ON_SUCCESS` marks a read of `.error` on a success result. `RESULT_INVALID_STATE` marks a constructor argument combination that contradicts the invariant. `RESULT_VALUE_ACCESS_ON_ERROR` marks a read of `.value` on an error result. None of the three appears in normal application flow, because each one signals a missing `.success` check or a subclass constructor that passes inconsistent arguments.
+`RESULT_ERROR_ACCESS_ON_SUCCESS` marks a read of `.error` on a success result. `RESULT_INVALID_STATE` marks a constructor argument combination that contradicts the invariant. `RESULT_VALUE_ACCESS_ON_ERROR` marks a read of `.value` on an error result. None of the three appears in normal application flow. Each one signals a programming error. The two accessor codes signal a missing `.success` check. `RESULT_INVALID_STATE` signals invalid factory input, such as `failure(undefined)`, or a subclass constructor that passes inconsistent arguments.
 
 ## Related packages
 
