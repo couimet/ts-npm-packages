@@ -44,7 +44,7 @@
     "@couimet/detailed-error-testing": "workspace:*",
     "@couimet/eslint-config": "workspace:*",
     "@types/jest": "^29.5.14",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.6.2",
     "babel-jest": "^29.7.0",
     "decimal.js": ">=10.4.3",
     "eslint": ">=10.10.0",
