@@ -49,8 +49,6 @@ const app = createExpressApp({
 
 ## API reference
 
-The barrel re-exports the app factory, the morgan helper, the middleware identifier enum, the error codes enum, the server helper, and the inbound request logger.
-
 ### buildDefaultMiddlewares
 
 Returns the two default middleware entries for `createExpressApp`, each labeled with a `MiddlewareIdentifier` value. The returned array carries the caller's logger into both entries, so morgan writes to that logger instead of the module-load-time `getLogger()` result.

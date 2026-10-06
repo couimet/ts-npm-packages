@@ -112,6 +112,8 @@ getUniqueStringsNamed<K extends string>(keys: readonly K[]): Record<K, string>
 | `charset`   | `'alpha' \| 'numeric' \| 'alphanumeric' \| 'hex' \| string` | `'alphanumeric'` | Characters for the random prefix                                                      |
 | `prefix`    | `string`                                                    | `''`             | Prepended without consuming length budget                                             |
 
+`Charset` is the type of the `charset` option. It accepts the four names `'alpha'`, `'numeric'`, `'alphanumeric'`, and `'hex'`, or any custom string of characters to pick from.
+
 ### Decimal.js integration (optional)
 
 `getUniqueDecimal()` returns a `Decimal` instance from [decimal.js](https://www.npmjs.com/package/decimal.js). Install `decimal.js` as a dependency to use it.
@@ -192,6 +194,8 @@ import { configure } from '@couimet/dynamic-testing';
 // Use GitLab-style identifiers everywhere via the generic aliases
 configure({ scm: 'gitlab' });
 ```
+
+`Scm` is the union `'github' | 'gitlab'`, and `ScmConfig` is `{ scm: Scm }`. `configure()` accepts a `Partial<ScmConfig>`, so a call can set the field it needs.
 
 ### UUID generation
 
