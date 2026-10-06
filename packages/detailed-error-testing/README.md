@@ -12,7 +12,7 @@ pnpm add -D @couimet/detailed-error-testing
 
 ## Overview
 
-`@couimet/detailed-error-testing` provides three Jest matchers — `toBeDetailedError`, `toThrowDetailedError`, and `toThrowDetailedErrorAsync` — that assert on `DetailedError` instances by their `code`, `message`, `functionName`, `details`, and `cause`. A one-line setup file registers the matchers and augments TypeScript types so `expect(...).toThrowDetailedError(...)` typechecks out of the box. All Jest versions are supported, including Jest 30+ which moved its matcher types to `@jest/expect`.
+`@couimet/detailed-error-testing` provides three Jest matchers that assert on `DetailedError` instances by their `code`, `message`, `functionName`, `details`, and `cause`: `toBeDetailedError`, `toThrowDetailedError`, and `toThrowDetailedErrorAsync`. A one-line setup file registers the matchers and augments TypeScript types, so `expect(...).toThrowDetailedError(...)` typechecks out of the box. All Jest versions are supported, including Jest 30+, which moved its matcher types to `@jest/expect`.
 
 ## Quick start
 
@@ -47,7 +47,7 @@ That is all the setup needed. If your tsconfig doesn't already include your test
 "include": ["src", "tests"]
 ```
 
-The import handles both matcher registration at runtime and TypeScript type augmentation — no separate `.d.ts` file required.
+The import handles both matcher registration at runtime and TypeScript type augmentation, so no separate `.d.ts` file is required.
 
 Use the matchers in any test:
 
@@ -99,7 +99,7 @@ expect(() => doStuff()).toThrowDetailedError('UNKNOWN', {
 
 ### `toThrowDetailedErrorAsync(code, expected)`
 
-Same as `toThrowDetailedError` but for async functions. Returns a promise — always `await` it.
+Same as `toThrowDetailedError` but for async functions. It returns a promise, so always `await` it.
 
 ```ts
 await expect(() => fetchData()).toThrowDetailedErrorAsync('NETWORK', {
@@ -111,7 +111,7 @@ await expect(() => fetchData()).toThrowDetailedErrorAsync('NETWORK', {
 
 ### `toBeDetailedError(code, expected)`
 
-Asserts that an already-caught value is a `DetailedError` matching the given code and expected fields. This is the lower-level matcher used by the two `toThrow` variants — useful when you need to assert on an error that was caught inline or passed through a callback.
+Asserts that an already-caught value is a `DetailedError` matching the given code and expected fields. This is the lower-level matcher the two `toThrow` variants use, which helps when you must assert on an error caught inline or passed through a callback.
 
 ```ts
 try {
@@ -142,7 +142,7 @@ expect(err).toBeDetailedError('WRITE_FAILED', {
   cause: root,
 });
 
-// Asymmetric matcher — matches any Error without needing the exact reference
+// Asymmetric matcher: matches any Error without needing the exact reference
 expect(err).toBeDetailedError('WRITE_FAILED', {
   message: 'Cannot write',
   functionName: 'save',
@@ -155,7 +155,7 @@ expect(err).toBeDetailedError('WRITE_FAILED', {
 `functionName`, `details`, and `cause` are optional on the expected object. Omit any of them to assert the error does not have that field set:
 
 ```ts
-// Only check code and message — assert no functionName, details, or cause
+// Only check code and message: assert no functionName, details, or cause
 expect(err).toBeDetailedError('TIMEOUT', {
   message: 'Request timed out',
 });
@@ -176,7 +176,7 @@ expect(() => doStuff()).not.toThrowDetailedError('UNEXPECTED_CODE_PATH', {
 
 ## Related
 
-- [`@couimet/detailed-error`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error) — the error base class these matchers test
+- [`@couimet/detailed-error`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error) provides the error base class these matchers assert on.
 
 ## License
 
