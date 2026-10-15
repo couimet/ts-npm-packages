@@ -48,6 +48,7 @@ For each package from Step 2, run:
 
 ```bash
 git diff <base> -- packages/<name>/src/
+git diff <base> -- packages/<name>/package.json
 ```
 
 Categorize using these heuristics (checked in order, first match wins):
@@ -55,7 +56,8 @@ Categorize using these heuristics (checked in order, first match wins):
 1. **major** — any removed export (diff line starting with `-export`), or a changed export signature (diff shows both `-export` and `+export` for the same name with different signatures)
 2. **minor** — any new export (diff line starting with `+export` that has no matching `-export` line for the same name)
 3. **patch** — source changes under `packages/<name>/src/` but no export changes detected
-4. **skip** — changes are only in `__tests__/` directories, or only in non-source files (README.md, CHANGELOG.md, package.json)
+4. **patch** — a change to a `package.json` field other than `version`. Published metadata reaches a consumer only through a new version, so a peer range that changes while the version stays put never publishes. `scripts/ci-changeset-check.sh` also counts every non-`.md` change as version-relevant, so it demands a bump for a package.json-only change.
+5. **skip** — every other changed file is a `.md` file or a file under `__tests__/`, or the only `package.json` change is the `version` field. A bumped `version` field on its own means `pnpm changeset:version` already released the package, so a second changeset would double-count it.
 
 When unsure between patch and skip, default to patch. The user can downgrade during interactive `pnpm changeset`.
 
@@ -83,7 +85,7 @@ Strip any leading `[issues/<NUMBER>]` prefix from the commit message.
 
 ### Keep a Changelog Description Format
 
-Prefix each description with a category that matches the bump level from Step 4: `Added:` (minor), `Fixed:` (patch), `Changed:` or `Removed:` (major). The user copies these directly into the interactive `pnpm changeset` description prompt.
+Prefix each description with a category that names what happened: `Added:` for new functionality, `Fixed:` for a corrected defect, `Changed:` for a change to existing behavior or to published metadata, and `Removed:` for a removed capability. The category and the bump level from Step 4 are independent: a peer range that ships as a patch reads `Changed:` with a patch bump, and a behavior change that breaks a consumer reads `Changed:` with a major bump. The user copies these directly into the interactive `pnpm changeset` description prompt.
 
 The description after the prefix must follow Keep a Changelog conventions:
 
@@ -96,6 +98,7 @@ Good:
 Fixed: `setup-before-jest-30.d.ts` emitted as a script instead of a module, preventing type augmentation from resolving for tsc/ts-jest consumers.
 Fixed: `@couimet/detailed-error-testing` incorrectly marked as an optional peer dependency despite being unconditionally required by all entry points.
 Added: `createMockMatcherContext()` helper for testing custom matchers without Jest internals.
+Changed: the peer dependency on `@couimet/execution-context` moved to `>=1.0.0`, so a consumer on execution-context 0.1.0 sees an unmet peer.
 
 Bad:
 Fixed: two setup bugs — .d.ts emitted as script, optional peer incorrectly marked
@@ -136,6 +139,7 @@ Reasoning:
 - @couimet/<name>: removed export `foo` → major (Removed)
 - @couimet/<name>: new export `bar` → minor (Added)
 - @couimet/<name>: internal refactor, no API changes → patch (Fixed)
+- @couimet/<name>: peer range in package.json changed, no src change → patch (Changed)
 ```
 
 Omit both the command table and the Reasoning section when all packages are skip-level. Write "No changeset needed." instead. If existing changesets were found, add:
