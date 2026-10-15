@@ -1,6 +1,6 @@
 {
   "name": "@couimet/execution-context-http-express",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Express middleware that primes an @couimet/execution-context scope from the inbound correlation and request id headers",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/execution-context-http-express#readme",
   "bugs": {
@@ -56,7 +56,7 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@couimet/execution-context": ">=0.1.0",
+    "@couimet/execution-context": ">=1.0.0",
     "@couimet/execution-context-http": ">=0.1.0",
     "@couimet/express-tools": ">=0.1.0",
     "express": ">=5.2.1"
