@@ -54,7 +54,7 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@couimet/execution-context": ">=0.1.0",
+    "@couimet/execution-context": ">=1.0.0",
     "@jest/globals": ">=29.0.0",
     "jest": ">=29.0.0"
   },
