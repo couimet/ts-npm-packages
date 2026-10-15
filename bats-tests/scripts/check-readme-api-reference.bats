@@ -80,6 +80,59 @@ Call buildWidget to build a widget.
   [[ "$output" == *"exports 'buildWidget'"* ]]
 }
 
+@test "exits 1 when a symbol appears only inside another entry's prose" {
+  write_barrel
+  write_widget_module
+  write_readme '## API reference
+
+### Widget
+
+The Widget interface describes what buildWidget returns.'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"exports 'buildWidget'"* ]]
+}
+
+@test "exits 0 when the API reference documents a symbol as a list item" {
+  write_barrel
+  write_widget_module
+  write_readme '## API reference
+
+### Widget
+
+- `buildWidget(id)` returns a Widget for the given id.'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 0 ]]
+  [[ -z "$output" ]]
+}
+
+@test "exits 1 when an exported async function or generator is undocumented" {
+  write_barrel
+  cat > "${PKG_DIR}/src/widget.ts" << 'TS'
+export interface Widget {
+  readonly id: string;
+}
+
+export async function loadWidget(id: string): Promise<Widget> {
+  return { id };
+}
+
+export function* streamWidgets(): Generator<Widget> {
+  yield { id: 'w-1' };
+}
+TS
+  write_readme '## API reference
+
+### Widget'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"exports 'loadWidget'"* ]]
+  [[ "$output" == *"exports 'streamWidgets'"* ]]
+}
+
 @test "searches the whole README when it carries no API reference section" {
   write_barrel
   write_widget_module

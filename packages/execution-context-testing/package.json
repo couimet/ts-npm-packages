@@ -40,6 +40,7 @@
     "@couimet/dynamic-testing": "workspace:*"
   },
   "devDependencies": {
+    "@couimet/detailed-error-testing": "workspace:*",
     "@couimet/eslint-config": "workspace:*",
     "@couimet/execution-context": "workspace:*",
     "@jest/globals": ">=29.0.0",

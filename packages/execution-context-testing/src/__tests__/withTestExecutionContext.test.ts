@@ -1,7 +1,7 @@
 import { withTestExecutionContext } from '../index';
 
 import { getUniqueString } from '@couimet/dynamic-testing';
-import { ExecutionContext } from '@couimet/execution-context';
+import { ExecutionContext, type RunParams } from '@couimet/execution-context';
 
 describe('withTestExecutionContext', () => {
   it('primes the context with the given attributes', () => {
@@ -12,6 +12,16 @@ describe('withTestExecutionContext', () => {
     );
 
     expect(observed).toStrictEqual({ run_id: attributeValue });
+  });
+
+  it('throws when the attribute bag is not a record', () => {
+    const params = { attributes: null, correlationId: undefined, requestId: undefined } as unknown as RunParams;
+
+    expect(() => withTestExecutionContext(params, () => undefined)).toThrowDetailedError('INVALID_CONTEXT_ATTRIBUTES', {
+      message: 'attributes must be a record of string keys to unknown values',
+      functionName: 'ExecutionContext.run',
+      details: {},
+    });
   });
 
   it('returns the callback result', () => {

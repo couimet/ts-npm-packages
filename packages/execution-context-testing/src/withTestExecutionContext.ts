@@ -7,6 +7,9 @@ import { ExecutionContext, type RunParams } from '@couimet/execution-context';
  * test asserts against. Any id the caller omits is generated, so a test that cares only about the
  * attributes passes `undefined` and never holds a fixed pair.
  *
+ * The attributes pass through untouched, so `ExecutionContext.run` applies its own default for
+ * `undefined` and rejects a value that is not a record. The helper therefore coerces no input.
+ *
  * The context dies with the callback, because `ExecutionContext.run` restores the state it found.
  */
 export const withTestExecutionContext = <T>(params: RunParams | undefined, fn: () => T): T =>
@@ -14,7 +17,7 @@ export const withTestExecutionContext = <T>(params: RunParams | undefined, fn: (
     {
       correlationId: params?.correlationId ?? getUniqueString({ prefix: 'correlation-' }),
       requestId: params?.requestId ?? getUniqueString({ prefix: 'request-' }),
-      attributes: params?.attributes ?? {},
+      attributes: params?.attributes,
     },
     fn,
   );

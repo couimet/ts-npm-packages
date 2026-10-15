@@ -1,4 +1,4 @@
-import { ExecutionContext } from '../index';
+import { ExecutionContext, type ExecutionContextAttributeValues } from '../index';
 
 import { ATTRIBUTE_REGISTRY } from './attributeTestValues';
 
@@ -50,5 +50,25 @@ describe('ExecutionContext.validateAttributes', () => {
       functionName: 'ExecutionContext.validateAttributes',
       details: { key: 'version', value: blankVersion },
     });
+  });
+
+  it('throws when an entry names an attribute the registry does not declare', () => {
+    const entries = { runId: getUniqueString(), undeclared: getUniqueString() } as unknown as ExecutionContextAttributeValues<typeof ATTRIBUTE_REGISTRY>;
+
+    expect(() => ExecutionContext.validateAttributes(ATTRIBUTE_REGISTRY, entries)).toThrowDetailedError('UNKNOWN_ATTRIBUTE_NAME', {
+      message: 'Attribute entry name is not declared by the registry',
+      functionName: 'ExecutionContext.validateAttributes',
+      details: { name: 'undeclared' },
+    });
+  });
+
+  it('keeps an attribute keyed __proto__ as an own property of the bag', () => {
+    const protoRegistry = { proto: { key: '__proto__' } } as const;
+    const value = getUniqueString();
+
+    const attrs = ExecutionContext.validateAttributes(protoRegistry, { proto: value });
+
+    expect(Object.hasOwn(attrs, '__proto__')).toBe(true);
+    expect(Object.getOwnPropertyDescriptor(attrs, '__proto__')?.value).toBe(value);
   });
 });

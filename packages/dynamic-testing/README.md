@@ -195,7 +195,8 @@ import { configure } from '@couimet/dynamic-testing';
 configure({ scm: 'gitlab' });
 ```
 
-`Scm` is the union `'github' | 'gitlab'`, and `ScmConfig` is `{ scm: Scm }`. `configure()` accepts a `Partial<ScmConfig>`, so a call can set the field it needs.
+- `Scm` is the union `'github' | 'gitlab'`.
+- `ScmConfig` is `{ scm: Scm }`. `configure()` accepts a `Partial<ScmConfig>`, so a call can set the field it needs.
 
 ### UUID generation
 

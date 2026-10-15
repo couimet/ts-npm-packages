@@ -127,7 +127,7 @@ class ExecutionContext {
 - `addAttributes(attrs)` merges `attrs` into the active attribute bag, with later keys winning. Attributes that are null, an array, or not an object throw a `DetailedError` with code `INVALID_CONTEXT_ATTRIBUTES` before the merge. It replaces the bag object, so a reference captured earlier does not see the merge. It is a no-op when no scope is active.
 - `getAttributes()` returns the active attribute bag, which is the live bag rather than a copy. It returns `{}` when no scope is active.
 - `withAttributes(attrs, fn)` layers `attrs` over the active scope for the duration of `fn`, then removes them. The block keeps the ids it inherited, because the ids are read before the child scope opens. An attribute the block sets itself dies with the block. Work that starts inside the block and finishes after it keeps the layered attributes. Outside any run it throws `NO_ACTIVE_CONTEXT`, and it rejects a bag that is not a record with code `INVALID_CONTEXT_ATTRIBUTES`.
-- `validateAttributes(registry, entries)` checks each entry against its own declaration's rule and returns the context bag for the entries. It writes nothing, so no value from a rejected set reaches the store. The entries are keyed by declaration name rather than by context key. It throws a `DetailedError` with code `INVALID_ATTRIBUTE_VALUE` and `{ key, value }` details for a value that fails its rule.
+- `validateAttributes(registry, entries)` checks each entry against its own declaration's rule and returns the context bag for the entries. It writes nothing, so no value from a rejected set reaches the store. The entries are keyed by declaration name rather than by context key. It throws a `DetailedError` with code `INVALID_ATTRIBUTE_VALUE` and `{ key, value }` details for a value that fails its rule. It throws with code `UNKNOWN_ATTRIBUTE_NAME` and `{ name }` details for an entry name the registry does not declare.
 
 ### ExecutionContextAttributes
 
@@ -140,11 +140,11 @@ interface ExecutionContextAttribute<T> {
 }
 
 type ExecutionContextAttributeValues<R> = {
-  readonly [K in keyof R]?: R[K] extends { isValid: (value: unknown) => value is T } ? T : unknown;
+  readonly [K in keyof R]?: R[K] extends { isValid: (value: unknown) => value is infer T } ? T : unknown;
 };
 ```
 
-- `ExecutionContextAttribute<T>` declares one attribute. `key` is the context key, and the optional `isValid` is a type predicate that decides which values may enter. A declaration that carries a rule also carries the type of its value, so a reader needs no annotation. A declaration that omits the rule accepts every value. A rule that admits `undefined` makes an undefined value legal, so a writer can set that attribute to `undefined` and a reader gets the value back. Write that predicate inline, because the package ships no combinator for it.
+- `ExecutionContextAttribute<T>` declares one attribute. `key` is the context key, and the optional `isValid` is a type predicate that sets the value type. Only two paths run that rule. `validateAttributes()` runs it on the way in, and a read through a declaration runs it on the way out. The remaining paths carry no rule. `run()`, `addAttributes()`, and `withAttributes()` take a raw bag, and a raw-key read returns the value unchecked. A declaration that carries a rule also carries the type of its value, so a reader needs no annotation. A declaration that omits the rule accepts every value. A rule that admits `undefined` makes an undefined value legal. A writer can then set that attribute to `undefined`, and a reader reads the value back. Write that predicate inline, because the package ships no combinator for it.
 - `ExecutionContextAttributeValues<R>` maps a registry to the entries of one call, each typed by its own declaration's rule. A declaration without a rule takes `unknown`, and a name the registry does not declare is a compile error at the call site.
 
 `validateAttributes()` turns the entries into the bag, so the declaration names stay in the application and the context keys reach the store through one place. The rule gate runs at the write, and no value from a rejected set reaches the store.
@@ -155,6 +155,7 @@ Error codes used by the `DetailedError` instances that this package throws:
 
 ```typescript
 enum ExecutionContextErrorCodes {
+  CONTEXT_MANAGER_REGISTRATION_FAILED = 'CONTEXT_MANAGER_REGISTRATION_FAILED',
   INVALID_ATTRIBUTE_VALUE = 'INVALID_ATTRIBUTE_VALUE',
   INVALID_BLANK_CORRELATION_ID = 'INVALID_BLANK_CORRELATION_ID',
   INVALID_BLANK_REQUEST_ID = 'INVALID_BLANK_REQUEST_ID',
@@ -162,11 +163,11 @@ enum ExecutionContextErrorCodes {
   INVALID_STRING_TYPE = 'INVALID_STRING_TYPE',
   MISSING_CONTEXT_ATTRIBUTE = 'MISSING_CONTEXT_ATTRIBUTE',
   NO_ACTIVE_CONTEXT = 'NO_ACTIVE_CONTEXT',
-  CONTEXT_MANAGER_REGISTRATION_FAILED = 'CONTEXT_MANAGER_REGISTRATION_FAILED',
+  UNKNOWN_ATTRIBUTE_NAME = 'UNKNOWN_ATTRIBUTE_NAME',
 }
 ```
 
-`fromString` on either id throws `INVALID_BLANK_CORRELATION_ID` or `INVALID_BLANK_REQUEST_ID`. The two getters throw `NO_ACTIVE_CONTEXT`. `ensureContextManagerInitialized()` throws `CONTEXT_MANAGER_REGISTRATION_FAILED` when another component already owns the global context manager slot. `run()`, `addAttributes()`, and `withAttributes()` throw `INVALID_CONTEXT_ATTRIBUTES` when attributes are null, an array, or not an object. `getAttribute()`, `findAttribute()`, and `validateAttributes()` throw `INVALID_ATTRIBUTE_VALUE` when a value fails its declaration's rule. `getAttribute()` throws `MISSING_CONTEXT_ATTRIBUTE` when no writer set the value. `fromString` and `fromStringOrCreate` on either id throw `INVALID_STRING_TYPE` when the value is not a primitive string, such as a boxed `String`. Every error is a `DetailedError` from [`@couimet/detailed-error`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error).
+`fromString` on either id throws `INVALID_BLANK_CORRELATION_ID` or `INVALID_BLANK_REQUEST_ID`. The two getters throw `NO_ACTIVE_CONTEXT`. `ensureContextManagerInitialized()` throws `CONTEXT_MANAGER_REGISTRATION_FAILED` when another component already owns the global context manager slot. `run()`, `addAttributes()`, and `withAttributes()` throw `INVALID_CONTEXT_ATTRIBUTES` when attributes are null, an array, or not an object. `getAttribute()`, `findAttribute()`, and `validateAttributes()` throw `INVALID_ATTRIBUTE_VALUE` when a value fails its declaration's rule. `validateAttributes()` throws `UNKNOWN_ATTRIBUTE_NAME` when an entry name is not declared by the registry. `getAttribute()` throws `MISSING_CONTEXT_ATTRIBUTE` when no writer set the value. `fromString` and `fromStringOrCreate` on either id throw `INVALID_STRING_TYPE` when the value is not a primitive string, such as a boxed `String`. Every error is a `DetailedError` from [`@couimet/detailed-error`](https://github.com/couimet/ts-npm-packages/tree/main/packages/detailed-error).
 
 ### RequestId
 

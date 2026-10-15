@@ -262,26 +262,42 @@ export class ExecutionContext {
    * The entries are keyed by declaration name, not by context key, so the registry is the only place a
    * context key appears. The mapped type then stops two caller mistakes at compile time: a value of
    * the wrong type, and a name the registry does not declare. Two entries for one attribute cannot
-   * exist either, because an object literal cannot repeat a property.
+   * exist either, because an object literal cannot repeat a property. The name check also runs at
+   * runtime, because an entry object that is not a fresh literal escapes the excess-property check.
    */
   static validateAttributes<R extends Record<string, ExecutionContextAttribute<unknown>>>(
     registry: R,
     entries: ExecutionContextAttributeValues<R>,
   ): ContextAttributes {
-    const attrs: ContextAttributes = {};
     // Every key of a registry holds a declaration, so the lookup cannot miss. The mapped type states
     // that fact, and `noUncheckedIndexedAccess` does not widen a mapped type the way it widens an
-    // index signature.
+    // index signature. The guarantee covers a fresh object literal only, so the loop re-checks
+    // membership before it reads.
     const declarations = registry as Record<keyof R, ExecutionContextAttribute<unknown>>;
+    const pairs: Array<[string, unknown]> = [];
 
     for (const name of Object.keys(entries) as Array<keyof R>) {
+      // An entry object that is not a fresh literal escapes the excess-property check, so the mapped
+      // type alone does not stop an undeclared name. Fail here rather than read a declaration that
+      // does not exist, which would dereference `undefined` one line later.
+      if (!Object.prototype.hasOwnProperty.call(registry, name)) {
+        throw new DetailedError({
+          code: ExecutionContextErrorCodes.UNKNOWN_ATTRIBUTE_NAME,
+          message: 'Attribute entry name is not declared by the registry',
+          functionName: 'ExecutionContext.validateAttributes',
+          details: { name },
+        });
+      }
+
       const attribute = declarations[name];
       const value = entries[name];
 
       this.assertAttributeRule(attribute.key, value, attribute.isValid, 'ExecutionContext.validateAttributes');
-      attrs[attribute.key] = value;
+      pairs.push([attribute.key, value]);
     }
 
-    return attrs;
+    // `Object.fromEntries` gives every pair an own data property, so a declaration keyed `__proto__`
+    // lands in the bag rather than reaching the inherited setter.
+    return Object.fromEntries(pairs);
   }
 }

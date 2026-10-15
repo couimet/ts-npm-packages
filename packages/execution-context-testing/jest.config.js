@@ -12,7 +12,7 @@ module.exports = {
   maxWorkers: '50%',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts'],
-  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.test.ts', '!src/__tests__/**', '!src/index.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.test.ts', '!src/__tests__/**', '!src/index.ts', '!src/setupTests.ts'],
   coverageThreshold: {
     global: {
       branches: 100,
@@ -22,5 +22,6 @@ module.exports = {
     },
   },
   coverageDirectory: 'coverage',
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   verbose: true,
 };

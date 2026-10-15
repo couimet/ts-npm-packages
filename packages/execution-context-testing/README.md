@@ -42,7 +42,7 @@ Returns a spy on `ExecutionContext.addAttributes()` that still calls through.
 function spyOnAttributeAdditions(): jest.SpiedFunction<typeof ExecutionContext.addAttributes>;
 ```
 
-The code under test keeps merging its attributes into the active context, so the spy changes no behavior. The assertion then reads the additions alone, apart from the attributes the scope already carried. The Jest configuration sets `restoreMocks`, so the spy goes away after each test and a test file needs no cleanup block.
+The code under test keeps merging its attributes into the active context, so the spy changes no behavior. The assertion then reads the additions alone, apart from the attributes the scope already carried. Jest removes the spy after each test only when the configuration sets `restoreMocks`. Enable that setting, or call `mockRestore()` in a cleanup block. Every Jest configuration in this repository sets `restoreMocks`, so a test here needs no cleanup block.
 
 ### withTestExecutionContext
 
