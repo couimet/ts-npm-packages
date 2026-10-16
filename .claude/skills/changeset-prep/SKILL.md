@@ -53,10 +53,10 @@ git diff <base> -- packages/<name>/package.json
 
 Categorize using these heuristics (checked in order, first match wins):
 
-1. **major** — any removed export (diff line starting with `-export`), or a changed export signature (diff shows both `-export` and `+export` for the same name with different signatures)
-2. **minor** — any new export (diff line starting with `+export` that has no matching `-export` line for the same name)
+1. **major** — any removed export (diff line starting with `-export`), a changed export signature (diff shows both `-export` and `+export` for the same name with different signatures), or an entry point removed from the `exports`, `main`, `module`, or `types` field of `package.json`. A consumer that imports a removed entry point breaks, so that change is never a patch.
+2. **minor** — any new export (diff line starting with `+export` that has no matching `-export` line for the same name), or an entry point added to one of those four `package.json` fields.
 3. **patch** — source changes under `packages/<name>/src/` but no export changes detected
-4. **patch** — a change to a `package.json` field other than `version`. Published metadata reaches a consumer only through a new version, so a peer range that changes while the version stays put never publishes. `scripts/ci-changeset-check.sh` also counts every non-`.md` change as version-relevant, so it demands a bump for a package.json-only change.
+4. **patch** — a change to non-API `package.json` metadata other than `version`. Published metadata reaches a consumer only through a new version, so a peer range that changes while the version stays put never publishes. `scripts/ci-changeset-check.sh` also counts every non-`.md` change as version-relevant, so it demands a bump for a package.json-only change.
 5. **skip** — every other changed file is a `.md` file or a file under `__tests__/`, or the only `package.json` change is the `version` field. A bumped `version` field on its own means `pnpm changeset:version` already released the package, so a second changeset would double-count it.
 
 When unsure between patch and skip, default to patch. The user can downgrade during interactive `pnpm changeset`.

@@ -5,7 +5,8 @@ set -euo pipefail
 #
 # The barrel at packages/<name>/src/index.ts defines the public API, so this script walks each
 # module the barrel re-exports, collects the symbols that module exports, and fails when the
-# package README never documents one.
+# package README never documents one. A re-export counts whatever quote style it uses, and a grouped
+# re-export counts across the lines it spans.
 #
 # Two modes. A README that carries an "## API reference" section is checked inside that section,
 # where a symbol must hold an entry of its own: a line in a fenced block, a heading that names it,
@@ -46,6 +47,17 @@ documents_symbol_entry() {
     }
     END { exit(found ? 0 : 1) }
   '
+}
+
+# Prints the module specifiers a barrel re-exports, one per line. A re-export can use either quote
+# style and can span lines, so the file first joins into one line, a line comment drops out, and each
+# ` export` starts a line of its own. Every line must then begin with `export` and reach `from` before
+# any `;`, which is what keeps an import out of the list.
+barrel_module_specifiers() {
+  sed -E 's|//.*$||' "$1" | tr '\n' ' ' | sed -E 's/ export/\nexport/g' |
+    grep -oE "^export [^;]*from [\"']\./[^\"']+[\"']" |
+    grep -oE "\./[^\"']+" |
+    sed -E 's|^\./||; s|\.js$||'
 }
 
 for barrel in "$REPO_ROOT"/packages/*/src/index.ts; do
@@ -108,7 +120,7 @@ for barrel in "$REPO_ROOT"/packages/*/src/index.ts; do
         violations=$((violations + 1))
       fi
     done < <(grep -oE '^export (declare )?(abstract )?(class|(async )?function\*?|const|let|var|interface|type|enum) [A-Za-z0-9_]+' "$module_file" | awk '{print $NF}')
-  done < <(grep -oE "^export .*from '\./[^']+'" "$barrel" | grep -oE "'\./[^']+'" | sed "s/'\.\///;s/'$//;s/\.js$//")
+  done < <(barrel_module_specifiers "$barrel")
 done
 
 if [ "$violations" -gt 0 ]; then

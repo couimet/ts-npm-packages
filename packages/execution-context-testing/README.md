@@ -18,17 +18,19 @@ The package declares `@couimet/execution-context`, `@jest/globals`, and `jest` a
 import { spyOnAttributeAdditions, withTestExecutionContext } from '@couimet/execution-context-testing';
 import { ExecutionContext } from '@couimet/execution-context';
 
-const addAttributes = spyOnAttributeAdditions();
+it('records the attributes the code under test adds', () => {
+  const addAttributes = spyOnAttributeAdditions();
 
-withTestExecutionContext({ correlationId: 'corr-1', requestId: 'req-1', attributes: { run_id: 'run-7' } }, () => {
-  runOneJob();
+  withTestExecutionContext({ correlationId: 'corr-1', requestId: 'req-1', attributes: { run_id: 'run-7' } }, () => {
+    runOneJob();
 
-  expect(ExecutionContext.correlationId.toString()).toBe('corr-1');
-  expect(addAttributes).toHaveBeenCalledWith({ attempt: 2 });
+    expect(ExecutionContext.correlationId.toString()).toBe('corr-1');
+    expect(addAttributes).toHaveBeenCalledWith({ attempt: 2 });
+  });
 });
 ```
 
-Pass `undefined` for the parameters and the helper generates both ids. Pass a `RunParams` and the helper pins the ids a test asserts against. The context ends with the callback, so the next test starts clean.
+Pass `undefined` for the parameters and the helper generates both ids. Pass a `RunParams` and the helper pins the ids a test asserts against. The context ends with the callback, so the next test starts clean. Create the spy inside the test that asserts on it, because each test needs a spy of its own.
 
 The context keys stay owned by the consumer. A test that asserts on an attribute names the same key that the production code writes, and this package names none of them. An application collects those keys in its own registry, which `ExecutionContext.validateAttributes()` consumes.
 

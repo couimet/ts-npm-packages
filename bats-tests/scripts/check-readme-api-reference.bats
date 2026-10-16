@@ -175,6 +175,73 @@ TS
   [[ "$status" -eq 0 ]]
 }
 
+@test "exits 1 when a double-quoted re-export leaves a symbol undocumented" {
+  cat > "${PKG_DIR}/src/index.ts" << 'TS'
+export * from "./widget";
+TS
+  write_widget_module
+  write_readme '## API reference
+
+### Widget'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"exports 'buildWidget'"* ]]
+}
+
+@test "exits 0 when a double-quoted re-export is documented" {
+  cat > "${PKG_DIR}/src/index.ts" << 'TS'
+export * from "./widget";
+TS
+  write_widget_module
+  write_readme '## API reference
+
+### Widget
+
+### buildWidget'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 0 ]]
+  [[ -z "$output" ]]
+}
+
+@test "exits 1 when a grouped re-export spans lines and leaves a symbol undocumented" {
+  cat > "${PKG_DIR}/src/index.ts" << 'TS'
+export {
+  Widget,
+  buildWidget,
+} from './widget';
+TS
+  write_widget_module
+  write_readme '## API reference
+
+### Widget'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"exports 'buildWidget'"* ]]
+}
+
+@test "exits 1 when a re-export follows a declaration block" {
+  cat > "${PKG_DIR}/src/index.ts" << 'TS'
+declare module 'example' {
+  interface Registry {
+    widget: string;
+  }
+}
+
+export * from './widget';
+TS
+  write_widget_module
+  write_readme '## API reference
+
+### Widget'
+
+  run bash scripts/check-readme-api-reference.sh "${MOCK_DIR}"
+  [[ "$status" -eq 1 ]]
+  [[ "$output" == *"exports 'buildWidget'"* ]]
+}
+
 @test "exits 1 when the package README is missing" {
   write_barrel
   write_widget_module

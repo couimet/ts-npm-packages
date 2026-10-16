@@ -13,8 +13,9 @@ export interface ExecutionContextAttribute<T> {
 
 /**
  * The values for one registry, each typed by its own declaration's rule. A declaration without a
- * rule takes `unknown`, and a name the registry does not declare is a compile error at the call
- * site.
+ * rule takes `unknown`, and a fresh object literal that carries a name the registry does not declare
+ * fails the excess-property check at compile time. An object built in a variable can carry that name
+ * instead, which `validateAttributes` rejects at runtime with `UNKNOWN_ATTRIBUTE_NAME`.
  */
 export type ExecutionContextAttributeValues<R> = {
   readonly [K in keyof R]?: R[K] extends { isValid: (value: unknown) => value is infer T } ? T : unknown;
