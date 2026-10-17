@@ -102,6 +102,8 @@ Publishing is handled by the GitHub Actions workflow at `.github/workflows/publi
 
 Both paths require a valid `NPM_TOKEN` secret with publish rights on the `@couimet` scope. The token is stored in GitHub repo settings (Settings → Secrets and variables → Actions) and injected into CI via `secrets.NPM_TOKEN`. It never leaves GitHub — dev laptops cannot publish to npmjs.
 
+Granular access tokens expire. Set a reminder before the expiry date and rotate the token. An expired token fails during the Authenticate with npm step, at `npm whoami`, before the publish runs. The Authenticate with npm step prints the npm user, the registry, the token fingerprint, and the `@couimet` package list. The token fingerprint is the first 12 hex characters of the token's SHA-256 hash. Compare the fingerprint across runs to confirm that a new secret value reached the runner. The step fails with a clear message when the token is empty, invalid, or expired. A token that passes authentication can still receive a 404 on the publish PUT. This response means it may lack write access to a package or the scope. The Publish packages step then prints a second message about token package and scope access.
+
 ## Branch protection
 
 Merges to `main` are gated by the CI workflow (`.github/workflows/ci.yml`). PRs must also pass a changeset check — run `pnpm changeset` to add one. The `guard-versions` check blocks pre-release semver suffixes in `package.json`, pre-release version entries in `.changeset/*.md` files, and `.changeset/pre.json` (including when present as an untracked working-tree file); use the feature-branch pre-release flow above if you need intermediate publishes, and clean everything up before the final merge.
