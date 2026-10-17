@@ -1,6 +1,6 @@
 {
   "name": "@couimet/execution-context",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Execution context carrying correlation id, request id, and typed attributes across async boundaries",
   "homepage": "https://github.com/couimet/ts-npm-packages/tree/main/packages/execution-context#readme",
   "bugs": {

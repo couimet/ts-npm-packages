@@ -55,13 +55,16 @@ cat > "${target_dir}/package.json" << JSONEOF
   "devDependencies": {
     "@couimet/eslint-config": "workspace:*",
     "@types/jest": "^29.5.14",
-    "@types/node": "^24.13.2",
-    "eslint": "^10.4.1",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.10.0",
     "jest": "^29.7.0",
-    "prettier": "^3.8.4",
-    "ts-jest": "^29.4.11",
+    "prettier": "^3.9.8",
+    "ts-jest": "^29.4.12",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "publishConfig": {
     "access": "public"
@@ -127,6 +130,19 @@ module.exports = {
 };
 JESTEOF
 
+# --- tsup.config.ts ---
+cat > "${target_dir}/tsup.config.ts" << 'TSUPEOF'
+import { baseConfig } from '../../tsup.config.base';
+
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  ...baseConfig,
+  entry: ['src/index.ts'],
+  format: ['cjs', 'esm'],
+});
+TSUPEOF
+
 # --- CHANGELOG.md ---
 cat > "${target_dir}/CHANGELOG.md" << CHGEOF
 # Changelog
@@ -135,11 +151,15 @@ All notable changes to the \`@couimet/${pkg_name}\` package are recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!-- changelog-entries -->
+
 ## [0.1.0]
 
 ### Added
 
 - Initial release
+
+<!-- changelog-links -->
 
 [0.1.0]: https://github.com/couimet/ts-npm-packages/releases/tag/%40couimet%2F${pkg_name}%400.1.0
 CHGEOF
