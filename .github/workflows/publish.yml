@@ -108,8 +108,8 @@ jobs:
           fi
 
           if [[ $rc -ne 0 ]]; then
-            if grep -q 'E404' /tmp/publish-output.txt; then
-              echo "::error::Publish failed with E404. The npm token authenticated, but it lacks publish rights for at least one affected package or scope. Check the token package and scope selection on npmjs.com."
+            if grep -q '404 Not Found - PUT' /tmp/publish-output.txt; then
+              echo "::error::Publish failed with a 404 on the publish PUT. The npm token authenticated, but it may lack publish rights for at least one affected package or scope. Check the token package and scope selection on npmjs.com."
             fi
             echo "::error::Publish command failed with exit code ${rc}"
             exit $rc
