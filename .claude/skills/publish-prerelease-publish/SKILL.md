@@ -5,7 +5,7 @@ description: Push the current branch and print instructions for triggering the p
 
 # Publish Pre-Release — Publish
 
-Pushes the current branch to remote and prints the steps to trigger the pre-release publish workflow. CI handles the actual npm publish using the `NPM_TOKEN` secret. Your laptop never touches the token.
+Pushes the current branch to remote and prints the steps to trigger the pre-release publish workflow. CI publishes with GitHub Actions OIDC trusted publishing, so no npm token is involved. Your laptop never touches a registry credential.
 
 ## Execution
 
@@ -15,7 +15,7 @@ If `git branch --show-current` is `main`, stop and tell the user this flow is fo
 
 ### Guard: pre-release versions present
 
-Verify at least one public package has a pre-release version suffix (`-alpha.`, `-beta.`, `-rc.`). If not, tell the user to run `/publish-prerelease-prepare` first.
+Verify at least one public package has a pre-release version suffix (`-dev.`, `-alpha.`, `-beta.`, `-rc.`). If not, tell the user to run `/publish-prerelease-prepare` first.
 
 ### Guard: commit not yet pushed
 
@@ -38,9 +38,9 @@ Run `date +%Y%m%d-%H%M%S` to get a timestamp. Build the target path:
 
 Create the directory (`mkdir -p`) if it doesn't exist.
 
-Run `pnpm version:list` and filter to packages with pre-release suffixes. Build two install lines:
+Run `pnpm version:list` and filter to packages with pre-release suffixes. The npm dist-tag equals the pre-release tag, which Changesets reads from `.changeset/pre.json`. Build two install lines:
 
-- `dev` line: `pnpm add <name>@dev <name2>@dev ...`
+- Tag line: `pnpm add <name>@<tag> <name2>@<tag> ...`
 - Explicit line: `pnpm add <name>@<version> <name2>@<version> ...`
 
 Write the note:
@@ -50,10 +50,10 @@ Publish pre-release from $(git branch --show-current)
 
 1. Open https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml
 2. Click "Run workflow" → set "Branch to publish from" (ref) to: $(git branch --show-current)
-3. CI checks real code changes exist, builds, tests, publishes to npm with dev dist-tag
+3. CI checks real code changes exist, builds, tests, publishes to npm with the <tag> dist-tag
 4. Verify: pnpm version:check-registry
 5. Install downstream:
-   <dev-line>
+   <tag-line>
    (explicit: <explicit-line>)
 ```
 
@@ -61,4 +61,4 @@ Publish pre-release from $(git branch --show-current)
 
 Print the same content that was written to the note file. Also print the note filepath so the user knows where to find it.
 
-Do not attempt to run `pnpm publish` or `pnpm changeset publish` locally. Publishing to npmjs happens exclusively through the GitHub Actions workflow.
+Do not attempt to run `pnpm publish` or `pnpm changeset publish` locally for a pre-release. Except for the first publish of a new package, publishing to npmjs happens through the GitHub Actions workflow.

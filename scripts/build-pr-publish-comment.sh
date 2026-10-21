@@ -54,7 +54,14 @@ elif [[ "$mode" == "prerelease" ]]; then
   echo '## Pre-release published' >> "$comment_file"
   echo '' >> "$comment_file"
   while read -r spec; do
-    echo "- \`${spec}\` (\`dev\` dist-tag)" >> "$comment_file"
+    version="${spec##*@}"
+    tag="${version#*-}"
+    if [[ "$tag" != "$version" ]]; then
+      tag="${tag%.*}"
+      echo "- \`${spec}\` (\`${tag}\` dist-tag)" >> "$comment_file"
+    else
+      echo "- \`${spec}\`" >> "$comment_file"
+    fi
   done <<< "$specs"
 else
   echo "Invalid mode: ${mode}. Expected 'main' or 'prerelease'." >&2

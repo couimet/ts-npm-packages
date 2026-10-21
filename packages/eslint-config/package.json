@@ -1,7 +1,12 @@
 {
   "name": "@couimet/eslint-config",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Shared ESLint (flat config) and Prettier configuration for @couimet/* packages",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:couimet/ts-npm-packages.git",
+    "directory": "packages/eslint-config"
+  },
   "license": "MIT",
   "author": "Charles Ouimet <charles.ouimet@gmail.com>",
   "type": "module",

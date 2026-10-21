@@ -82,6 +82,22 @@ SCRIPT
   [[ "$output" != *"skip=true"* ]]
 }
 
+@test "prerelease: names the pre-release tag from the version" {
+  cat > "${PUBLISH_OUTPUT}" << 'EOF'
+New tag: @couimet/foo@1.0.0-dev.3
+New tag: @couimet/bar@2.1.0-alpha.0
+EOF
+  write_gh_mock '[{"number":7}]'
+
+  run bash scripts/build-pr-publish-comment.sh --publish-output "${PUBLISH_OUTPUT}" --mode prerelease --branch feat/foo
+  [[ "$status" -eq 0 ]]
+  comment_file=$(echo "$output" | sed -n 's/^comment_file=//p')
+  run cat "${comment_file}"
+  [[ "$output" == *'`@couimet/foo@1.0.0-dev.3` (`dev` dist-tag)'* ]]
+  [[ "$output" == *'`@couimet/bar@2.1.0-alpha.0` (`alpha` dist-tag)'* ]]
+  rm -f "${comment_file}"
+}
+
 @test "prerelease: no open PR found" {
   write_publish_output
   write_gh_mock '[]'

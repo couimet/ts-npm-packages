@@ -40,6 +40,11 @@ jobs:
         if: github.ref != 'refs/heads/main'
         shell: bash
         run: |
+          if [[ ! -f .changeset/pre.json ]]; then
+            echo "::error::Manual dispatch requires pre-release mode. Run /publish-prerelease-prepare on the branch, then dispatch again."
+            exit 1
+          fi
+
           git fetch origin main --depth=20 --quiet
 
           real_changes=$(git diff --name-only origin/main...HEAD \
@@ -61,38 +66,6 @@ jobs:
       - name: Build and test
         run: pnpm build && pnpm test
 
-      - name: Authenticate with npm
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [[ -z "${NPM_TOKEN}" ]]; then
-            echo "::error::NPM_TOKEN is empty. Add a valid npm token with publish rights on the @couimet scope to the repository secrets."
-            exit 1
-          fi
-
-          npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
-
-          npm_user="$(npm whoami)" || {
-            echo "::error::NPM_TOKEN is invalid or expired. Create a new npm token with publish rights on the @couimet scope, then update the repository secret."
-            exit 1
-          }
-          echo "npm user: ${npm_user}"
-
-          npm_registry="$(npm config get registry)"
-          echo "npm registry: ${npm_registry}"
-
-          token_fingerprint="$(printf '%s' "${NPM_TOKEN}" | sha256sum | cut -c1-12)"
-          echo "token fingerprint (SHA-256, first 12 hex characters, not the token): ${token_fingerprint}"
-
-          if ! npm access list packages @couimet; then
-            echo "::warning::The token cannot list the @couimet packages. This can indicate a missing scope grant. The publish step will confirm write access."
-          fi
-
-          echo "npm auth configured"
-
       - name: Publish packages
         shell: bash
         run: |
@@ -109,7 +82,7 @@ jobs:
 
           if [[ $rc -ne 0 ]]; then
             if grep -q '404 Not Found - PUT' /tmp/publish-output.txt; then
-              echo "::error::Publish failed with a 404 on the publish PUT. The npm token authenticated, but it may lack publish rights for at least one affected package or scope. Check the token package and scope selection on npmjs.com."
+              echo "::error::Publish failed with a 404 on the publish PUT. Under trusted publishing this can mean the package has no trusted publisher, the repository, workflow file, or environment does not match the trust relationship, or the package does not exist yet. Check the trusted publisher for the package on npmjs.com."
             fi
             echo "::error::Publish command failed with exit code ${rc}"
             exit $rc
@@ -120,11 +93,6 @@ jobs:
               echo "::error::No packages were published. This workflow was run manually — expected at least one publish."
               exit 1
             fi
-
-            grep -oE '@[a-z][a-z0-9-]*/[a-z][a-z0-9-]*@[0-9]+\.[0-9]+\.[0-9]+[^[:space:]]*' /tmp/publish-output.txt | sort -u | while read -r spec; do
-              echo "Tagging ${spec} as dev"
-              npm dist-tag add "$spec" dev
-            done
           fi
 
       - name: Build PR comment body
