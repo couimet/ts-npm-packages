@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-entries -->
 
+## [1.3.1]
+
+### Fixed
+
+- Added the missing `repository` field so npm trusted publishing can match the package to the GitHub repository.
+
 ## [1.3.0]
 
 ### Changed
@@ -86,6 +92,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!-- changelog-links -->
 
+[1.3.1]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%401.3.0...%40couimet%2Feslint-config%401.3.1
 [1.3.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%401.2.0...%40couimet%2Feslint-config%401.3.0
 [1.2.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%401.1.0...%40couimet%2Feslint-config%401.2.0
 [1.1.0]: https://github.com/couimet/ts-npm-packages/compare/%40couimet%2Feslint-config%401.0.0...%40couimet%2Feslint-config%401.1.0

@@ -57,6 +57,41 @@ SCRIPT
   [[ "$output" == *"All pre-release packages resolve successfully"* ]]
 }
 
+@test "discovers dev pre-release packages" {
+  cat > "${MOCK_DIR}/pnpm" << 'SCRIPT'
+#!/usr/bin/env bash
+subcmd() { while [[ $# -gt 0 ]]; do case "$1" in -C) shift 2;; -*) shift;; *) echo "$1"; return;; esac; done; }
+case "$(subcmd "$@")" in
+  init)  echo '{"name":"test","version":"1.0.0","private":true}' > package.json ;;
+  version:list) echo "@couimet/foo@1.0.0-dev.0" ;;
+  add) exit 0 ;;
+esac
+SCRIPT
+  chmod +x "${MOCK_DIR}/pnpm"
+
+  run bash scripts/publish-verify.sh
+  [[ "$status" -eq 0 ]]
+  [[ "$output" == *"All pre-release packages resolve successfully"* ]]
+}
+
+@test "installs each pre-release package under its pre-release tag" {
+  cat > "${MOCK_DIR}/pnpm" << SCRIPT
+#!/usr/bin/env bash
+subcmd() { while [[ \$# -gt 0 ]]; do case "\$1" in -C) shift 2;; -*) shift;; *) echo "\$1"; return;; esac; done; }
+case "\$(subcmd "\$@")" in
+  init)  echo '{"name":"test","version":"1.0.0","private":true}' > package.json ;;
+  version:list) printf '@couimet/foo@1.0.0-dev.0\n@couimet/bar@2.0.0-beta.1\n' ;;
+  add) echo "\$*" >> "${MOCK_DIR}/add-args" ;;
+esac
+SCRIPT
+  chmod +x "${MOCK_DIR}/pnpm"
+
+  run bash scripts/publish-verify.sh
+  [[ "$status" -eq 0 ]]
+  [[ "$(cat "${MOCK_DIR}/add-args")" == *"@couimet/foo@dev"* ]]
+  [[ "$(cat "${MOCK_DIR}/add-args")" == *"@couimet/bar@beta"* ]]
+}
+
 @test "fails when pnpm add cannot find a package" {
   cat > "${MOCK_DIR}/pnpm" << 'SCRIPT'
 #!/usr/bin/env bash
