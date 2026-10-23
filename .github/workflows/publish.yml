@@ -45,6 +45,13 @@ jobs:
             exit 1
           fi
 
+          pre_mode=$(jq -r '.mode // empty' .changeset/pre.json)
+          pre_tag=$(jq -r '.tag // empty' .changeset/pre.json)
+          if [[ "$pre_mode" != "pre" ]]; then
+            echo "::error::Manual dispatch requires active pre-release mode, but .changeset/pre.json records mode '${pre_mode:-missing}'. Re-enter pre-release mode, then dispatch again."
+            exit 1
+          fi
+
           git fetch origin main --depth=20 --quiet
 
           real_changes=$(git diff --name-only origin/main...HEAD \
@@ -62,6 +69,21 @@ jobs:
 
           echo "Real code changes found:"
           echo "$real_changes"
+
+          changed_pkg_jsons=$(git diff --name-only origin/main...HEAD -- 'packages/*/package.json' || true)
+          while IFS= read -r pkg_json; do
+            [[ -z "$pkg_json" ]] && continue
+            [[ "$(jq -r '.private // false' "$pkg_json")" == "true" ]] && continue
+
+            version=$(jq -r '.version // empty' "$pkg_json")
+            base_version=$(git show "origin/main:${pkg_json}" 2>/dev/null | jq -r '.version // empty')
+            [[ "$version" == "$base_version" ]] && continue
+
+            if [[ "$version" != *"-${pre_tag}."* ]]; then
+              echo "::error file=${pkg_json}::Version ${version} does not carry the pre-release tag '${pre_tag}'. Run pnpm changeset:version on the branch, then dispatch again."
+              exit 1
+            fi
+          done <<< "$changed_pkg_jsons"
 
       - name: Build and test
         run: pnpm build && pnpm test

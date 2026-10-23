@@ -75,7 +75,7 @@ If you prefer to run the steps by hand:
 
    This produces versions like `1.0.1-<tag>.0`. Verify with `pnpm version:list`. Commit the results.
 
-4. **Publish the test version** — go to the [Publish workflow](https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml), select **Run workflow**, and set the branch to your PR branch. The workflow publishes under the pre-release tag from step 1, which becomes the npm dist-tag. The workflow fails when `.changeset/pre.json` is absent, so a branch cannot publish a plain version under `latest`. It also refuses to publish if only changeset files and version bumps were modified — at least one real source file must change.
+4. **Publish the test version** — go to the [Publish workflow](https://github.com/couimet/ts-npm-packages/actions/workflows/publish.yml), select **Run workflow**, and set the branch to your PR branch. The workflow publishes under the pre-release tag from step 1, which becomes the npm dist-tag. The workflow fails unless `.changeset/pre.json` records `mode` as `pre`. It also fails when a package version changed on the branch does not carry the pre-release tag. A branch therefore cannot publish a plain version under `latest`. The workflow also refuses to publish if only changeset files and version bumps were modified — at least one real source file must change.
 
 5. **Test in consuming repos** — install the tagged version (`pnpm add @couimet/<pkg>@<tag>`). Verify what's on npm with `pnpm version:check-registry`.
 
@@ -124,12 +124,13 @@ A trusted publisher attaches to a package that already exists, so a new package 
 2. Add a changeset and merge the package to `main`.
 3. Run `pnpm build` from the repo root.
 4. Publish the first version from a maintainer laptop. Run an interactive `npm login` with 2FA, then run `pnpm publish --access public --no-git-checks` in the package directory. Trusted publishing cannot bootstrap a package that does not exist.
-5. Create the trusted publisher:
+5. Create the trusted publisher. The `npm trust` command requires npm 11.15.0 or above. Node 24.16 bundles npm 11.13.0, so upgrade npm first with `npm install -g npm@^11.15.0`.
 
    ```bash
    npm trust github @couimet/<package> --repo couimet/ts-npm-packages --file publish.yml --env production --allow-publish -y
    ```
 
 6. Run `npm trust list @couimet/<package>` and confirm the publish permission.
-7. Complete the first trusted publish within 2 days of step 5. If the deadline passes, re-create the relationship.
-8. The next push to `main` publishes with OIDC and no token.
+7. Create a second version for the first trusted publish. Add a changeset for the package if none is pending, then run `pnpm changeset:version` and commit the result. Merge a PR with it to `main`. The merge triggers the Publish workflow, which publishes the new version through the trust relationship.
+8. Confirm that the trusted publish succeeded within 2 days of step 5. If the deadline passes, re-create the relationship.
+9. Later pushes to `main` publish with OIDC and no token.

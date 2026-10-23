@@ -38,7 +38,7 @@ Build one option per public package discovered in Step 1. Format label as `@coui
 
 **Q4 — Bump type** (single-select):
 
-- `patch` (Recommended) — e.g. 1.0.0 → 1.0.0-dev.0
+- `patch` (Recommended) — e.g. 1.0.0 → 1.0.1-dev.0
 - `minor` — e.g. 1.0.0 → 1.1.0-dev.0
 - `major` — e.g. 1.0.0 → 2.0.0-dev.0
 
