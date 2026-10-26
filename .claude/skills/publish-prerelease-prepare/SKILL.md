@@ -28,7 +28,8 @@ Use AskUserQuestion with four questions:
 
 **Q2 — Pre-release tag** (single-select):
 
-- `alpha` (Recommended)
+- `dev` (Recommended) — publishes under the `dev` dist-tag.
+- `alpha`
 - `beta`
 - `rc`
 
@@ -37,9 +38,9 @@ Build one option per public package discovered in Step 1. Format label as `@coui
 
 **Q4 — Bump type** (single-select):
 
-- `patch` (Recommended) — e.g. 1.0.0 → 1.0.0-alpha.0
-- `minor` — e.g. 1.0.0 → 1.1.0-alpha.0
-- `major` — e.g. 1.0.0 → 2.0.0-alpha.0
+- `patch` (Recommended) — e.g. 1.0.0 → 1.0.1-dev.0
+- `minor` — e.g. 1.0.0 → 1.1.0-dev.0
+- `major` — e.g. 1.0.0 → 2.0.0-dev.0
 
 If Q1 answer is "I still need to make changes", skip all remaining execution and tell the user to make code changes first, then re-run the skill.
 

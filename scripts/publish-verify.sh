@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Verify that pre-release packages published to npm with the dev dist-tag
-# can be installed and imported successfully.
+# Verify that pre-release packages published to npm under their pre-release
+# dist-tag can be installed and imported successfully.
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
@@ -11,7 +11,7 @@ cd "$tmp"
 pnpm init > /dev/null
 
 # Discover pre-release packages from the workspace
-pkgs=$(pnpm -C "$OLDPWD" version:list | grep -E -e '-(alpha|beta|rc)\.' || true)
+pkgs=$(pnpm -C "$OLDPWD" version:list | grep -E -e '-(alpha|beta|dev|rc)\.' || true)
 
 if [[ -z "$pkgs" ]]; then
   echo "No pre-release packages found. Run /publish-prerelease-prepare first."
@@ -42,11 +42,14 @@ if [[ "$leak_found" -eq 1 ]]; then
   exit 1
 fi
 
-echo "Installing pre-release packages from dev dist-tag..."
+echo "Installing pre-release packages from their pre-release dist-tag..."
 while read -r spec; do
   name="${spec%@*}"
-  echo "  $name@dev"
-  pnpm add "$name@dev" > /dev/null
+  version="${spec##*@}"
+  tag="${version#*-}"
+  tag="${tag%.*}"
+  echo "  $name@$tag"
+  pnpm add "$name@$tag" > /dev/null
 done <<< "$pkgs"
 
 # Build test script that imports each installed package
